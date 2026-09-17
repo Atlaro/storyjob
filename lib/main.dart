@@ -52,6 +52,11 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
     _pulseAnimation = Tween<double>(begin: 0.85, end: 1.15).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+
+    // Start-PopUp automatisch nach dem Laden anzeigen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showWelcomeDialog();
+    });
   }
 
   @override
@@ -60,10 +65,54 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
     super.dispose();
   }
 
+  void _showWelcomeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.auto_awesome, color: Color(0xFF38BDF8)),
+            SizedBox(width: 10),
+            Text('Willkommen bei StoryJob', style: TextStyle(color: Colors.white)),
+          ],
+        ),
+        content: const Text(
+          'Willkommen auf der Plattform für sprachbasierte Job-Matches!\n\n'
+          '• Switch oben nutzen: Wähle zwischen "Ich suche Job" oder "Ich suche Talent".\n'
+          '• Spreche deine Geschichte oder Anforderungen einfach ein.\n'
+          '• Verwalte deine Nachrichten, Memos & Konto in der oberen Menüleiste.',
+          style: TextStyle(color: Colors.white70, height: 1.5),
+        ),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF0052CC),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Jetzt starten', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _toggleRole(UserRole role) {
     setState(() {
       _selectedRole = role;
     });
+  }
+
+  void _showFeatureNotice(String title) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$title geöffnet'),
+        duration: const Duration(seconds: 1),
+        backgroundColor: const Color(0xFF0052CC),
+      ),
+    );
   }
 
   @override
@@ -72,36 +121,29 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        backgroundColor: const Color(0xFF1E293B),
+        elevation: 2,
         title: const Text(
           'StoryJob',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Chip(
-              backgroundColor: isCandidate
-                  ? Colors.blue.withAlpha(50)
-                  : Colors.amber.withAlpha(50),
-              side: BorderSide(
-                color: isCandidate ? Colors.blue : Colors.amber,
-              ),
-              avatar: Icon(
-                isCandidate ? Icons.person : Icons.business,
-                size: 18,
-                color: isCandidate ? Colors.lightBlueAccent : Colors.amber,
-              ),
-              label: Text(
-                isCandidate ? 'Bewerber' : 'Arbeitgeber',
-                style: TextStyle(
-                  color: isCandidate ? Colors.lightBlueAccent : Colors.amber,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          )
+          IconButton(
+            icon: const Icon(Icons.chat_bubble_outline, color: Colors.white70),
+            tooltip: 'Nachrichten',
+            onPressed: () => _showFeatureNotice('Nachrichten'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.note_alt_outlined, color: Colors.white70),
+            tooltip: 'Meine Memos',
+            onPressed: () => _showFeatureNotice('Meine Memos'),
+          ),
+          IconButton(
+            icon: const Icon(Icons.account_circle_outlined, color: Colors.white70),
+            tooltip: 'Konto',
+            onPressed: () => _showFeatureNotice('Konto'),
+          ),
+          const SizedBox(width: 8),
         ],
       ),
       body: SafeArea(
@@ -110,6 +152,30 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: Chip(
+                  backgroundColor: isCandidate
+                      ? Colors.blue.withAlpha(50)
+                      : Colors.amber.withAlpha(50),
+                  side: BorderSide(
+                    color: isCandidate ? Colors.blue : Colors.amber,
+                  ),
+                  avatar: Icon(
+                    isCandidate ? Icons.person : Icons.business,
+                    size: 18,
+                    color: isCandidate ? Colors.lightBlueAccent : Colors.amber,
+                  ),
+                  label: Text(
+                    isCandidate ? 'Bewerber-Modus' : 'Arbeitgeber-Modus',
+                    style: TextStyle(
+                      color: isCandidate ? Colors.lightBlueAccent : Colors.amber,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
               Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFF1E293B),
@@ -134,11 +200,11 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
                           child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.person_search, size: 20),
+                              Icon(Icons.person_search, size: 20, color: Colors.white),
                               SizedBox(width: 8),
                               Text(
                                 'Ich suche Job',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                               ),
                             ],
                           ),
@@ -160,11 +226,11 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
                           child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.business_center, size: 20),
+                              Icon(Icons.business_center, size: 20, color: Colors.white),
                               SizedBox(width: 8),
                               Text(
                                 'Ich suche Talent',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                               ),
                             ],
                           ),
@@ -247,7 +313,7 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
                       _isRecording = !_isRecording;
                     });
                   },
-                  icon: Icon(_isRecording ? Icons.stop : Icons.mic),
+                  icon: Icon(_isRecording ? Icons.stop : Icons.mic, color: Colors.white),
                   label: Text(
                     _isRecording
                         ? 'Aufnahme stoppen'
