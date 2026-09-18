@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -28,19 +29,44 @@ class StoryJobApp extends StatelessWidget {
 
 enum UserRole { candidate, employer }
 
+// --- ERWEITERTES DATENMODELL FÜR SKILL & VALUE MATCHING ---
 class StoryCardData {
+  final String id;
   final String title;
   final String summary;
-  final List<String> tags;
+  final List<String> offers; // Was wird geboten (Skills / Benefits)
+  final List<String> seeks;  // Was wird gesucht
   final String duration;
   final UserRole role;
+  final String contactName;
+  final String contactInfo;
 
   StoryCardData({
+    required this.id,
     required this.title,
     required this.summary,
-    required this.tags,
+    required this.offers,
+    required this.seeks,
     required this.duration,
     required this.role,
+    this.contactName = 'Max Mustermann',
+    this.contactInfo = 'max@beispiel.de | +49 170 1234567',
+  });
+
+  // Hilfsmethode für alle Tags zusammen
+  List<String> get allTags => [...offers, ...seeks];
+}
+
+// --- ERGEBNIS-KLASSE FÜR DIE MATCH-LOGIK ---
+class MatchResult {
+  final int scorePercentage;
+  final List<String> matchingOffers; // Was dieser User bietet, das du suchst
+  final List<String> matchingSeeks;  // Was dieser User sucht, das du bietest
+
+  MatchResult({
+    required this.scorePercentage,
+    required this.matchingOffers,
+    required this.matchingSeeks,
   });
 }
 
@@ -58,25 +84,46 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
   int _recordDuration = 0;
   Timer? _timer;
 
-  // Gamification / Belohnungssystem Status
+  // Audio Waveform Animation
+  final List<double> _waveBars = List.generate(15, (index) => 0.2);
+  Timer? _waveTimer;
+
+  // Eigenes Profil mit Skill- & Value-Profil
   int _userXP = 150;
   int _userLevel = 1;
+  String _userName = "Peter Alt";
+  String _userLocation = "Pocking";
+
+  // Meine eigenen Skills & Gesuche
+  final List<String> _myOffers = ['Vertrieb', 'Kundenberatung', 'Außendienst', 'Projektmanagement'];
+  final List<String> _mySeeks = ['Remote', 'Flutter', 'Flexibilität', 'Tech-Startup'];
+
+  final int _maxFreeMemos = 3;
+  bool _isPremiumUser = false;
 
   final List<StoryCardData> _savedMemos = [];
   final List<StoryCardData> _feedData = [
     StoryCardData(
+      id: '1',
       title: 'Senior Flutter Entwickler (m/w/d)',
       summary: 'Suche nach spannenden App-Projekten im Remote-Bereich.',
-      tags: ['Flutter', 'Dart', 'Remote', 'Fulltime'],
+      offers: ['Flutter', 'Dart', 'App-Entwicklung', 'Remote'],
+      seeks: ['Tech-Startup', 'Flexibilität', 'Projektmanagement'],
       duration: '01:15 min',
       role: UserRole.candidate,
+      contactName: 'Alex Schmidt',
+      contactInfo: 'alex.schmidt@dev-mail.de',
     ),
     StoryCardData(
-      title: 'Tech-Startup sucht UX/UI Designer',
+      id: '2',
+      title: 'Tech-Startup sucht UX/UI Designer & Vertrieb',
       summary: 'Wir bauen die Zukunft des Recruiting. Werde Teil des Teams!',
-      tags: ['Design', 'Figma', 'Startup', 'München'],
+      offers: ['Tech-Startup', 'Remote', 'Flexibilität', 'Attraktive Provision'],
+      seeks: ['Vertrieb', 'Kundenberatung', 'Design', 'Außendienst'],
       duration: '00:48 min',
       role: UserRole.employer,
+      contactName: 'Recruiting Team TechGmbH',
+      contactInfo: 'jobs@techgmbh-demo.de',
     ),
   ];
 
@@ -94,50 +141,38 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
     _pulseAnimation = Tween<double>(begin: 0.85, end: 1.15).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _showWelcomeDialog();
-    });
   }
 
   @override
   void dispose() {
     _pulseController.dispose();
     _timer?.cancel();
+    _waveTimer?.cancel();
     super.dispose();
   }
 
-  void _showWelcomeDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1E293B),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
-          children: [
-            Icon(Icons.auto_awesome, color: Color(0xFF38BDF8)),
-            SizedBox(width: 10),
-            Text('Willkommen bei StoryJob', style: TextStyle(color: Colors.white)),
-          ],
-        ),
-        content: const Text(
-          'Willkommen auf der Plattform für sprachbasierte Job-Matches!\n\n'
-          '• Switch oben nutzen: Wähle zwischen "Ich suche Job" oder "Ich suche Talent".\n'
-          '• Spreche deine Geschichte oder Anforderungen einfach ein.\n'
-          '• Sammle XP & Punkte für jeden erfolgreichen Sprach-Beitrag!',
-          style: TextStyle(color: Colors.white70, height: 1.5),
-        ),
-        actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0052CC),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Jetzt starten', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
+  // --- SKILL- & VALUE-MATCHING ALGORITHMUS ---
+  MatchResult _calculateMatch(StoryCardData otherCard) {
+    // 1. Was der andere bietet vs. Was ich suche
+    final matchingOffers = otherCard.offers
+        .where((offer) => _mySeeks.any((seek) => seek.toLowerCase() == offer.toLowerCase()))
+        .toList();
+
+    // 2. Was der andere sucht vs. Was ich biete
+    final matchingSeeks = otherCard.seeks
+        .where((seek) => _myOffers.any((offer) => offer.toLowerCase() == seek.toLowerCase()))
+        .toList();
+
+    int totalMatches = matchingOffers.length + matchingSeeks.length;
+    int maxPossibleMatches = max(1, _myOffers.length + _mySeeks.length);
+
+    // Berechne Prozentwert (mindestens 20% Basis-Match, max. 98%)
+    int percentage = min(98, max(20, ((totalMatches / maxPossibleMatches) * 100).round() + 35));
+
+    return MatchResult(
+      scorePercentage: percentage,
+      matchingOffers: matchingOffers,
+      matchingSeeks: matchingSeeks,
     );
   }
 
@@ -149,6 +184,14 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
   }
 
   void _toggleRecording() {
+    if (_savedMemos.length >= _maxFreeMemos && !_isPremiumUser) {
+      _showPaywallModal(
+        title: 'Memo-Limit erreicht!',
+        description: 'Im Gratis-Tarif kannst du bis zu 3 Memos speichern. Hole dir Pro für unbegrenzte Memos!',
+      );
+      return;
+    }
+
     if (_isRecording) {
       _stopRecording();
     } else {
@@ -166,10 +209,20 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
         _recordDuration++;
       });
     });
+
+    _waveTimer = Timer.periodic(const Duration(milliseconds: 150), (timer) {
+      final random = Random();
+      setState(() {
+        for (int i = 0; i < _waveBars.length; i++) {
+          _waveBars[i] = random.nextDouble() * 0.8 + 0.2;
+        }
+      });
+    });
   }
 
   void _stopRecording() {
     _timer?.cancel();
+    _waveTimer?.cancel();
     setState(() {
       _isRecording = false;
     });
@@ -191,7 +244,7 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
               CircularProgressIndicator(color: Color(0xFF38BDF8)),
               SizedBox(height: 20),
               Text(
-                'KI wandelt Audio in StoryCard um...',
+                'KI analysiert "Biete" & "Suche" Skills...',
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ],
@@ -202,16 +255,182 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
 
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.of(context).pop();
-      _showStoryCardModal();
+      _showEditableStoryCardModal();
     });
+  }
+
+  void _showEditableStoryCardModal() {
+    final bool isCandidate = _selectedRole == UserRole.candidate;
+    final durationStr = _formatDuration(_recordDuration);
+
+    final titleController = TextEditingController(
+      text: isCandidate ? 'Vertriebs- & Projektberater' : 'Gesucht: Außendienstberater (m/w/d)',
+    );
+    final summaryController = TextEditingController(
+      text: isCandidate
+          ? 'Erfahrener Spezialist in Kundenberatung und Vertrieb mit starkem Fokus auf regionale Betreuung.'
+          : 'Wir suchen eine motivierte Persönlichkeit für die Kundenbetreuung vor Ort.',
+    );
+
+    List<String> offers = isCandidate
+        ? ['Vertrieb', 'Kundenberatung', 'Außendienst']
+        : ['Flexibles Arbeiten', 'Top Provision', 'Dienstwagen'];
+    List<String> seeks = isCandidate
+        ? ['Pocking/Passau', 'Remote', 'Vollzeit']
+        : ['Vertrieb', 'Verhandlungsgeschick', 'Außendienst'];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF1E293B),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) {
+          return Padding(
+            padding: EdgeInsets.only(
+              left: 24,
+              right: 24,
+              top: 24,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      const Icon(Icons.auto_awesome, color: Color(0xFF38BDF8)),
+                      const SizedBox(width: 8),
+                      Text(
+                        isCandidate ? 'KI-StoryCard Vorschau' : 'KI-Stellenangebot Vorschau',
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  TextField(
+                    controller: titleController,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    decoration: InputDecoration(
+                      labelText: 'Titel',
+                      labelStyle: const TextStyle(color: Color(0xFF38BDF8)),
+                      filled: true,
+                      fillColor: const Color(0xFF0F172A),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  TextField(
+                    controller: summaryController,
+                    maxLines: 2,
+                    style: const TextStyle(color: Colors.white70),
+                    decoration: InputDecoration(
+                      labelText: 'KI-Zusammenfassung',
+                      labelStyle: const TextStyle(color: Color(0xFF38BDF8)),
+                      filled: true,
+                      fillColor: const Color(0xFF0F172A),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // BIETE TAGS
+                  const Text('Ich biete / Wir bieten:', style: TextStyle(color: Color(0xFF34D399), fontSize: 13, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    children: offers.map((t) => Chip(
+                      label: Text(t, style: const TextStyle(fontSize: 11, color: Colors.white)),
+                      backgroundColor: const Color(0xFF065F46),
+                      side: BorderSide.none,
+                    )).toList(),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // SUCHE TAGS
+                  const Text('Ich suche / Wir suchen:', style: TextStyle(color: Color(0xFF38BDF8), fontSize: 13, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    children: seeks.map((t) => Chip(
+                      label: Text(t, style: const TextStyle(fontSize: 11, color: Colors.white)),
+                      backgroundColor: const Color(0xFF1E3A8A),
+                      side: BorderSide.none,
+                    )).toList(),
+                  ),
+
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            side: const BorderSide(color: Colors.white24),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('Verwerfen'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isCandidate ? const Color(0xFF0052CC) : const Color(0xFFD97706),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _savedMemos.add(
+                                StoryCardData(
+                                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                                  title: titleController.text,
+                                  summary: summaryController.text,
+                                  offers: offers,
+                                  seeks: seeks,
+                                  duration: '$durationStr min',
+                                  role: _selectedRole,
+                                  contactName: _userName,
+                                  contactInfo: '$_userName | $_userLocation',
+                                ),
+                              );
+                            });
+                            Navigator.of(context).pop();
+                            _showRewardEffect();
+                          },
+                          child: const Text('Veröffentlichen', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   void _showRewardEffect() {
     setState(() {
       _userXP += 100;
-      if (_userXP >= 300) {
-        _userLevel = 2;
-      }
+      if (_userXP >= 300) _userLevel = 2;
     });
 
     showDialog(
@@ -225,66 +444,23 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                color: Color(0xFF1E293B),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.stars_rounded,
-                color: Color(0xFFF59E0B),
-                size: 64,
-              ),
-            ),
+            const Icon(Icons.stars_rounded, color: Color(0xFFF59E0B), size: 64),
             const SizedBox(height: 16),
-            const Text(
-              'Hervorragend!',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
+            const Text('Hervorragend!', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
             const SizedBox(height: 8),
-            const Text(
-              'Deine StoryCard wurde erfolgreich übermittelt.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white70),
-            ),
+            const Text('Deine StoryCard wurde inklusive Skill-Matching veröffentlicht.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: const Color(0xFF38BDF8).withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.bolt, color: Color(0xFF38BDF8)),
-                  SizedBox(width: 6),
-                  Text(
-                    '+100 XP Belohnung erhalten!',
-                    style: TextStyle(
-                      color: Color(0xFF38BDF8),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+              decoration: BoxDecoration(color: const Color(0xFF38BDF8).withOpacity(0.2), borderRadius: BorderRadius.circular(12)),
+              child: const Text('+100 XP Belohnung!', style: TextStyle(color: Color(0xFF38BDF8), fontWeight: FontWeight.bold)),
             ),
           ],
         ),
         actions: [
           Center(
             child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0052CC),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0052CC)),
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('Klasse!', style: TextStyle(color: Colors.white)),
             ),
@@ -294,203 +470,34 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
     );
   }
 
-  void _showStoryCardModal() {
-    final bool isCandidate = _selectedRole == UserRole.candidate;
-    final durationStr = _formatDuration(_recordDuration);
-
+  void _showPaywallModal({required String title, required String description}) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: const Color(0xFF1E293B),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+      backgroundColor: const Color(0xFF0F172A),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (context) => Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
+            const Icon(Icons.workspace_premium, color: Color(0xFFF59E0B), size: 48),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                const Icon(Icons.auto_awesome, color: Color(0xFF38BDF8)),
-                const SizedBox(width: 8),
-                Text(
-                  isCandidate ? 'Deine generierte StoryCard' : 'Generiertes Stellenprofil',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF0F172A),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isCandidate ? const Color(0xFF0052CC) : const Color(0xFFD97706),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    isCandidate
-                        ? 'Zusammenfassung: Motivierte Fachkraft mit fokussiertem Stärkenprofil ($durationStr min).'
-                        : 'Anforderung: Erfahrener Teamplayer gesucht ($durationStr min).',
-                    style: const TextStyle(color: Colors.white70, height: 1.4),
-                  ),
-                  const SizedBox(height: 12),
-                  const Text('Erkannte Keywords:', style: TextStyle(color: Colors.white38, fontSize: 12)),
-                  const SizedBox(height: 6),
-                  Wrap(
-                    spacing: 8,
-                    children: [
-                      Chip(
-                        label: Text(isCandidate ? 'Kommunikation' : 'Vollzeit'),
-                        backgroundColor: const Color(0xFF1E293B),
-                        side: BorderSide.none,
-                      ),
-                      Chip(
-                        label: Text(isCandidate ? 'Erfahrung' : 'Führung'),
-                        backgroundColor: const Color(0xFF1E293B),
-                        side: BorderSide.none,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            Text(title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+            const SizedBox(height: 8),
+            Text(description, textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white24),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Neu aufnehmen'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isCandidate ? const Color(0xFF0052CC) : const Color(0xFFD97706),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _savedMemos.add(
-                          StoryCardData(
-                            title: isCandidate ? 'Mein Sprach-Profil' : 'Gesuchte Stelle',
-                            summary: isCandidate
-                                ? 'Motivierte Fachkraft mit fokussiertem Stärkenprofil.'
-                                : 'Erfahrener Teamplayer gesucht.',
-                            tags: isCandidate ? ['Kommunikation', 'Erfahrung'] : ['Vollzeit', 'Führung'],
-                            duration: '$durationStr min',
-                            role: _selectedRole,
-                          ),
-                        );
-                      });
-                      Navigator.of(context).pop();
-                      _showRewardEffect();
-                    },
-                    child: const Text('Veröffentlichen', style: TextStyle(color: Colors.white)),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _openMemosModal() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: const Color(0xFF1E293B),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Meine Memos & Entwürfe',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            const SizedBox(height: 16),
-            if (_savedMemos.isEmpty)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 30),
-                child: Center(
-                  child: Text(
-                    'Noch keine Memos gespeichert.\nNimm eine StoryCard auf!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white54),
-                  ),
-                ),
-              )
-            else
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: _savedMemos.length,
-                itemBuilder: (context, index) {
-                  final memo = _savedMemos[index];
-                  return Card(
-                    color: const Color(0xFF0F172A),
-                    margin: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      leading: Icon(
-                        memo.role == UserRole.candidate ? Icons.mic : Icons.business,
-                        color: memo.role == UserRole.candidate
-                            ? const Color(0xFF0052CC)
-                            : const Color(0xFFD97706),
-                      ),
-                      title: Text(memo.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                      subtitle: Text(memo.summary, style: const TextStyle(color: Colors.white70)),
-                      trailing: Text(memo.duration, style: const TextStyle(color: Colors.white38)),
-                    ),
-                  );
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD97706)),
+                onPressed: () {
+                  setState(() => _isPremiumUser = true);
+                  Navigator.of(context).pop();
                 },
+                child: const Text('Jetzt Business / Pro aktivieren', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
               ),
-            const SizedBox(height: 16),
+            ),
           ],
         ),
       ),
@@ -502,9 +509,7 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
       context: context,
       isScrollControlled: true,
       backgroundColor: const Color(0xFF1E293B),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (context) => Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -515,10 +520,7 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
               child: Container(
                 width: 40,
                 height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
-                ),
+                decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(2)),
               ),
             ),
             const SizedBox(height: 16),
@@ -527,7 +529,7 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
                 const Icon(Icons.explore, color: Color(0xFF38BDF8)),
                 const SizedBox(width: 10),
                 Text(
-                  _selectedRole == UserRole.candidate ? 'Passende Stellenangebote' : 'Passende Kandidaten',
+                  _selectedRole == UserRole.candidate ? 'Synergie-Matches & Angebote' : 'Synergie-Matches & Talent-Feed',
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
               ],
@@ -538,44 +540,119 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
               itemCount: _feedData.length,
               itemBuilder: (context, index) {
                 final item = _feedData[index];
+                final match = _calculateMatch(item);
+
                 return Card(
                   color: const Color(0xFF0F172A),
-                  margin: const EdgeInsets.only(bottom: 12),
+                  margin: const EdgeInsets.only(bottom: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                      color: match.scorePercentage >= 70 ? const Color(0xFF34D399) : Colors.white10,
+                      width: match.scorePercentage >= 70 ? 1.5 : 1.0,
+                    ),
+                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // HEADER MIT MATCH BADGE
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(item.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                            Text(item.duration, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                            Expanded(
+                              child: Text(item.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: match.scorePercentage >= 70 ? const Color(0xFF065F46) : const Color(0xFF1E293B),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: match.scorePercentage >= 70 ? const Color(0xFF34D399) : Colors.white24),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.bolt, color: match.scorePercentage >= 70 ? const Color(0xFF34D399) : Colors.white54, size: 16),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${match.scorePercentage}% Match',
+                                    style: TextStyle(
+                                      color: match.scorePercentage >= 70 ? const Color(0xFF34D399) : Colors.white70,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 8),
-                        Text(item.summary, style: const TextStyle(color: Colors.white70)),
+                        Text(item.summary, style: const TextStyle(color: Colors.white70, fontSize: 13)),
                         const SizedBox(height: 12),
+
+                        // BIETE / SUCHE DETAIL-VERGLEICH
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1E293B),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.check_circle_outline, color: Color(0xFF34D399), size: 16),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      'Bietet, was du suchst: ${match.matchingOffers.isEmpty ? 'Allgemeine Skills' : match.matchingOffers.join(", ")}',
+                                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  const Icon(Icons.swap_horiz, color: Color(0xFF38BDF8), size: 16),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      'Sucht, was du bietest: ${match.matchingSeeks.isEmpty ? 'Allgemeiner Bedarf' : match.matchingSeeks.join(", ")}',
+                                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // KONTAKT & ACTION
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Wrap(
-                              spacing: 6,
-                              children: item.tags
-                                  .map((t) => Chip(
-                                        label: Text(t, style: const TextStyle(fontSize: 11)),
-                                        backgroundColor: const Color(0xFF1E293B),
-                                        padding: EdgeInsets.zero,
-                                      ))
-                                  .toList(),
+                            Text(
+                              _isPremiumUser ? item.contactName : 'Kontakt: ████████',
+                              style: TextStyle(color: _isPremiumUser ? Colors.white70 : Colors.white38, fontSize: 12),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.play_circle_fill, color: Color(0xFF38BDF8), size: 36),
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF0052CC),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              ),
                               onPressed: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Audio von "${item.title}" wird abgespielt...')),
+                                  SnackBar(content: Text('Sende Match-Anfrage an "${item.contactName}"...')),
                                 );
                               },
+                              icon: const Icon(Icons.send, size: 14, color: Colors.white),
+                              label: const Text('Anfragen', style: TextStyle(color: Colors.white, fontSize: 12)),
                             ),
                           ],
                         ),
@@ -586,6 +663,56 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
               },
             ),
             const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showProfileModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF1E293B),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const CircleAvatar(
+                  radius: 28,
+                  backgroundColor: Color(0xFF0052CC),
+                  child: Icon(Icons.person, color: Colors.white, size: 32),
+                ),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(_userName, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+                    Text('Level $_userLevel | $_userXP XP', style: const TextStyle(color: Color(0xFF38BDF8), fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            const Text('Mein "Ich Biete" Profil:', style: TextStyle(color: Color(0xFF34D399), fontWeight: FontWeight.bold, fontSize: 13)),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6,
+              children: _myOffers.map((s) => Chip(label: Text(s, style: const TextStyle(fontSize: 11, color: Colors.white)), backgroundColor: const Color(0xFF065F46))).toList(),
+            ),
+            const SizedBox(height: 12),
+            const Text('Mein "Ich Suche" Profil:', style: TextStyle(color: Color(0xFF38BDF8), fontWeight: FontWeight.bold, fontSize: 13)),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6,
+              children: _mySeeks.map((s) => Chip(label: Text(s, style: const TextStyle(fontSize: 11, color: Colors.white)), backgroundColor: const Color(0xFF1E3A8A))).toList(),
+            ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -605,31 +732,20 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF1E293B),
-        elevation: 2,
         title: Row(
           children: [
-            const Text(
-              'StoryJob',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white),
-            ),
+            const Text('StoryJob', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white)),
             const SizedBox(width: 12),
-            // XP & Level Anzeige
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF0F172A),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF38BDF8).withOpacity(0.5)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.stars_rounded, color: Color(0xFFF59E0B), size: 16),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Lvl $_userLevel | $_userXP XP',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white70),
-                  ),
-                ],
+            GestureDetector(
+              onTap: _showProfileModal,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0F172A),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFF38BDF8).withOpacity(0.5)),
+                ),
+                child: Text('Lvl $_userLevel | $_userXP XP', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white70)),
               ),
             ),
           ],
@@ -637,13 +753,11 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
         actions: [
           IconButton(
             icon: const Icon(Icons.explore_outlined, color: Colors.white70),
-            tooltip: 'Explorer / Matches',
             onPressed: _openFeedModal,
           ),
           IconButton(
-            icon: const Icon(Icons.note_alt_outlined, color: Colors.white70),
-            tooltip: 'Meine Memos',
-            onPressed: _openMemosModal,
+            icon: const Icon(Icons.account_circle_outlined, color: Colors.white70),
+            onPressed: _showProfileModal,
           ),
           const SizedBox(width: 8),
         ],
@@ -654,7 +768,7 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Umschalter
+              // ROLE TOGGLE
               Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFF1E293B),
@@ -679,10 +793,7 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
                             children: [
                               Icon(Icons.person_search, size: 20, color: Colors.white),
                               SizedBox(width: 8),
-                              Text(
-                                'Ich suche Job',
-                                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                              ),
+                              Text('Ich suche Job', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                             ],
                           ),
                         ),
@@ -703,10 +814,7 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
                             children: [
                               Icon(Icons.business_center, size: 20, color: Colors.white),
                               SizedBox(width: 8),
-                              Text(
-                                'Ich suche Talent',
-                                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                              ),
+                              Text('Ich suche Talent', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                             ],
                           ),
                         ),
@@ -718,7 +826,7 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
 
               const Spacer(),
 
-              // Pulsierender / Aufnehmender Mikrofon-Button
+              // RECORDING BUTTON
               ScaleTransition(
                 scale: _isRecording ? _pulseAnimation : const AlwaysStoppedAnimation(1.0),
                 child: Container(
@@ -732,24 +840,10 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
                           : (isCandidate
                               ? [const Color(0xFF0052CC), const Color(0xFF2563EB)]
                               : [const Color(0xFFD97706), const Color(0xFFF59E0B)]),
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: (_isRecording
-                                ? Colors.red
-                                : (isCandidate ? Colors.blue : Colors.amber))
-                            .withAlpha(100),
-                        blurRadius: 30,
-                        spreadRadius: 5,
-                      ),
-                    ],
                   ),
                   child: Icon(
-                    _isRecording
-                        ? Icons.graphic_eq
-                        : (isCandidate ? Icons.mic : Icons.record_voice_over),
+                    _isRecording ? Icons.graphic_eq : (isCandidate ? Icons.mic : Icons.record_voice_over),
                     size: 64,
                     color: Colors.white,
                   ),
@@ -761,66 +855,31 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
               if (_isRecording) ...[
                 Text(
                   _formatDuration(_recordDuration),
-                  style: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.redAccent,
-                    letterSpacing: 2,
-                  ),
+                  style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.redAccent),
                 ),
                 const SizedBox(height: 8),
               ],
 
               Text(
                 isCandidate ? 'Erzähle deine Geschichte' : 'Beschreibe deine Stelle',
-                style: const TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.center,
-              ),
-
-              const SizedBox(height: 12),
-
-              Text(
-                isCandidate
-                    ? 'Sprich über deine Stärken, Erfahrungen und was dir im Job wichtig ist. KI erstellt deine StoryCard.'
-                    : 'Sprich über die Aufgaben, Unternehmenskultur und was du vom Kandidaten erwartest.',
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: Colors.white70,
-                  height: 1.4,
-                ),
-                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
               ),
 
               const Spacer(),
 
-              // Aktionsbutton
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _isRecording
-                        ? Colors.redAccent
-                        : (isCandidate ? const Color(0xFF0052CC) : const Color(0xFFD97706)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+                    backgroundColor: _isRecording ? Colors.redAccent : (isCandidate ? const Color(0xFF0052CC) : const Color(0xFFD97706)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                   ),
                   onPressed: _toggleRecording,
                   icon: Icon(_isRecording ? Icons.stop : Icons.mic, color: Colors.white),
                   label: Text(
-                    _isRecording
-                        ? 'Aufnahme stoppen (${_formatDuration(_recordDuration)})'
-                        : (isCandidate ? 'Bewerbung einsprechen' : 'Stellenangebot einsprechen'),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                    _isRecording ? 'Aufnahme stoppen' : (isCandidate ? 'Bewerbung einsprechen' : 'Stellenangebot einsprechen'),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ),
               ),
