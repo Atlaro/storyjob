@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -38,6 +39,9 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
     with SingleTickerProviderStateMixin {
   UserRole _selectedRole = UserRole.candidate;
   bool _isRecording = false;
+  int _recordDuration = 0;
+  Timer? _timer;
+
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -53,7 +57,6 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
-    // Start-PopUp automatisch nach dem Laden anzeigen
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showWelcomeDialog();
     });
@@ -62,6 +65,7 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
   @override
   void dispose() {
     _pulseController.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -100,9 +104,204 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
   }
 
   void _toggleRole(UserRole role) {
+    if (_isRecording) _stopRecording();
     setState(() {
       _selectedRole = role;
     });
+  }
+
+  void _toggleRecording() {
+    if (_isRecording) {
+      _stopRecording();
+    } else {
+      _startRecording();
+    }
+  }
+
+  void _startRecording() {
+    setState(() {
+      _isRecording = true;
+      _recordDuration = 0;
+    });
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        _recordDuration++;
+      });
+    });
+  }
+
+  void _stopRecording() {
+    _timer?.cancel();
+    setState(() {
+      _isRecording = false;
+    });
+
+    _processAudioAndShowStoryCard();
+  }
+
+  void _processAudioAndShowStoryCard() {
+    // Simulierter KI-Ladebildschirm
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const AlertDialog(
+        backgroundColor: Color(0xFF1E293B),
+        content: Padding(
+          padding: EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: Color(0xFF38BDF8)),
+              SizedBox(height: 20),
+              Text(
+                'KI wandelt Audio in StoryCard um...',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    // Nach 2 Sekunden Ergebnis anzeigen
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.of(context).pop(); // Ladedialog schließen
+      _showStoryCardModal();
+    });
+  }
+
+  void _showStoryCardModal() {
+    final bool isCandidate = _selectedRole == UserRole.candidate;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF1E293B),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Icon(Icons.auto_awesome, color: Color(0xFF38BDF8)),
+                const SizedBox(width: 8),
+                Text(
+                  isCandidate ? 'Deine generierte StoryCard' : 'Generiertes Stellenprofil',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F172A),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isCandidate ? const Color(0xFF0052CC) : const Color(0xFFD97706),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    isCandidate
+                        ? 'Zusammenfassung: Motivierte Fachkraft mit starkem Fokus auf Kundenorientierung & Teamwork.'
+                        : 'Anforderung: Erfahrener Teamplayer für dynamisches Umfeld gesucht.',
+                    style: const TextStyle(color: Colors.white70, height: 1.4),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text('Erkannte Keywords:', style: TextStyle(color: Colors.white38, fontSize: 12)),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      Chip(
+                        label: Text(isCandidate ? 'Kommunikation' : 'Vollzeit'),
+                        backgroundColor: const Color(0xFF1E293B),
+                        side: BorderSide.none,
+                      ),
+                      Chip(
+                        label: Text(isCandidate ? 'Erfahrung' : 'Führung'),
+                        backgroundColor: const Color(0xFF1E293B),
+                        side: BorderSide.none,
+                      ),
+                      Chip(
+                        label: Text(isCandidate ? 'Flexibilität' : 'Projektarbeit'),
+                        backgroundColor: const Color(0xFF1E293B),
+                        side: BorderSide.none,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.white24),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('Neu aufnehmen'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isCandidate ? const Color(0xFF0052CC) : const Color(0xFFD97706),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('StoryCard erfolgreich veröffentlicht!'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    },
+                    child: const Text('Veröffentlichen', style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatDuration(int seconds) {
+    final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
+    final remainingSeconds = (seconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$remainingSeconds';
   }
 
   void _showFeatureNotice(String title) {
@@ -152,30 +351,7 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Align(
-                alignment: Alignment.centerRight,
-                child: Chip(
-                  backgroundColor: isCandidate
-                      ? Colors.blue.withAlpha(50)
-                      : Colors.amber.withAlpha(50),
-                  side: BorderSide(
-                    color: isCandidate ? Colors.blue : Colors.amber,
-                  ),
-                  avatar: Icon(
-                    isCandidate ? Icons.person : Icons.business,
-                    size: 18,
-                    color: isCandidate ? Colors.lightBlueAccent : Colors.amber,
-                  ),
-                  label: Text(
-                    isCandidate ? 'Bewerber-Modus' : 'Arbeitgeber-Modus',
-                    style: TextStyle(
-                      color: isCandidate ? Colors.lightBlueAccent : Colors.amber,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
+              // Umschalter
               Container(
                 decoration: BoxDecoration(
                   color: const Color(0xFF1E293B),
@@ -192,9 +368,7 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
                           duration: const Duration(milliseconds: 250),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
-                            color: isCandidate
-                                ? const Color(0xFF0052CC)
-                                : Colors.transparent,
+                            color: isCandidate ? const Color(0xFF0052CC) : Colors.transparent,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Row(
@@ -218,9 +392,7 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
                           duration: const Duration(milliseconds: 250),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           decoration: BoxDecoration(
-                            color: !isCandidate
-                                ? const Color(0xFFD97706)
-                                : Colors.transparent,
+                            color: !isCandidate ? const Color(0xFFD97706) : Colors.transparent,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Row(
@@ -240,24 +412,31 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
                   ],
                 ),
               ),
+
               const Spacer(),
+
+              // Pulsierender / Aufnehmender Mikrofon-Button
               ScaleTransition(
-                scale: _pulseAnimation,
+                scale: _isRecording ? _pulseAnimation : const AlwaysStoppedAnimation(1.0),
                 child: Container(
                   width: 140,
                   height: 140,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: LinearGradient(
-                      colors: isCandidate
-                          ? [const Color(0xFF0052CC), const Color(0xFF2563EB)]
-                          : [const Color(0xFFD97706), const Color(0xFFF59E0B)],
+                      colors: _isRecording
+                          ? [Colors.redAccent, Colors.red.shade700]
+                          : (isCandidate
+                              ? [const Color(0xFF0052CC), const Color(0xFF2563EB)]
+                              : [const Color(0xFFD97706), const Color(0xFFF59E0B)]),
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: (isCandidate ? Colors.blue : Colors.amber)
+                        color: (_isRecording
+                                ? Colors.red
+                                : (isCandidate ? Colors.blue : Colors.amber))
                             .withAlpha(100),
                         blurRadius: 30,
                         spreadRadius: 5,
@@ -265,17 +444,33 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
                     ],
                   ),
                   child: Icon(
-                    isCandidate ? Icons.mic : Icons.record_voice_over,
+                    _isRecording
+                        ? Icons.graphic_eq
+                        : (isCandidate ? Icons.mic : Icons.record_voice_over),
                     size: 64,
                     color: Colors.white,
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
+
+              const SizedBox(height: 24),
+
+              // Timer Anzeige bei Aufnahme
+              if (_isRecording) ...[
+                Text(
+                  _formatDuration(_recordDuration),
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.redAccent,
+                    letterSpacing: 2,
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+
               Text(
-                isCandidate
-                    ? 'Erzähle deine Geschichte'
-                    : 'Beschreibe deine Stelle',
+                isCandidate ? 'Erzähle deine Geschichte' : 'Beschreibe deine Stelle',
                 style: const TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.bold,
@@ -283,7 +478,9 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
                 ),
                 textAlign: TextAlign.center,
               ),
+
               const SizedBox(height: 12),
+
               Text(
                 isCandidate
                     ? 'Sprich über deine Stärken, Erfahrungen und was dir im Job wichtig ist. KI erstellt deine StoryCard.'
@@ -295,31 +492,28 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
                 ),
                 textAlign: TextAlign.center,
               ),
+
               const Spacer(),
+
+              // Aktionsbutton
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isCandidate
-                        ? const Color(0xFF0052CC)
-                        : const Color(0xFFD97706),
+                    backgroundColor: _isRecording
+                        ? Colors.redAccent
+                        : (isCandidate ? const Color(0xFF0052CC) : const Color(0xFFD97706)),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _isRecording = !_isRecording;
-                    });
-                  },
+                  onPressed: _toggleRecording,
                   icon: Icon(_isRecording ? Icons.stop : Icons.mic, color: Colors.white),
                   label: Text(
                     _isRecording
-                        ? 'Aufnahme stoppen'
-                        : (isCandidate
-                            ? 'Bewerbung einsprechen'
-                            : 'Stellenangebot einsprechen'),
+                        ? 'Aufnahme stoppen (${_formatDuration(_recordDuration)})'
+                        : (isCandidate ? 'Bewerbung einsprechen' : 'Stellenangebot einsprechen'),
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
