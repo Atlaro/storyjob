@@ -28,6 +28,22 @@ class StoryJobApp extends StatelessWidget {
 
 enum UserRole { candidate, employer }
 
+class StoryCardData {
+  final String title;
+  final String summary;
+  final List<String> tags;
+  final String duration;
+  final UserRole role;
+
+  StoryCardData({
+    required this.title,
+    required this.summary,
+    required this.tags,
+    required this.duration,
+    required this.role,
+  });
+}
+
 class StoryJobHomeScreen extends StatefulWidget {
   const StoryJobHomeScreen({super.key});
 
@@ -36,11 +52,33 @@ class StoryJobHomeScreen extends StatefulWidget {
 }
 
 class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   UserRole _selectedRole = UserRole.candidate;
   bool _isRecording = false;
   int _recordDuration = 0;
   Timer? _timer;
+
+  // Gamification / Belohnungssystem Status
+  int _userXP = 150;
+  int _userLevel = 1;
+
+  final List<StoryCardData> _savedMemos = [];
+  final List<StoryCardData> _feedData = [
+    StoryCardData(
+      title: 'Senior Flutter Entwickler (m/w/d)',
+      summary: 'Suche nach spannenden App-Projekten im Remote-Bereich.',
+      tags: ['Flutter', 'Dart', 'Remote', 'Fulltime'],
+      duration: '01:15 min',
+      role: UserRole.candidate,
+    ),
+    StoryCardData(
+      title: 'Tech-Startup sucht UX/UI Designer',
+      summary: 'Wir bauen die Zukunft des Recruiting. Werde Teil des Teams!',
+      tags: ['Design', 'Figma', 'Startup', 'München'],
+      duration: '00:48 min',
+      role: UserRole.employer,
+    ),
+  ];
 
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
@@ -86,7 +124,7 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
           'Willkommen auf der Plattform für sprachbasierte Job-Matches!\n\n'
           '• Switch oben nutzen: Wähle zwischen "Ich suche Job" oder "Ich suche Talent".\n'
           '• Spreche deine Geschichte oder Anforderungen einfach ein.\n'
-          '• Verwalte deine Nachrichten, Memos & Konto in der oberen Menüleiste.',
+          '• Sammle XP & Punkte für jeden erfolgreichen Sprach-Beitrag!',
           style: TextStyle(color: Colors.white70, height: 1.5),
         ),
         actions: [
@@ -140,7 +178,6 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
   }
 
   void _processAudioAndShowStoryCard() {
-    // Simulierter KI-Ladebildschirm
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -163,15 +200,103 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
       ),
     );
 
-    // Nach 2 Sekunden Ergebnis anzeigen
     Future.delayed(const Duration(seconds: 2), () {
-      Navigator.of(context).pop(); // Ladedialog schließen
+      Navigator.of(context).pop();
       _showStoryCardModal();
     });
   }
 
+  void _showRewardEffect() {
+    setState(() {
+      _userXP += 100;
+      if (_userXP >= 300) {
+        _userLevel = 2;
+      }
+    });
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF0F172A),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: const BorderSide(color: Color(0xFF38BDF8), width: 2),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                color: Color(0xFF1E293B),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.stars_rounded,
+                color: Color(0xFFF59E0B),
+                size: 64,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Hervorragend!',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Deine StoryCard wurde erfolgreich übermittelt.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white70),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF38BDF8).withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.bolt, color: Color(0xFF38BDF8)),
+                  SizedBox(width: 6),
+                  Text(
+                    '+100 XP Belohnung erhalten!',
+                    style: TextStyle(
+                      color: Color(0xFF38BDF8),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          Center(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF0052CC),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Klasse!', style: TextStyle(color: Colors.white)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showStoryCardModal() {
     final bool isCandidate = _selectedRole == UserRole.candidate;
+    final durationStr = _formatDuration(_recordDuration);
 
     showModalBottomSheet(
       context: context,
@@ -226,8 +351,8 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
                 children: [
                   Text(
                     isCandidate
-                        ? 'Zusammenfassung: Motivierte Fachkraft mit starkem Fokus auf Kundenorientierung & Teamwork.'
-                        : 'Anforderung: Erfahrener Teamplayer für dynamisches Umfeld gesucht.',
+                        ? 'Zusammenfassung: Motivierte Fachkraft mit fokussiertem Stärkenprofil ($durationStr min).'
+                        : 'Anforderung: Erfahrener Teamplayer gesucht ($durationStr min).',
                     style: const TextStyle(color: Colors.white70, height: 1.4),
                   ),
                   const SizedBox(height: 12),
@@ -243,11 +368,6 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
                       ),
                       Chip(
                         label: Text(isCandidate ? 'Erfahrung' : 'Führung'),
-                        backgroundColor: const Color(0xFF1E293B),
-                        side: BorderSide.none,
-                      ),
-                      Chip(
-                        label: Text(isCandidate ? 'Flexibilität' : 'Projektarbeit'),
                         backgroundColor: const Color(0xFF1E293B),
                         side: BorderSide.none,
                       ),
@@ -278,18 +398,192 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     onPressed: () {
+                      setState(() {
+                        _savedMemos.add(
+                          StoryCardData(
+                            title: isCandidate ? 'Mein Sprach-Profil' : 'Gesuchte Stelle',
+                            summary: isCandidate
+                                ? 'Motivierte Fachkraft mit fokussiertem Stärkenprofil.'
+                                : 'Erfahrener Teamplayer gesucht.',
+                            tags: isCandidate ? ['Kommunikation', 'Erfahrung'] : ['Vollzeit', 'Führung'],
+                            duration: '$durationStr min',
+                            role: _selectedRole,
+                          ),
+                        );
+                      });
                       Navigator.of(context).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('StoryCard erfolgreich veröffentlicht!'),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
+                      _showRewardEffect();
                     },
                     child: const Text('Veröffentlichen', style: TextStyle(color: Colors.white)),
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openMemosModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF1E293B),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Meine Memos & Entwürfe',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+            const SizedBox(height: 16),
+            if (_savedMemos.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 30),
+                child: Center(
+                  child: Text(
+                    'Noch keine Memos gespeichert.\nNimm eine StoryCard auf!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white54),
+                  ),
+                ),
+              )
+            else
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: _savedMemos.length,
+                itemBuilder: (context, index) {
+                  final memo = _savedMemos[index];
+                  return Card(
+                    color: const Color(0xFF0F172A),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ListTile(
+                      leading: Icon(
+                        memo.role == UserRole.candidate ? Icons.mic : Icons.business,
+                        color: memo.role == UserRole.candidate
+                            ? const Color(0xFF0052CC)
+                            : const Color(0xFFD97706),
+                      ),
+                      title: Text(memo.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      subtitle: Text(memo.summary, style: const TextStyle(color: Colors.white70)),
+                      trailing: Text(memo.duration, style: const TextStyle(color: Colors.white38)),
+                    ),
+                  );
+                },
+              ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openFeedModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF1E293B),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Icon(Icons.explore, color: Color(0xFF38BDF8)),
+                const SizedBox(width: 10),
+                Text(
+                  _selectedRole == UserRole.candidate ? 'Passende Stellenangebote' : 'Passende Kandidaten',
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: _feedData.length,
+              itemBuilder: (context, index) {
+                final item = _feedData[index];
+                return Card(
+                  color: const Color(0xFF0F172A),
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(item.title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                            Text(item.duration, style: const TextStyle(color: Colors.white38, fontSize: 12)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(item.summary, style: const TextStyle(color: Colors.white70)),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Wrap(
+                              spacing: 6,
+                              children: item.tags
+                                  .map((t) => Chip(
+                                        label: Text(t, style: const TextStyle(fontSize: 11)),
+                                        backgroundColor: const Color(0xFF1E293B),
+                                        padding: EdgeInsets.zero,
+                                      ))
+                                  .toList(),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.play_circle_fill, color: Color(0xFF38BDF8), size: 36),
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Audio von "${item.title}" wird abgespielt...')),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 16),
           ],
@@ -304,16 +598,6 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
     return '$minutes:$remainingSeconds';
   }
 
-  void _showFeatureNotice(String title) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$title geöffnet'),
-        duration: const Duration(seconds: 1),
-        backgroundColor: const Color(0xFF0052CC),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final bool isCandidate = _selectedRole == UserRole.candidate;
@@ -322,25 +606,44 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
       appBar: AppBar(
         backgroundColor: const Color(0xFF1E293B),
         elevation: 2,
-        title: const Text(
-          'StoryJob',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white),
+        title: Row(
+          children: [
+            const Text(
+              'StoryJob',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white),
+            ),
+            const SizedBox(width: 12),
+            // XP & Level Anzeige
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F172A),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFF38BDF8).withOpacity(0.5)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.stars_rounded, color: Color(0xFFF59E0B), size: 16),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Lvl $_userLevel | $_userXP XP',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.chat_bubble_outline, color: Colors.white70),
-            tooltip: 'Nachrichten',
-            onPressed: () => _showFeatureNotice('Nachrichten'),
+            icon: const Icon(Icons.explore_outlined, color: Colors.white70),
+            tooltip: 'Explorer / Matches',
+            onPressed: _openFeedModal,
           ),
           IconButton(
             icon: const Icon(Icons.note_alt_outlined, color: Colors.white70),
             tooltip: 'Meine Memos',
-            onPressed: () => _showFeatureNotice('Meine Memos'),
-          ),
-          IconButton(
-            icon: const Icon(Icons.account_circle_outlined, color: Colors.white70),
-            tooltip: 'Konto',
-            onPressed: () => _showFeatureNotice('Konto'),
+            onPressed: _openMemosModal,
           ),
           const SizedBox(width: 8),
         ],
@@ -455,7 +758,6 @@ class _StoryJobHomeScreenState extends State<StoryJobHomeScreen>
 
               const SizedBox(height: 24),
 
-              // Timer Anzeige bei Aufnahme
               if (_isRecording) ...[
                 Text(
                   _formatDuration(_recordDuration),
