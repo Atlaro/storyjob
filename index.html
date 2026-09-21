@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StoryJob</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Career tracker</p>
+          <h1>StoryJob</h1>
+        </div>
+        <button id="resetButton" class="ghost-button" type="button">Reset demo</button>
+      </header>
+
+      <main class="layout">
+        <section class="panel form-panel">
+          <h2>Add a job story</h2>
+          <form id="storyForm">
+            <label>
+              <span>Title</span>
+              <input id="title" name="title" type="text" placeholder="Senior Product Designer" required />
+            </label>
+
+            <div class="two-column">
+              <label>
+                <span>Company</span>
+                <input id="company" name="company" type="text" placeholder="Northstar Labs" required />
+              </label>
+
+              <label>
+                <span>Status</span>
+                <select id="status" name="status">
+                  <option value="Thinking">Thinking</option>
+                  <option value="Applied">Applied</option>
+                  <option value="Interviewing">Interviewing</option>
+                  <option value="Offer">Offer</option>
+                  <option value="Closed">Closed</option>
+                </select>
+              </label>
+            </div>
+
+            <label>
+              <span>Notes</span>
+              <textarea id="notes" name="notes" rows="4" placeholder="What stood out about this role? What is your story?"></textarea>
+            </label>
+
+            <button class="primary-button" type="submit">Save story</button>
+          </form>
+        </section>
+
+        <section class="panel list-panel">
+          <div class="list-header">
+            <h2>Your stories</h2>
+            <select id="filterStatus" aria-label="Filter stories by status">
+              <option value="All">All</option>
+              <option value="Thinking">Thinking</option>
+              <option value="Applied">Applied</option>
+              <option value="Interviewing">Interviewing</option>
+              <option value="Offer">Offer</option>
+              <option value="Closed">Closed</option>
+            </select>
+          </div>
+          <div id="storyList" class="story-list" aria-live="polite"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
