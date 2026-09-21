@@ -68,3 +68,7 @@
 	</array>
 </dict>
 </plist>
+<key>NSMicrophoneUsageDescription</key>
+<string>StoryJob benötigt dein Mikrofon für die Sprachaufnahme.</string>
+<key>NSSpeechRecognitionUsageDescription</key>
+<string>StoryJob nutzt die Spracherkennung, um deinen Voice-Pitch in Text umzuwandeln.</string>
