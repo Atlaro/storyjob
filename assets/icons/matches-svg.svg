@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <defs>
+    <!-- Farbverlauf von Blau/Schattenblau zu Magenta/Pink -->
+    <linearGradient id="matchesGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="50%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#EC4899" />
+    </linearGradient>
+  </defs>
+
+  <!-- Äußerer Ring -->
+  <circle cx="12" cy="12" r="9" stroke="url(#matchesGrad)" />
+  
+  <!-- Mittlerer Ring -->
+  <circle cx="12" cy="12" r="5" stroke="url(#matchesGrad)" />
+  
+  <!-- Zieldoppel-Punkt / Bullseye -->
+  <circle cx="12" cy="12" r="1.5" fill="url(#matchesGrad)" stroke="none" />
+  
+  <!-- Pfeil/Bogen-Grip-Azent (oben rechts) -->
+  <path d="M19 5L15 9" stroke="url(#matchesGrad)" />
+  <path d="M15 5H19V9" stroke="url(#matchesGrad)" />
+</svg>

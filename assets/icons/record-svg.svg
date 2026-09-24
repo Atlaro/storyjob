@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <defs>
+    <!-- Farbverlauf von Blau/Schattenblau zu Magenta/Pink -->
+    <linearGradient id="recGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="50%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#EC4899" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Gefüllter Mikrofonkopf -->
+  <rect x="8" y="2" width="8" height="11" rx="4" fill="url(#recGrad)" />
+  
+  <!-- Bogen / Halterung -->
+  <path d="M5 11a7 7 0 0 0 14 0" stroke="url(#recGrad)" stroke-width="2" stroke-linecap="round" fill="none" />
+  
+  <!-- Vertikaler Stiel -->
+  <line x1="12" y1="18" x2="12" y2="21" stroke="url(#recGrad)" stroke-width="2" stroke-linecap="round" />
+  
+  <!-- Abgerundeter Standfuß -->
+  <line x1="8" y1="21" x2="16" y2="21" stroke="url(#recGrad)" stroke-width="2" stroke-linecap="round" />
+</svg>

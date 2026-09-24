@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <defs>
+    <!-- Farbverlauf von Blau/Schattenblau zu Magenta/Pink -->
+    <linearGradient id="potenzialGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="50%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#EC4899" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Audiowellen mit abgerundeten Enden -->
+  <rect x="3" y="9" width="3" height="6" rx="1.5" fill="url(#potenzialGrad)" />
+  <rect x="8" y="5" width="3" height="14" rx="1.5" fill="url(#potenzialGrad)" />
+  <rect x="13" y="3" width="3" height="18" rx="1.5" fill="url(#potenzialGrad)" />
+  <rect x="18" y="7" width="3" height="10" rx="1.5" fill="url(#potenzialGrad)" />
+</svg>

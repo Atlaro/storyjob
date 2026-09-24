@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <defs>
+    <!-- Farbverlauf von Blau/Schattenblau zu Magenta/Pink -->
+    <linearGradient id="skillsGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6" />
+      <stop offset="50%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#EC4899" />
+    </linearGradient>
+  </defs>
+
+  <!-- Pokal-Kelch -->
+  <path d="M6 3H18V10C18 13.3 15.3 16 12 16C8.7 16 6 13.3 6 10V3Z" stroke="url(#skillsGrad)" />
+
+  <!-- Linker Henkel -->
+  <path d="M6 5H4C2.9 5 2 5.9 2 7V8C2 9.1 2.9 10 4 10H6" stroke="url(#skillsGrad)" />
+
+  <!-- Rechter Henkel -->
+  <path d="M18 5H20C21.1 5 22 5.9 22 7V8C22 9.1 21.1 10 20 10H18" stroke="url(#skillsGrad)" />
+
+  <!-- Stiel -->
+  <line x1="12" y1="16" x2="12" y2="19" stroke="url(#skillsGrad)" />
+
+  <!-- Sockel -->
+  <line x1="8" y1="21" x2="16" y2="21" stroke="url(#skillsGrad)" />
+</svg>

@@ -72,3 +72,9 @@
 <string>StoryJob benötigt dein Mikrofon für die Sprachaufnahme.</string>
 <key>NSSpeechRecognitionUsageDescription</key>
 <string>StoryJob nutzt die Spracherkennung, um deinen Voice-Pitch in Text umzuwandeln.</string>
+<key>NSCameraUsageDescription</key>
+<string>StoryJob benötigt Zugriff auf die Kamera für dein Profilbild.</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>StoryJob benötigt Zugriff auf deine Fotos für dein Profilbild.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>StoryJob benötigt Zugriff auf das Mikrofon, um deine Personal-Story aufzunehmen.</string>
