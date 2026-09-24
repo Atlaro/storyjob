@@ -1,16 +1,1 @@
-{
-  "hosting": {
-    "public": "build/web",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
-  }
-}
+{"hosting":{"public":"build/web","ignore":["firebase.json","**/.*","**/node_modules/**"],"rewrites":[{"source":"**","destination":"/index.html"}]},"flutter":{"platforms":{"android":{"default":{"projectId":"storyjob-98017","appId":"1:758116924953:android:5abc58619121faa4f63488","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"storyjob-98017","configurations":{"android":"1:758116924953:android:5abc58619121faa4f63488","ios":"1:758116924953:ios:2f0fe0525532e0c3f63488","macos":"1:758116924953:ios:2f0fe0525532e0c3f63488","web":"1:758116924953:web:28b500b82099f7a1f63488","windows":"1:758116924953:web:d4004c2cc53c57e7f63488"}}}}}}

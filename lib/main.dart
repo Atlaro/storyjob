@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
-import 'core/theme/storyjob_theme.dart';
-import 'features/auth/screens/auth_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 
-void main() async {
+import 'firebase_options.dart';
+import 'core/theme/storyjob_theme.dart';
+import 'features/auth/screens/splash_screen.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  try {
-    await Firebase.initializeApp();
-  } catch (e) {
-    debugPrint('Firebase Init Fehler (evtl. schon initialisiert): $e');
-  }
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -33,7 +33,7 @@ class StoryJobApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.dark,
       theme: StoryJobTheme.darkTheme,
-      home: const AuthScreen(),
+      home: const SplashScreen(),
     );
   }
 }
