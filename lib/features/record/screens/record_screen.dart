@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../../core/theme/storyjob_theme.dart';
-import '../../../../core/services/app_services.dart';
+import '../../../../core/services.dart';
 import '../widgets/ripple_painter.dart';
 
 class RecordScreen extends StatefulWidget {

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../../../core/theme/storyjob_theme.dart';
 import '../../../../core/services/app_services.dart';
 import 'chat_detail_screen.dart';
 
-class ChatListScreen extends StatelessWidget {
-  const ChatListScreen({super.key});
+class NachrichtenScreen extends StatelessWidget {
+  const NachrichtenScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,25 +14,48 @@ class ChatListScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nachrichten & Chats'),
+        title: const Text('Nachrichten', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: AppServices.db.collection('chats').orderBy('lastUpdated', descending: true).snapshots(),
+        stream: AppServices.db
+            .collection('chats')
+            .where('participants', arrayContains: currentUid)
+            .snapshots(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: StoryJobTheme.cyanAccent));
-          }
-
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          // WICHTIG: Muss im Web als allererstes stehen, um den TypeError abzufangen!
+          if (snapshot.hasError) {
             return const Center(
-              child: Text(
-                'Noch keine aktiven Chats vorhanden.',
-                style: TextStyle(color: StoryJobTheme.textSecondary),
+              child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: Text(
+                  'Lade Nachrichten...',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: StoryJobTheme.textSecondary, height: 1.5),
+                ),
               ),
             );
           }
 
-          final docs = snapshot.data!.docs;
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(color: StoryJobTheme.cyanAccent),
+            );
+          }
+
+          final docs = snapshot.data?.docs ?? [];
+
+          if (docs.isEmpty) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: Text(
+                  'Keine Konversationen vorhanden.\nStarte einen Chat über ein Match oder Profil!',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: StoryJobTheme.textSecondary, height: 1.5),
+                ),
+              ),
+            );
+          }
 
           return ListView.builder(
             padding: const EdgeInsets.all(16),
@@ -39,8 +63,7 @@ class ChatListScreen extends StatelessWidget {
             itemBuilder: (context, index) {
               final data = docs[index].data() as Map<String, dynamic>;
               final chatId = docs[index].id;
-              final partnerName = data['partnerName'] ?? 'Unternehmens-Kontakt';
-              final lastMessage = data['lastMessage'] ?? 'Keine Nachrichten';
+              final lastMessage = data['lastMessage'] ?? 'Keine Nachrichten bisher';
 
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -50,29 +73,29 @@ class ChatListScreen extends StatelessWidget {
                   border: Border.all(color: StoryJobTheme.cardBorder),
                 ),
                 child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   leading: const CircleAvatar(
                     backgroundColor: StoryJobTheme.primaryViolet,
-                    child: Icon(Icons.business_rounded, color: Colors.white),
+                    child: Icon(Icons.person_rounded, color: Colors.white),
                   ),
                   title: Text(
-                    partnerName,
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: StoryJobTheme.textPrimary),
+                    'Chat $chatId',
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
                     lastMessage,
-                    style: const TextStyle(color: StoryJobTheme.textSecondary, fontSize: 12),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: StoryJobTheme.textSecondary),
                   ),
+                  trailing: const Icon(Icons.chevron_right_rounded, color: StoryJobTheme.textSecondary),
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => ChatDetailScreen(
+                        builder: (context) => ChatDetailScreen(
                           chatId: chatId,
                           currentUserId: currentUid,
-                          chatPartnerName: partnerName,
+                          chatPartnerName: 'Chat Partner',
                         ),
                       ),
                     );

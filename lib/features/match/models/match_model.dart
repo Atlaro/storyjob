@@ -18,14 +18,19 @@ class MatchModel {
   });
 
   factory MatchModel.fromFirestore(DocumentSnapshot doc) {
-    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    Map<String, dynamic> data =
+        doc.data() as Map<String, dynamic>;
+
     return MatchModel(
       uid: data['uid'] ?? doc.id,
       displayName: data['displayName'] ?? 'Unbekannt',
       role: data['role'] ?? 'Talent',
       location: data['location'] ?? 'Pocking',
-      interests: List<String>.from(data['interests'] ?? []),
-      matchScore: (data['matchScore'] ?? 85.0).toDouble(),
+      interests: List<String>.from(
+        data['interests'] ?? [],
+      ),
+      matchScore:
+          (data['matchScore'] ?? 85.0).toDouble(),
     );
   }
 }

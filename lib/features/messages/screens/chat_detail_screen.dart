@@ -62,6 +62,17 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
             child: StreamBuilder<QuerySnapshot>(
               stream: AppServices.getChatMessages(widget.chatId),
               builder: (context, snapshot) {
+                // SICHERHEITSABRUF FÜR FLUTTER WEB:
+                // Fängt Stream-Fehler ab, bevor die Exception den Web-Renderer crasht.
+                if (snapshot.hasError) {
+                  return const Center(
+                    child: Text(
+                      'Lade Nachrichten...',
+                      style: TextStyle(color: StoryJobTheme.textSecondary),
+                    ),
+                  );
+                }
+
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator(color: StoryJobTheme.cyanAccent));
                 }

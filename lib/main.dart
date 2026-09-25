@@ -1,30 +1,38 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'firebase_options.dart';
-import 'core/theme/storyjob_theme.dart';
-import 'features/auth/screens/splash_screen.dart';
+import 'package:storyjob/core/theme/storyjob_theme.dart';
+import 'package:storyjob/features/navigation/main_navigation_hub.dart';
+import 'package:storyjob/features/auth/screens/onboarding_screen.dart';
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Abgesicherter Start: Verhindert den White Screen, wenn Firebase Web-Options fehlen
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint('Firebase Initialisierungs-Hinweis: $e');
+  }
 
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      systemNavigationBarColor: StoryJobTheme.backgroundBase,
-    ),
-  );
+  SharedPreferences? prefs;
+  bool seenOnboarding = false;
 
-  runApp(const StoryJobApp());
+  try {
+    prefs = await SharedPreferences.getInstance();
+    seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
+  } catch (e) {
+    debugPrint('SharedPreferences Fehler: $e');
+  }
+
+  runApp(StoryJobApp(showOnboarding: !seenOnboarding));
 }
 
 class StoryJobApp extends StatelessWidget {
-  const StoryJobApp({super.key});
+  final bool showOnboarding;
+
+  const StoryJobApp({super.key, required this.showOnboarding});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +41,9 @@ class StoryJobApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.dark,
       theme: StoryJobTheme.darkTheme,
-      home: const SplashScreen(),
+      home: showOnboarding 
+          ? const ModernOnboardingScreen() 
+          : const MainNavigationHub(),
     );
   }
 }

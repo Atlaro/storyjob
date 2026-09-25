@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../../core/theme/storyjob_theme.dart';
 import '../../../core/services/app_services.dart';
 import '../models/match_model.dart';
@@ -17,15 +18,33 @@ class MatchScreen extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: AppServices.db.collection('profiles').snapshots(),
         builder: (context, snapshot) {
+          // 1. SICHERHEITSABRUF FÜR FLUTTER WEB (Muss als allererstes stehen!):
+          if (snapshot.hasError) {
+            return const Center(
+              child: Text(
+                'Lade Profile...',
+                style: TextStyle(
+                  color: StoryJobTheme.textSecondary,
+                ),
+              ),
+            );
+          }
+
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: StoryJobTheme.cyanAccent));
+            return const Center(
+              child: CircularProgressIndicator(
+                color: StoryJobTheme.cyanAccent,
+              ),
+            );
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
               child: Text(
                 'Keine passenden Profile gefunden.',
-                style: TextStyle(color: StoryJobTheme.textSecondary),
+                style: TextStyle(
+                  color: StoryJobTheme.textSecondary,
+                ),
               ),
             );
           }
@@ -36,11 +55,16 @@ class MatchScreen extends StatelessWidget {
             itemCount: docs.length,
             itemBuilder: (context, index) {
               final match = MatchModel.fromFirestore(docs[index]);
+
               return MatchCard(
                 match: match,
                 onConnectPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Verbindungsanfrage an ${match.displayName} gesendet!')),
+                    SnackBar(
+                      content: Text(
+                        'Verbindungsanfrage an ${match.displayName} gesendet!',
+                      ),
+                    ),
                   );
                 },
               );

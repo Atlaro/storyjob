@@ -1,8 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../auth_screen.dart';
-import '../onboarding_screen.dart';
+import 'auth_screen.dart';
+import 'onboarding_screen.dart';
 import '../../../core/theme/storyjob_theme.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -14,20 +15,16 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
   bool _navigated = false;
 
   @override
   void initState() {
     super.initState();
+
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    );
-
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
+      duration: const Duration(milliseconds: 1000),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -40,6 +37,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   Future<void> _checkFirstLaunch() async {
     final prefs = await SharedPreferences.getInstance();
+    
+    // ZUM TESTEN: Kommentiere die folgende Zeile EIN, um das Onboarding bei jedem App-Start zu erzwingen:
+    // await prefs.setBool('seenOnboarding', false);
+
     final hasSeen = prefs.getBool('seenOnboarding') ?? false;
 
     Future.delayed(const Duration(milliseconds: 2500), () {
@@ -53,10 +54,11 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     if (_navigated) return;
     _navigated = true;
 
+    final Widget targetScreen = hasSeen ? const AuthScreen() : const ModernOnboardingScreen();
+
     Navigator.of(context).pushReplacement(
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            hasSeen ? const AuthScreen() : const ModernOnboardingScreen(),
+        pageBuilder: (context, animation, secondaryAnimation) => targetScreen,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },
@@ -74,64 +76,26 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment.center,
-            radius: 1.2,
-            colors: [Color(0xFF1D1438), StoryJobTheme.backgroundBase],
-          ),
-        ),
-        child: Center(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: StoryJobTheme.primaryViolet.withValues(alpha: 0.25),
-                      boxShadow: [
-                        BoxShadow(
-                          color: StoryJobTheme.primaryViolet.withValues(alpha: 0.4),
-                          blurRadius: 40,
-                          spreadRadius: 10,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.mic_rounded,
-                      color: StoryJobTheme.cyanAccent,
-                      size: 64,
-                    ),
+      backgroundColor: StoryJobTheme.backgroundBase,
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: SizedBox.expand(
+          child: Image.asset(
+            'assets/images/splash/storyjob_splash.webp',
+            fit: BoxFit.cover,
+            alignment: Alignment.center,
+            errorBuilder: (context, error1, stackTrace1) {
+              return const Center(
+                child: Text(
+                  'StoryJob',
+                  style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'StoryJob',
-                    style: TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2.0,
-                      color: StoryJobTheme.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'HUMAN OPPORTUNITY NETWORK',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 2.5,
-                      color: StoryJobTheme.cyanAccent,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),

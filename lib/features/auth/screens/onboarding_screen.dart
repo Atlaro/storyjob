@@ -4,22 +4,22 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-import 'auth_screen.dart';
-import '../../core/theme/storyjob_theme.dart';
+import '../../../core/theme/storyjob_theme.dart';
+import '../../navigation/main_navigation_hub.dart';
 
 class ModernOnboardingScreen extends StatefulWidget {
   const ModernOnboardingScreen({super.key});
 
   @override
-  State<ModernOnboardingScreen> createState() => _ModernOnboardingScreenState();
+  State createState() => _ModernOnboardingScreenState();
 }
 
-class _ModernOnboardingScreenState extends State<ModernOnboardingScreen> {
+class _ModernOnboardingScreenState extends State {
   final PageController _pageController = PageController();
   int _currentPage = 0;
   Timer? _slideshowTimer;
 
-  final List<Map<String, String>> _onboardingData = [
+  final _onboardingData = [
     {
       'title': 'Willkommen bei StoryJob',
       'text': 'Talente erkennt man nicht auf dem Papier.',
@@ -68,17 +68,21 @@ class _ModernOnboardingScreenState extends State<ModernOnboardingScreen> {
     super.dispose();
   }
 
-  Future<void> _completeOnboarding() async {
+  Future _completeOnboarding() async {
     HapticFeedback.mediumImpact();
     _slideshowTimer?.cancel();
     
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('seenOnboarding', true);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('seenOnboarding', true);
+    } catch (e) {
+      debugPrint('Fehler beim Speichern des Onboarding-Status: $e');
+    }
 
     if (mounted) {
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const AuthScreen(),
+          pageBuilder: (context, animation, secondaryAnimation) => const MainNavigationHub(),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },
@@ -298,7 +302,7 @@ class _ModernOnboardingScreenState extends State<ModernOnboardingScreen> {
                     SmoothPageIndicator(
                       controller: _pageController,
                       count: _onboardingData.length,
-                      effect: ExpandingDotsEffect(
+                      effect: const ExpandingDotsEffect(
                         dotHeight: 8,
                         dotWidth: 8,
                         expansionFactor: 3,
