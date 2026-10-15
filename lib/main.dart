@@ -1,38 +1,47 @@
+// lib/main.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:storyjob/core/theme/storyjob_theme.dart';
-import 'package:storyjob/features/navigation/main_navigation_hub.dart';
-import 'package:storyjob/features/auth/screens/onboarding_screen.dart';
+import 'package:storyjob/core/services/fcm_service.dart';
+import 'package:storyjob/features/auth/screens/story_splash_screen.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Abgesicherter Start: Verhindert den White Screen, wenn Firebase Web-Options fehlen
+  // 1. Firebase & Benachrichtigungen initialisieren
   try {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    await FcmService().initializeFcm();
   } catch (e) {
-    debugPrint('Firebase Initialisierungs-Hinweis: $e');
+    debugPrint('Firebase Initialization Error: $e');
   }
 
-  SharedPreferences? prefs;
-  bool seenOnboarding = false;
+  // 2. Bildschirmausrichtung sperren (Portrait)
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
 
-  try {
-    prefs = await SharedPreferences.getInstance();
-    seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
-  } catch (e) {
-    debugPrint('SharedPreferences Fehler: $e');
-  }
+  // 3. System-UI-Styling (Statusleiste & Navigationsleiste nahtlos im Off-Black Look)
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: StoryJobTheme.backgroundBase,
+      systemNavigationBarIconBrightness: Brightness.light,
+      systemNavigationBarDividerColor: Colors.transparent,
+    ),
+  );
 
-  runApp(StoryJobApp(showOnboarding: !seenOnboarding));
+  runApp(const StoryJobApp());
 }
 
 class StoryJobApp extends StatelessWidget {
-  final bool showOnboarding;
-
-  const StoryJobApp({super.key, required this.showOnboarding});
+  const StoryJobApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,9 +50,8 @@ class StoryJobApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.dark,
       theme: StoryJobTheme.darkTheme,
-      home: showOnboarding 
-          ? const ModernOnboardingScreen() 
-          : const MainNavigationHub(),
+      darkTheme: StoryJobTheme.darkTheme,
+      home: const StorySplashScreen(),
     );
   }
 }

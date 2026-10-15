@@ -1,0 +1,19 @@
+{
+  "name": "storyjob-functions",
+  "scripts": {
+    "build": "tsc",
+    "deploy": "firebase deploy --only functions"
+  },
+  "engines": {
+    "node": "22"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "firebase-functions": "^6.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "private": true
+}

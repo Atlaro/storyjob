@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>StoryJob™ — Deine Story. Deine Werte. Deine Chance.</title>
+  <meta name="description" content="Nicht Lebensläufe verbinden Menschen. Gemeinsame Werte tun es. StoryJob verbindet Menschen, Teams und Projekte über echte Resonanz." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/branding/app_icon_dark.png">
+  <link rel="apple-touch-icon" href="assets/branding/app_icon_dark.png">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://storyjob.de/" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="StoryJob™ — Nicht Lebensläufe verbinden Menschen. Gemeinsame Werte tun es." />
+  <meta property="og:description" content="Zeig der Welt, wie du tickst. Entdecke Menschen, Teams, Vereine und Projekte auf deiner Wellenlänge." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/branding/Duck-ai-image-2026-09-29-18-54.jpeg" />
+  <meta property="og:image:alt" content="StoryJob — Human Opportunity Network" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="StoryJob™ — Human Opportunity Network" />
+  <meta name="twitter:description" content="Menschen sind mehr als ihr Lebenslauf. Finde Zugehörigkeit und Chancen über Werte." />
+  <meta name="twitter:image" content="assets/branding/Duck-ai-image-2026-09-29-18-54.jpeg" />
+
+  <style>
+    :root{
+      --bg0:#0F1115;
+      --bg1:#14171F;
+      --card: rgba(255,255,255,.05);
+      --card2: rgba(255,255,255,.08);
+      --text: rgba(255,255,255,.94);
+      --muted: rgba(255,255,255,.70);
+      --muted2: rgba(255,255,255,.50);
+      --brandA:#9D4EDD; /* Violett: Werte & Resonanz */
+      --brandB:#00E5FF; /* Cyan: Stimme & Audio */
+      --brandGold:#F59E0B; /* Gold: Entfaltung & Chancen */
+      --shadow: 0 20px 70px rgba(0,0,0,.60);
+      --ring: 0 0 0 4px rgba(0,229,255,.25);
+      --radius-xl: 26px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-pill: 999px;
+      --max: 1100px;
+      --nav-bg: rgba(15, 17, 21, 0.85);
+    }
+
+    *{ box-sizing: border-box; }
+    html { height: 100%; scroll-behavior: smooth; }
+    html, body { height: 100%; }
+
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 15% 10%, rgba(157,78,221,.22), transparent 55%),
+        radial-gradient(1000px 500px at 85% 18%, rgba(0,229,255,.16), transparent 55%),
+        radial-gradient(900px 600px at 50% 90%, rgba(245,158,11,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      color: var(--text);
+      overflow-x:hidden;
+    }
+
+    .skip-link{
+      position:absolute;
+      left:-999px;
+      top:auto;
+      width:1px;
+      height:1px;
+      overflow:hidden;
+    }
+    .skip-link:focus{
+      left:16px;
+      top:16px;
+      width:auto;
+      height:auto;
+      padding:10px 14px;
+      background: rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.25);
+      border-radius: 12px;
+      z-index:9999;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      *{
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+      .reveal{
+        transition: none !important;
+        transform: none !important;
+      }
+      .reveal.visible{
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    }
+
+    .container{
+      width: min(var(--max), calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    /* Top Nav */
+    .nav{
+      position: sticky;
+      top:0;
+      z-index:50;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background: var(--nav-bg);
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .nav-inner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      height: 140px; /* Erhöht für das große Logo */
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      text-decoration:none;
+      color: var(--text);
+      user-select:none;
+    }
+    .logo-img{
+      height: 210px; /* 3x so groß (vorher 70px) */
+      width: auto;
+      object-fit: contain;
+      display: block;
+      transform: scale(1.0);
+    }
+
+    @media (max-width: 480px){
+      .nav-inner{ height: 110px; }
+      .logo-img{ height: 160px; } /* 3x so groß auf Mobilgeräten */
+    }
+
+    .nav-links{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .nav-links a{
+      color: var(--muted);
+      text-decoration:none;
+      font-size: 13.5px;
+      font-weight: 500;
+      padding: 8px 12px;
+      border-radius: var(--radius-pill);
+      transition: background .2s ease, color .2s ease;
+    }
+    .nav-links a:hover{
+      background: rgba(255,255,255,.07);
+      color: var(--text);
+    }
+    .nav-cta{
+      display:flex; align-items:center; gap:10px;
+    }
+
+    /* Pill-Button-Design */
+    .btn{
+      border:none;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      text-decoration:none;
+      color: var(--text);
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.14);
+      padding: 12px 22px;
+      border-radius: var(--radius-pill);
+      transition: transform .18s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+      font-weight: 600;
+      letter-spacing: -.1px;
+      font-size: 13.5px;
+      white-space:nowrap;
+    }
+    .btn:hover{
+      transform: translateY(-1.5px);
+      background: rgba(255,255,255,.12);
+      border-color: rgba(255,255,255,.24);
+    }
+    .btn:focus{ outline:none; box-shadow: var(--ring); }
+
+    .btn-primary{
+      background: linear-gradient(135deg, var(--brandB), #0284C7);
+      color: #070A12;
+      font-weight: 700;
+      border: 1px solid rgba(255,255,255,.2);
+      box-shadow: 0 12px 35px rgba(0,229,255,.28);
+    }
+    .btn-primary:hover{
+      background: linear-gradient(135deg, #38BDF8, #0284C7);
+      box-shadow: 0 16px 45px rgba(0,229,255,.40);
+    }
+
+    .btn-secondary{
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.14);
+      color: var(--text);
+    }
+
+    /* Mobile Nav */
+    .burger{
+      display:none;
+      width:42px; height:42px;
+      border-radius: var(--radius-pill);
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      cursor:pointer;
+    }
+    .burger:focus{ outline:none; box-shadow: var(--ring); }
+    .burger svg{ width:18px; height:18px; }
+
+    @media (max-width: 860px){
+      .nav-links{ display:none; }
+      .burger{ display:inline-flex; align-items:center; justify-content:center; }
+    }
+
+    /* Hero */
+    .hero{ padding: 56px 0 36px; position:relative; }
+    .hero-grid{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 32px;
+      align-items: center;
+    }
+    @media (max-width: 980px){
+      .hero-grid{ grid-template-columns: 1fr; }
+    }
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 7px 14px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(0,229,255,.30);
+      background: rgba(0,229,255,.08);
+      color: var(--brandB);
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing:.1px;
+    }
+    .dot{
+      width:7px; height:7px;
+      border-radius: 99px;
+      background: var(--brandB);
+      box-shadow: 0 0 10px var(--brandB);
+    }
+    h1{
+      margin: 20px 0 14px;
+      font-size: clamp(34px, 4.4vw, 52px);
+      line-height:1.12;
+      letter-spacing: -1.2px;
+      font-family: Poppins, Inter, sans-serif;
+      font-weight: 800;
+    }
+    .sub{
+      margin: 0;
+      color: var(--muted);
+      font-size: 16.5px;
+      line-height:1.65;
+      max-width: 58ch;
+    }
+    .hero-actions{
+      margin-top: 24px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:center;
+    }
+    .meta-row{
+      margin-top: 22px;
+      display:flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items:center;
+      color: var(--muted2);
+      font-size: 13px;
+    }
+    .meta-pill{
+      display:flex; align-items:center; gap:8px;
+      padding: 8px 14px;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(255,255,255,.09);
+      background: rgba(255,255,255,.04);
+    }
+    .check{
+      color: var(--brandB);
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    /* Right visual card */
+    .visual{
+      border-radius: var(--radius-xl);
+      background:
+        radial-gradient(600px 280px at 15% 15%, rgba(157,78,221,.24), transparent 60%),
+        radial-gradient(420px 260px at 85% 30%, rgba(0,229,255,.18), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+      min-height: 420px;
+    }
+    .orb{
+      position:absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 40% 40%, rgba(0,229,255,.45), rgba(157,78,221,.3) 60%, transparent 75%);
+      filter: blur(12px);
+      left: -40px;
+      top: 20px;
+      animation: floaty 7s ease-in-out infinite;
+    }
+    @keyframes floaty{
+      0%,100%{ transform: translate(0,0); }
+      50%{ transform: translate(18px, -14px); }
+    }
+
+    .visual-inner{
+      position:relative;
+      padding: 24px;
+      display:flex;
+      flex-direction:column;
+      gap: 16px;
+      height:100%;
+    }
+    .signal-title{ display:flex; justify-content:space-between; align-items:center; }
+    .signal-title h2{
+      margin:0;
+      font-size: 17px;
+      letter-spacing:-0.2px;
+      font-family: Poppins, Inter, sans-serif;
+      font-weight: 700;
+    }
+    .badge-entfaltet{
+      padding: 5px 12px;
+      border-radius: var(--radius-pill);
+      background: rgba(0,229,255,.15);
+      border: 1px solid rgba(0,229,255,.4);
+      color: var(--brandB);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .cards{ display:grid; grid-template-columns: 1fr; gap: 10px; margin-top: 6px; }
+    .mini-card{
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.22);
+      padding: 14px 16px;
+      transition: transform .2s ease, border-color .2s ease;
+    }
+    .mini-card:hover{
+      transform: translateY(-2px);
+      border-color: rgba(0,229,255,.3);
+    }
+    .mini-top{ display:flex; align-items:center; justify-content:space-between; }
+    .tag{
+      display:inline-flex; align-items:center; gap:6px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .tag-spark{
+      width: 8px; height: 8px; border-radius: 50%; background: var(--brandB);
+    }
+    .mini-card p{
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height:1.45;
+    }
+
+    /* Sections */
+    section{ padding: 42px 0; }
+    .section-head{
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto 32px;
+    }
+    .section-head h2{
+      margin:0 0 12px;
+      font-size: 32px;
+      letter-spacing: -0.6px;
+      font-family: Poppins, Inter, sans-serif;
+      font-weight: 700;
+    }
+    .section-head p{
+      margin:0;
+      color: var(--muted);
+      line-height:1.6;
+      font-size: 15px;
+    }
+
+    /* Der rote Faden - 5 Säulen */
+    .flow-steps{
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 900px){ .flow-steps{ grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 540px){ .flow-steps{ grid-template-columns: 1fr; } }
+
+    .step-card{
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      padding: 20px 16px;
+      position:relative;
+      display:flex;
+      flex-direction:column;
+    }
+    .step-num{
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--brandB);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .step-card h3{
+      margin: 0 0 8px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .step-card p{
+      margin: 0;
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* Kacheln: Mehr als Jobs */
+    .benefits{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 960px){ .benefits{ grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px){ .benefits{ grid-template-columns: 1fr; } }
+
+    .benefit{
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      padding: 22px 20px;
+      transition: transform .18s ease, border-color .18s ease;
+    }
+    .benefit:hover{
+      transform: translateY(-3px);
+      border-color: rgba(255,255,255,.22);
+    }
+    .benefit-icon{
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom: 16px;
+      font-size: 20px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+    }
+    .benefit h4{ margin:0 0 8px; font-size: 16px; font-weight: 700; }
+    .benefit p{ margin: 0; color: var(--muted); font-size: 13px; line-height:1.55; }
+
+    /* Quote Banner */
+    .manifest-banner{
+      margin: 40px 0;
+      padding: 34px 28px;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(157,78,221,.3);
+      background: radial-gradient(800px 240px at 50% 0%, rgba(157,78,221,.20), transparent 60%), rgba(255,255,255,.03);
+      text-align: center;
+    }
+    .manifest-banner blockquote{
+      margin: 0;
+      font-size: clamp(20px, 2.8vw, 28px);
+      font-family: Poppins, Inter, sans-serif;
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: -0.4px;
+      color: var(--text);
+    }
+    .manifest-banner cite{
+      display: block;
+      margin-top: 14px;
+      font-size: 14px;
+      font-style: normal;
+      color: var(--brandB);
+      font-weight: 600;
+    }
+
+    /* CTA Section */
+    .cta{
+      padding: 38px 28px;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(0,229,255,.25);
+      background:
+        radial-gradient(800px 260px at 20% 0%, rgba(0,229,255,.18), transparent 60%),
+        radial-gradient(700px 240px at 90% 10%, rgba(157,78,221,.22), transparent 55%),
+        rgba(255,255,255,.04);
+      box-shadow: 0 24px 85px rgba(0,0,0,.5);
+      text-align: center;
+    }
+    .cta h2{
+      margin:0 0 10px;
+      font-size: 28px;
+      letter-spacing: -0.4px;
+      font-family: Poppins, Inter, sans-serif;
+      font-weight: 700;
+    }
+    .cta p{
+      margin:0 auto 20px;
+      color: var(--muted);
+      line-height:1.65;
+      font-size: 15px;
+      max-width: 60ch;
+    }
+    .cta-actions{ display:flex; gap: 12px; justify-content:center; flex-wrap:wrap; }
+
+    /* Footer */
+    footer{ padding: 40px 0 32px; color: var(--muted2); font-size: 13px; border-top: 1px solid rgba(255,255,255,.07); }
+    .footer-row{
+      display:flex;
+      gap: 20px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .link-muted{
+      color: var(--muted2);
+      text-decoration:none;
+      transition: color .2s ease;
+    }
+    .link-muted:hover{ color: var(--text); }
+
+    /* Scroll reveal */
+    .reveal{ opacity: 0; transform: translateY(12px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible{ opacity: 1; transform: translateY(0); }
+
+    /* Mobile modal */
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,.65);
+      display:none;
+      z-index:100;
+    }
+    .modal-backdrop.show{ display:block; }
+    .modal{
+      position:absolute;
+      right: 16px;
+      top: 68px;
+      width: min(340px, calc(100% - 32px));
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(15, 17, 21, .94);
+      backdrop-filter: blur(14px);
+      padding: 16px;
+      box-shadow: 0 24px 90px rgba(0,0,0,.7);
+    }
+    .modal a{
+      display:block;
+      padding: 12px;
+      border-radius: var(--radius-pill);
+      color: var(--muted);
+      text-decoration:none;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    .modal a:hover{
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Zum Inhalt springen</a>
+
+  <!-- NAV -->
+  <header class="nav" role="banner">
+    <div class="container nav-inner">
+      <a class="brand" href="#top" aria-label="StoryJob Startseite">
+        <img src="assets/branding/StoryJob-Logo-weiss.png" alt="StoryJob™ — Human Opportunity Network" class="logo-img" />
+      </a>
+
+      <nav class="nav-links" aria-label="Hauptnavigation">
+        <a href="#werte">Werte & Resonanz</a>
+        <a href="#dna">StoryJob DNA™</a>
+        <a href="#chancen">Chancen & Alltag</a>
+        <a href="#teams">Für Teams & Vereine</a>
+      </nav>
+
+      <div class="nav-cta">
+        <a
+          class="btn btn-primary"
+          href="#beta"
+          aria-label="Kostenlos dabei sein"
+        >
+          <span>App entdecken</span> <span aria-hidden="true">🚀</span>
+        </a>
+
+        <button
+          class="burger"
+          id="burger"
+          aria-label="Menü öffnen"
+          aria-controls="mobileMenu"
+          aria-expanded="false"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Menu -->
+  <div class="modal-backdrop" id="backdrop" role="dialog" aria-modal="true" aria-label="Mobiles Menü">
+    <div class="modal" id="mobileMenu" tabindex="-1">
+      <a href="#werte" data-close-menu>Werte & Resonanz</a>
+      <a href="#dna" data-close-menu>StoryJob DNA™</a>
+      <a href="#chancen" data-close-menu>Chancen & Alltag</a>
+      <a href="#teams" data-close-menu>Für Teams & Vereine</a>
+      <div style="margin-top:12px;">
+        <a class="btn btn-primary" style="display:block; text-align:center;" href="#beta">
+          App entdecken 🚀
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <main id="main">
+    <!-- HERO SECTION -->
+    <div class="container hero" id="top">
+      <div class="hero-grid">
+        <div>
+          <div class="kicker reveal">
+            <span class="dot" aria-hidden="true"></span>
+            Menschen verbinden. Nicht Lebensläufe.
+          </div>
+
+          <h1 class="reveal">
+            Nicht Lebensläufe verbinden Menschen.<br>
+            <span style="color:var(--brandB);">Gemeinsame Werte tun es.</span>
+          </h1>
+
+          <p class="sub reveal">
+            StoryJob ist dein täglicher Begleiter für echte Verbindung. Erzähle deine Story in 30 Sekunden und entdecke Teams, Gemeinschaften und Chancen, bei denen die Chemie auf Anhieb stimmt.
+          </p>
+
+          <div class="hero-actions reveal">
+            <a class="btn btn-primary" href="#beta">
+              100% kostenlos entdecken <span aria-hidden="true">✨</span>
+            </a>
+            <a class="btn btn-secondary" href="#werte">
+              Wie Resonanz funktioniert <span aria-hidden="true">↓</span>
+            </a>
+          </div>
+
+          <div class="meta-row reveal" aria-label="Grundsätze">
+            <div class="meta-pill"><span class="check" aria-hidden="true">✓</span>Kein Lebenslauf-Zwang</div>
+            <div class="meta-pill"><span class="check" aria-hidden="true">✓</span>Werte vor Formalitäten</div>
+            <div class="meta-pill"><span class="check" aria-hidden="true">✓</span>Auf Augenhöhe ab Sekunde 1</div>
+          </div>
+        </div>
+
+        <aside class="visual reveal" aria-label="Resonanz Preview">
+          <div class="orb" aria-hidden="true"></div>
+
+          <div class="visual-inner">
+            <div class="signal-title">
+              <h2>Werte-Resonanz</h2>
+              <span class="badge-entfaltet">StoryJob DNA™ • 86% entfaltet</span>
+            </div>
+
+            <div class="cards" role="list">
+              <div class="mini-card" role="listitem">
+                <div class="mini-top">
+                  <span class="tag"><span class="tag-spark"></span> Deine Stimme</span>
+                  <span style="color:var(--brandB); font-size:12px; font-weight:700;">Audio Story</span>
+                </div>
+                <p>30 Sekunden Sprachaufnahme: Wie du arbeitest und woran du Freude hast. Menschlich und ungekünstelt.</p>
+              </div>
+
+              <div class="mini-card" role="listitem">
+                <div class="mini-top">
+                  <span class="tag"><span class="tag-spark" style="background:var(--brandA);"></span> Warum passt es?</span>
+                  <span style="color:var(--brandA); font-size:12px; font-weight:700;">Wellenlänge</span>
+                </div>
+                <p>✓ Teamgeist &nbsp;•&nbsp; ✓ Verlässlichkeit &nbsp;•&nbsp; ✓ Hands-on-Mentalität</p>
+              </div>
+
+              <div class="mini-card" role="listitem">
+                <div class="mini-top">
+                  <span class="tag"><span class="tag-spark" style="background:var(--brandGold);"></span> Direkter Dialog</span>
+                  <span style="color:var(--brandGold); font-size:12px; font-weight:700;">Keine Umwege</span>
+                </div>
+                <p>Unkomplizierter Sprach-Dialog mit Teams und Menschen, die deine Haltung teilen.</p>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- DER ROTE FADEN -->
+    <section id="werte" aria-labelledby="flow-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="flow-title" class="reveal">Der rote Faden zu deiner Entfaltung</h2>
+          <p class="reveal">
+            Schluss mit starren Formularen und kühlen Noten. Bei StoryJob wirst du verstanden statt bewertet.
+          </p>
+        </div>
+
+        <div class="flow-steps">
+          <div class="step-card reveal">
+            <span class="step-num">Schritt 01</span>
+            <h3>Deine Story</h3>
+            <p>Deine Stimme transportiert deine Begeisterung, Spontaneität und Persönlichkeit.</p>
+          </div>
+          <div class="step-card reveal">
+            <span class="step-num">Schritt 02</span>
+            <h3>Deine Werte</h3>
+            <p>Du entscheidest, worauf es dir bei Zusammenarbeit und Gemeinschaft ankommt.</p>
+          </div>
+          <div class="step-card reveal">
+            <span class="step-num">Schritt 03</span>
+            <h3>Deine DNA™</h3>
+            <p>Im Hintergrund entsteht dein ganzheitliches Resonanz-Profil – geschützt und präzise.</p>
+          </div>
+          <div class="step-card reveal">
+            <span class="step-num">Schritt 04</span>
+            <h3>Deine Resonanz</h3>
+            <p>Du siehst transparent, warum jemand menschlich zu dir passt.</p>
+          </div>
+          <div class="step-card reveal">
+            <span class="step-num">Schritt 05</span>
+            <h3>Deine Chance</h3>
+            <p>Direkter Austausch ohne Barrieren, Anschreiben oder Agenturschleifen.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MANIFEST BANNER -->
+    <div class="container">
+      <div class="manifest-banner reveal">
+        <blockquote>
+          „Nicht jeder passt überall hin.<br>Aber jeder passt irgendwo perfekt hin.“
+        </blockquote>
+        <cite>— Das StoryJob™ Prinzip</cite>
+      </div>
+    </div>
+
+    <!-- MEHR ALS JOBS: EIN TÄGLICHER RAUM FÜR CHANCEN -->
+    <section id="chancen" aria-labelledby="chancen-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="chancen-title" class="reveal">Mehr als ein Job. Ein täglicher Begleiter.</h2>
+          <p class="reveal">
+            Menschen suchen Zugehörigkeit, nicht nur Beschäftigung. StoryJob öffnet Türen in deinem Alltag.
+          </p>
+        </div>
+
+        <div class="benefits">
+          <article class="benefit reveal">
+            <div class="benefit-icon" aria-hidden="true">🎙️</div>
+            <h4>Daily Audio Sparks</h4>
+            <p>Tägliche Impulse und Fragen, die dir helfen, deine Werte zu reflektieren und sichtbar zu machen.</p>
+          </article>
+          <article class="benefit reveal">
+            <div class="benefit-icon" aria-hidden="true">🤝</div>
+            <h4>Teams & Macher</h4>
+            <p>Lerne Betriebe und Arbeitsumfelder über echte Team-Pitches kennen, bevor du dich entscheidest.</p>
+          </article>
+          <article class="benefit reveal">
+            <div class="benefit-icon" aria-hidden="true">🌱</div>
+            <h4>Ehrenamt & Vereine</h4>
+            <p>Finde regionale Initiativen, soziale Projekte und Gemeinschaften, die für dieselbe Sache brennen.</p>
+          </article>
+          <article class="benefit reveal">
+            <div class="benefit-icon" aria-hidden="true">✨</div>
+            <h4>Echte Resonanz</h4>
+            <p>Keine Algorithmus-Noten. Du siehst genau, welche Werte euch verbinden.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- FÜR TEAMS & VEREINE -->
+    <section id="teams" aria-labelledby="teams-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="teams-title" class="reveal">Für Betriebe, Teams & Initiativen</h2>
+          <p class="reveal">
+            Stellenanzeigen kosten viel und sagen wenig. Macht eure Kultur, euer Team und eure Mission hörbar.
+          </p>
+        </div>
+
+        <div class="benefits" style="grid-template-columns: repeat(3, 1fr);">
+          <article class="benefit reveal">
+            <h4>Kultur hörbar machen</h4>
+            <p>Zeigt in kurzen Audio-Storys, wie ihr zusammenarbeitet, was euch antreibt und wie euer Alltag aussieht.</p>
+          </article>
+          <article class="benefit reveal">
+            <h4>Menschen, die bleiben</h4>
+            <p>Fachwissen kann man schulen – eine gemeinsame Haltung nicht. Gewinnt Mitstreiter über Resonanz.</p>
+          </article>
+          <article class="benefit reveal">
+            <h4>Auf Augenhöhe</h4>
+            <p>Keine formellen Bewerbungsstapel. Direkter Dialog mit Talenten und Machern aus der Region.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA / BETA -->
+    <section id="beta" aria-labelledby="beta-title">
+      <div class="container">
+        <div class="cta reveal">
+          <h2 id="beta-title">Werde Teil von StoryJob™</h2>
+          <p>
+            Ob du dein Talent entfalten, ein Team bereichern oder eine Initiative stärken willst: StoryJob verbindet Menschen über das, was wirklich zählt. Dauerhaft kostenfrei.
+          </p>
+
+          <div class="cta-actions">
+            <a class="btn btn-primary" href="mailto:story.job@outlook.de?subject=StoryJob%20Zugang%20anfragen">
+              Zugang anfragen <span aria-hidden="true">🚀</span>
+            </a>
+            <a class="btn btn-secondary" href="#top">
+              Nach oben <span aria-hidden="true">↑</span>
+            </a>
+          </div>
+
+          <div class="meta-row" style="justify-content:center; margin-top:18px;">
+            <div class="meta-pill"><span class="check" aria-hidden="true">✓</span>100% Kostenfrei für Macher</div>
+            <div class="meta-pill"><span class="check" aria-hidden="true">✓</span>Beta Launch 2026</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <div class="container">
+        <div class="footer-row">
+          <div>
+            <strong style="color:var(--text); font-size:15px;">StoryJob™</strong><br>
+            <span style="color:var(--muted2);">Human Opportunity Network</span>
+          </div>
+
+          <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:center;">
+            <a class="link-muted" href="#werte">Werte</a>
+            <a class="link-muted" href="#dna">StoryJob DNA™</a>
+            <a class="link-muted" href="#chancen">Chancen</a>
+            <a class="link-muted" href="/impressum/">Impressum</a>
+            <a class="link-muted" href="/datenschutz/">Datenschutz</a>
+            <a class="link-muted" href="mailto:story.job@outlook.de">Kontakt</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    const burger = document.getElementById('burger');
+    const backdrop = document.getElementById('backdrop');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const firstFocusable = document.getElementById('mobileMenu')?.querySelector('a, button, [tabindex]:not([tabindex="-1"])');
+    let lastFocusedElement = null;
+
+    function openMenu(){
+      lastFocusedElement = document.activeElement;
+      backdrop.classList.add('show');
+      burger.setAttribute('aria-expanded', 'true');
+      window.setTimeout(() => firstFocusable?.focus(), 0);
+    }
+
+    function closeMenu(){
+      backdrop.classList.remove('show');
+      burger.setAttribute('aria-expanded', 'false');
+      if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+        lastFocusedElement.focus();
+      }
+    }
+
+    burger?.addEventListener('click', () => {
+      const isOpen = backdrop.classList.contains('show');
+      isOpen ? closeMenu() : openMenu();
+    });
+
+    backdrop?.addEventListener('click', (e) => {
+      if(e.target === backdrop) closeMenu();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape' && backdrop.classList.contains('show')) closeMenu();
+    });
+
+    mobileMenu?.querySelectorAll('[data-close-menu]').forEach(a => {
+      a.addEventListener('click', () => closeMenu());
+    });
+
+    // Scroll reveal
+    const items = Array.from(document.querySelectorAll('.reveal'));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(ent => {
+        if(ent.isIntersecting){
+          ent.target.classList.add('visible');
+          io.unobserve(ent.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    items.forEach(el => io.observe(el));
+  </script>
+</body>
+</html>

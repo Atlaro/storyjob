@@ -1,0 +1,277 @@
+﻿<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Impressum — StoryJob</title>
+  <meta name="description" content="Impressum und rechtliche Angaben für StoryJob." />
+
+  <!-- ✅ Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- ✅ Favicon -->
+  <link rel="icon" type="image/png" href="../assets/branding/app_icon_dark.png">
+  <link rel="apple-touch-icon" href="../assets/branding/app_icon_dark.png">
+
+  <!-- ✅ Canonical -->
+  <link rel="canonical" href="https://storyjob.de/impressum/" />
+
+  <style>
+    :root{
+      --bg0:#070A12;
+      --bg1:#0B1020;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.09);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.72);
+      --muted2: rgba(255,255,255,.55);
+      --brandA:#7C3AED;
+      --brandB:#22D3EE;
+      --shadow: 0 20px 70px rgba(0,0,0,.55);
+      --ring: 0 0 0 4px rgba(124,58,237,.25);
+      --max: 900px;
+      --nav-bg: rgba(7, 10, 18, 0.82);
+    }
+
+    *{ box-sizing: border-box; }
+    html { height: 100%; scroll-behavior: smooth; }
+    html, body { height: 100%; }
+
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(124,58,237,.25), transparent 55%),
+        radial-gradient(1000px 500px at 80% 20%, rgba(34,211,238,.18), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      color: var(--text);
+      overflow-x:hidden;
+    }
+
+    .container{
+      width: min(var(--max), calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    /* Top nav */
+    .nav{
+      position: sticky;
+      top:0;
+      z-index:50;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: var(--nav-bg);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .nav-inner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding: 0;
+      height: 80px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      text-decoration:none;
+      color: var(--text);
+      user-select:none;
+    }
+    
+    .logo-img{
+      height: 110px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+      transform: scale(1.15);
+      transform-origin: left center;
+    }
+    @media (max-width: 480px){
+      .nav-inner { height: 68px; }
+      .logo-img{ height: 85px; transform: scale(1.1); }
+    }
+
+    .nav-links{
+      display:flex;
+      gap:18px;
+      align-items:center;
+    }
+    .nav-links a{
+      color: var(--muted);
+      text-decoration:none;
+      font-size: 13px;
+      padding: 10px 10px;
+      border-radius: 12px;
+      transition: background .2s ease, color .2s ease;
+    }
+    .nav-links a:hover{
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+    }
+    .btn{
+      border:none;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      text-decoration:none;
+      color: var(--text);
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      padding: 11px 14px;
+      border-radius: 14px;
+      font-weight: 650;
+      font-size: 13px;
+      white-space:nowrap;
+    }
+    .btn:hover{ background: rgba(255,255,255,.11); border-color: rgba(255,255,255,.22); }
+
+    /* Content styling */
+    main { padding: 40px 0 60px; }
+    h1 {
+      font-size: clamp(28px, 4vw, 40px);
+      font-family: Poppins, Inter, sans-serif;
+      margin-top: 0;
+      margin-bottom: 24px;
+      letter-spacing: -0.5px;
+    }
+    h2 {
+      font-size: 19px;
+      font-family: Poppins, Inter, sans-serif;
+      margin-top: 32px;
+      margin-bottom: 12px;
+      color: var(--brandB);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      padding-bottom: 8px;
+    }
+    p, li {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14.5px;
+      margin-bottom: 14px;
+    }
+    ul { padding-left: 20px; margin-bottom: 14px; }
+    strong { color: rgba(255,255,255,.9); }
+    
+    .legal-box {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 24px;
+      padding: 32px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 18px 60px rgba(0,0,0,.28);
+    }
+
+    /* Footer */
+    footer{ padding: 26px 0 34px; color: var(--muted2); font-size: 13px; border-top: 1px solid rgba(255,255,255,.08); margin-top: 40px; }
+    .footer-row{ display:flex; gap: 18px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    .foot-right{ display:flex; gap: 10px; flex-wrap:wrap; align-items:center; }
+    .link-muted{ color: var(--muted2); text-decoration:none; }
+    .link-muted:hover{ color: var(--muted); }
+  </style>
+</head>
+
+<body>
+  <!-- NAV -->
+  <header class="nav" role="banner">
+    <div class="container nav-inner">
+      <a class="brand" href="/" aria-label="StoryJob Startseite">
+        <img src="../assets/branding/StoryJob-Logo-weiss.png" alt="StoryJob Logo" class="logo-img" />
+      </a>
+
+      <nav class="nav-links" aria-label="Hauptnavigation">
+        <a href="/">Startseite</a>
+        <a href="/#storydna">StoryDNA</a>
+        <a href="/#vision">Vision</a>
+      </nav>
+
+      <div>
+        <a class="btn" href="mailto:story.job@outlook.de?subject=StoryJob%20Kontakt">Kontakt</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="container">
+    <div class="legal-box">
+      <h1>Impressum</h1>
+
+      <h2>Angaben gemäß § 5 DDG</h2>
+      <p>
+        <strong>Peter Alt</strong><br>
+        Erwin-Brummer-Straße 5<br>
+        84364 Bad Birnbach<br>
+        Deutschland<br>
+
+        Einzelunternehmer / Senior Flutter Architekt<br>
+        Gründer von StoryJob™<br>
+        StoryJob — Human Opportunity Network<br>
+      </p>
+
+      <h2>Kontakt</h2>
+      <p>
+        Telefon: +49 (0) 155 62608647<br>
+        E-Mail: <a href="mailto:story.job@outlook.de" style="color: var(--brandB); text-decoration: none;">story.job@outlook.de</a>
+      </p>
+
+      <h2>Verantwortlich für journalistisch-redaktionelle Inhalte nach § 18 Abs. 2 MStV</h2>
+      <p>
+        <strong>Peter Alt</strong><br>
+        Erwin-Brummer-Straße 5<br>
+        84364 Bad Birnbach<br>
+
+        Gründer von StoryJob™<br>
+      </p>
+
+      <h2>EU-Streitschlichtung</h2>
+      <p>
+        Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: 
+        <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener" style="color: var(--brandB); text-decoration: none;">https://ec.europa.eu/consumers/odr/</a>.<br>
+        Unsere E-Mail-Adresse finden Sie oben im Impressum.
+      </p>
+
+      <h2>Verbraucherstreitbeilegung / Universalschlichtungsstelle</h2>
+      <p>
+        Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.
+      </p>
+
+      <h2>Haftung für Inhalte</h2>
+      <p>
+        Als Diensteanbieter sind wir gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.
+      </p>
+
+      <h2>Haftung für Links</h2>
+      <p>
+        Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar. Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.
+      </p>
+
+      <h2>Urheberrecht</h2>
+      <p>
+        Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet.
+      </p>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-row">
+        <p style="margin:0;">&copy; 2026 StoryJob. Alle Rechte vorbehalten.</p>
+        <div class="foot-right">
+          <a class="link-muted" href="/">Startseite</a>
+          <span>•</span>
+          <a class="link-muted" href="/impressum/">Impressum</a>
+          <span>•</span>
+          <a class="link-muted" href="/datenschutz/">Datenschutz</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

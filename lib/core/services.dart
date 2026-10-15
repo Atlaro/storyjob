@@ -1,4 +1,5 @@
-import 'dart:io';
+// lib/core/services/app_services.dart
+import 'dart:io' show File, Directory;
 import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
 class AppServices {
+  // Zentrale Firebase-Instanzen
   static final FirebaseAuth auth = FirebaseAuth.instance;
   static final FirebaseFirestore db = FirebaseFirestore.instance;
   static final FirebaseStorage storage = FirebaseStorage.instance;
@@ -17,14 +19,24 @@ class AppServices {
 
   static final AudioRecorder _audioRecorder = AudioRecorder();
 
+  // ==========================================================================
+  // 1. AUDIO RECORDING & STORY PUBLISHING
+  // ==========================================================================
+
   static Future<String?> startRecording() async {
     final bool hasPermission = await _audioRecorder.hasPermission();
     if (!hasPermission) {
       throw Exception('Mikrofon-Berechtigung wurde verweigert.');
     }
 
-    final Directory dir = await getTemporaryDirectory();
-    final String path = '${dir.path}/story_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    String path = '';
+    if (kIsWeb) {
+      // Im Web-Kontext puffert der Recorder intern
+      path = 'audio_story_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    } else {
+      final Directory dir = await getTemporaryDirectory();
+      path = '${dir.path}/story_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    }
 
     await _audioRecorder.start(
       const RecordConfig(encoder: AudioEncoder.aacLc),
@@ -38,29 +50,38 @@ class AppServices {
     return await _audioRecorder.stop();
   }
 
+  static Future<void> cancelRecording() async {
+    await _audioRecorder.cancel();
+  }
+
   static Future<void> publishStory({
     required String filePath,
     required int durationSeconds,
-    String category = 'PV/Technik',
+    String category = 'Werte & Teamfit',
   }) async {
     final User? user = auth.currentUser;
     final String userId = user?.uid ?? 'guest_${DateTime.now().millisecondsSinceEpoch}';
+    final String storyId = db.collection('stories').doc().id;
+    final Reference ref = storage.ref().child('stories/$userId/$storyId.m4a');
 
-    final File file = File(filePath);
-    if (!await file.exists()) {
-      throw Exception('Aufnahmedatei wurde nicht gefunden.');
+    String downloadUrl = '';
+
+    if (!kIsWeb) {
+      final File file = File(filePath);
+      if (!await file.exists()) {
+        throw Exception('Aufnahmedatei wurde nicht gefunden.');
+      }
+      final TaskSnapshot uploadTask = await ref.putFile(file);
+      downloadUrl = await uploadTask.ref.getDownloadURL();
+    } else {
+      // Fallback für Web-Upload via URL oder Blob
+      downloadUrl = filePath;
     }
 
-    final String storyId = db.collection('stories').doc().id;
-
-    final Reference ref = storage.ref().child('stories/$userId/$storyId.m4a');
-    final TaskSnapshot uploadTask = await ref.putFile(file);
-    final String downloadUrl = await uploadTask.ref.getDownloadURL();
-
-    await db.collection('stories').doc(storyId).set({
+    final storyPayload = {
       'id': storyId,
       'userId': userId,
-      'userName': user?.displayName ?? 'Peter Alt',
+      'userName': user?.displayName ?? 'Talent',
       'userAvatarUrl': user?.photoURL ?? '',
       'category': category,
       'audioUrl': downloadUrl,
@@ -68,7 +89,9 @@ class AppServices {
       'createdAt': FieldValue.serverTimestamp(),
       'playsCount': 0,
       'likesCount': 0,
-    });
+    };
+
+    await db.collection('stories').doc(storyId).set(storyPayload);
   }
 
   static Stream<QuerySnapshot> getStoryFeedStream() {
@@ -84,7 +107,7 @@ class AppServices {
         'playsCount': FieldValue.increment(1),
       });
     } catch (e) {
-      debugPrint("Fehler beim Inkrementieren der Plays: $e");
+      debugPrint('Fehler beim Inkrementieren der Plays: $e');
     }
   }
 
@@ -94,7 +117,7 @@ class AppServices {
         'likesCount': FieldValue.increment(1),
       });
     } catch (e) {
-      debugPrint("Fehler beim Inkrementieren der Likes: $e");
+      debugPrint('Fehler beim Inkrementieren der Likes: $e');
     }
   }
 
@@ -102,50 +125,115 @@ class AppServices {
     _audioRecorder.dispose();
   }
 
-  // --- Auth Logik mit Location-Fix ---
+  // ==========================================================================
+  // 2. CHAT & STORYDIALOG SERVICES
+  // ==========================================================================
+
+  static Future<void> sendMessage(
+    String chatId,
+    String text, {
+    String type = 'text',
+    String? audioUrl,
+    String? senderId,
+  }) async {
+    try {
+      final effectiveSenderId = senderId ?? 
+          auth.currentUser?.uid ?? 
+          'guest_user';
+
+      await db
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .add({
+        'senderId': effectiveSenderId,
+        'text': text,
+        'type': type,
+        'audioUrl': audioUrl ?? '',
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      await db.collection('chats').doc(chatId).set({
+        'lastMessage': type == 'audio' ? '🎤 Sprachnachricht' : text,
+        'lastMessageTimestamp': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (e) {
+      debugPrint('AppServices.sendMessage Fehler: $e');
+      rethrow;
+    }
+  }
+
+  static Stream<QuerySnapshot> getChatMessages(String chatId) {
+    return db
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .orderBy('timestamp', descending: false)
+        .snapshots();
+  }
+
+  // ==========================================================================
+  // 3. AUTH LOGIK & STORE-READINESS (LÖSCHUNG NACH APPLE-RICHTLINIEN)
+  // ==========================================================================
+
   static Future<UserCredential?> registerUser({
     required String email,
     required String password,
     required String role,
     required String displayName,
-    String location = 'Pocking', // Location-Fix für sofortiges Matching
-    List<String> engagement = const ['BRK', 'Feuerwehr'],
+    String location = 'Region Niederbayern',
+    List<String> engagement = const [],
+    List<String> interests = const ['Werte & Haltung', 'Innovation'],
   }) async {
     try {
-      UserCredential creds = await auth.createUserWithEmailAndPassword(email: email, password: password);
+      UserCredential creds = await auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
       final uid = creds.user?.uid;
 
       if (uid != null) {
         await creds.user?.updateDisplayName(displayName);
+
+        // Zentrale User-Entität für Feed, Matches und Profil
         await db.collection('users').doc(uid).set({
           'uid': uid,
           'email': email,
+          'fullName': displayName,
           'role': role,
+          'location': location,
+          'engagement': engagement,
+          'interests': interests,
+          'storyMatchesCount': 0,
+          'profileViewsCount': 0,
           'createdAt': FieldValue.serverTimestamp(),
-        });
+        }, SetOptions(merge: true));
 
+        // Legacy-Kompatibilität für Profiles-Collection
         await db.collection('profiles').doc(uid).set({
           'uid': uid,
           'displayName': displayName,
           'role': role,
-          'location': location, // Korrekt hinterlegt
+          'location': location,
           'engagement': engagement,
-          'interests': ['Technik', 'Angeln'],
           'updatedAt': FieldValue.serverTimestamp(),
-        });
+        }, SetOptions(merge: true));
       }
       return creds;
     } catch (e) {
-      debugPrint("Auth Error: $e");
+      debugPrint('Auth Error: $e');
       return null;
     }
   }
 
   static Future<UserCredential?> loginUser(String email, String password) async {
     try {
-      return await auth.signInWithEmailAndPassword(email: email, password: password);
+      return await auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
     } catch (e) {
-      debugPrint("Login Error: $e");
+      debugPrint('Login Error: $e');
       return null;
     }
   }
@@ -155,7 +243,7 @@ class AppServices {
       await auth.sendPasswordResetEmail(email: email);
       return true;
     } catch (e) {
-      debugPrint("Password Reset Error: $e");
+      debugPrint('Password Reset Error: $e');
       return false;
     }
   }
@@ -164,12 +252,18 @@ class AppServices {
     await auth.signOut();
   }
 
+  /// App Store Richtlinie 5.1.1 (Account Deletion)
   static Future<void> deleteAccount() async {
     final uid = auth.currentUser?.uid;
     if (uid != null) {
-      await db.collection('users').doc(uid).delete();
-      await db.collection('profiles').doc(uid).delete();
-      await auth.currentUser?.delete();
+      try {
+        await db.collection('users').doc(uid).delete();
+        await db.collection('profiles').doc(uid).delete();
+        await auth.currentUser?.delete();
+      } catch (e) {
+        debugPrint('Fehler beim Löschen des Accounts: $e');
+        rethrow;
+      }
     }
   }
 }
