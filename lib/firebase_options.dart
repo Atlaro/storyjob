@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '758116924953',
     projectId: 'storyjob-98017',
     storageBucket: 'storyjob-98017.firebasestorage.app',
-    iosBundleId: 'com.example.flutterApplication1',
+    iosBundleId: 'de.storyjob.app',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '758116924953',
     projectId: 'storyjob-98017',
     storageBucket: 'storyjob-98017.firebasestorage.app',
-    iosBundleId: 'com.example.flutterApplication1',
+    iosBundleId: 'de.storyjob.app',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
