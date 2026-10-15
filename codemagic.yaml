@@ -5,12 +5,13 @@ workflows:
     instance_type: mac_mini_m1
     environment:
       groups:
-        - app_store_credentials # Hier hinterlegst du später deine Apple-Zugangsdaten sicher
+        - app_store_credentials
       flutter: stable
       xcode: latest
     scripts:
-      - name: Get Flutter packages
+      - name: Clean project and get dependencies
         script: |
+          flutter clean
           flutter pub get
       - name: Build iOS App for TestFlight
         script: |
@@ -20,6 +21,5 @@ workflows:
     publishing:
       app_store_connect:
         auth: api_key
-        # Automatischer Upload zu TestFlight nach erfolgreichem Build
         submit_to_testflight: true
         expire_build_waiting_for_test: true
