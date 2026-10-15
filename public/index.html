@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>StoryJob™ — Deine Story. Deine Werte. Deine Chance.</title>
-  <meta name="description" content="Nicht Lebensläufe verbinden Menschen. Gemeinsame Werte tun es. StoryJob verbindet Menschen, Teams und Projekte über echte Resonanz." />
+  <meta name="description" content="Nicht Lebensläufe verbinden Menschen. Gemeinsame Werte tun es. StoryJob verbindet Menschen, Teams und Projekte über echte Passung." />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
@@ -41,7 +41,7 @@
       --text: rgba(255,255,255,.94);
       --muted: rgba(255,255,255,.70);
       --muted2: rgba(255,255,255,.50);
-      --brandA:#9D4EDD; /* Violett: Werte & Resonanz */
+      --brandA:#9D4EDD; /* Violett: Werte & Passung */
       --brandB:#00E5FF; /* Cyan: Stimme & Audio */
       --brandGold:#F59E0B; /* Gold: Entfaltung & Chancen */
       --shadow: 0 20px 70px rgba(0,0,0,.60);
@@ -127,7 +127,7 @@
       align-items:center;
       justify-content:space-between;
       gap:16px;
-      height: 140px; /* Erhöht für das große Logo */
+      height: 140px;
     }
     .brand{
       display:flex;
@@ -138,7 +138,7 @@
       user-select:none;
     }
     .logo-img{
-      height: 210px; /* 3x so groß (vorher 70px) */
+      height: 210px;
       width: auto;
       object-fit: contain;
       display: block;
@@ -147,7 +147,7 @@
 
     @media (max-width: 480px){
       .nav-inner{ height: 110px; }
-      .logo-img{ height: 160px; } /* 3x so groß auf Mobilgeräten */
+      .logo-img{ height: 160px; }
     }
 
     .nav-links{
@@ -172,7 +172,6 @@
       display:flex; align-items:center; gap:10px;
     }
 
-    /* Pill-Button-Design */
     .btn{
       border:none;
       cursor:pointer;
@@ -217,7 +216,6 @@
       color: var(--text);
     }
 
-    /* Mobile Nav */
     .burger{
       display:none;
       width:42px; height:42px;
@@ -453,7 +451,6 @@
       line-height: 1.5;
     }
 
-    /* Kacheln: Mehr als Jobs */
     .benefits{
       display:grid;
       grid-template-columns: repeat(4, 1fr);
@@ -609,7 +606,7 @@
       </a>
 
       <nav class="nav-links" aria-label="Hauptnavigation">
-        <a href="#werte">Werte & Resonanz</a>
+        <a href="#werte">Werte & Passung</a>
         <a href="#dna">StoryJob DNA™</a>
         <a href="#chancen">Chancen & Alltag</a>
         <a href="#teams">Für Teams & Vereine</a>
@@ -642,7 +639,7 @@
   <!-- Mobile Menu -->
   <div class="modal-backdrop" id="backdrop" role="dialog" aria-modal="true" aria-label="Mobiles Menü">
     <div class="modal" id="mobileMenu" tabindex="-1">
-      <a href="#werte" data-close-menu>Werte & Resonanz</a>
+      <a href="#werte" data-close-menu>Werte & Passung</a>
       <a href="#dna" data-close-menu>StoryJob DNA™</a>
       <a href="#chancen" data-close-menu>Chancen & Alltag</a>
       <a href="#teams" data-close-menu>Für Teams & Vereine</a>
@@ -678,7 +675,7 @@
               100% kostenlos entdecken <span aria-hidden="true">✨</span>
             </a>
             <a class="btn btn-secondary" href="#werte">
-              Wie Resonanz funktioniert <span aria-hidden="true">↓</span>
+              Wie die Passung funktioniert <span aria-hidden="true">↓</span>
             </a>
           </div>
 
@@ -689,12 +686,12 @@
           </div>
         </div>
 
-        <aside class="visual reveal" aria-label="Resonanz Preview">
+        <aside class="visual reveal" aria-label="Passungs Preview">
           <div class="orb" aria-hidden="true"></div>
 
           <div class="visual-inner">
             <div class="signal-title">
-              <h2>Werte-Resonanz</h2>
+              <h2>Werte-Passung</h2>
               <span class="badge-entfaltet">StoryJob DNA™ • 86% entfaltet</span>
             </div>
 
@@ -752,11 +749,11 @@
           <div class="step-card reveal">
             <span class="step-num">Schritt 03</span>
             <h3>Deine DNA™</h3>
-            <p>Im Hintergrund entsteht dein ganzheitliches Resonanz-Profil – geschützt und präzise.</p>
+            <p>Im Hintergrund entsteht dein ganzheitliches Passungs-Profil – geschützt und präzise.</p>
           </div>
           <div class="step-card reveal">
             <span class="step-num">Schritt 04</span>
-            <h3>Deine Resonanz</h3>
+            <h3>Deine Passung</h3>
             <p>Du siehst transparent, warum jemand menschlich zu dir passt.</p>
           </div>
           <div class="step-card reveal">
@@ -806,7 +803,7 @@
           </article>
           <article class="benefit reveal">
             <div class="benefit-icon" aria-hidden="true">✨</div>
-            <h4>Echte Resonanz</h4>
+            <h4>Echte Passung</h4>
             <p>Keine Algorithmus-Noten. Du siehst genau, welche Werte euch verbinden.</p>
           </article>
         </div>
@@ -826,11 +823,11 @@
         <div class="benefits" style="grid-template-columns: repeat(3, 1fr);">
           <article class="benefit reveal">
             <h4>Kultur hörbar machen</h4>
-            <p>Zeigt in kurzen Audio-Storys, wie ihr zusammenarbeitet, was euch antreibt und wie euer Alltag aussieht.</p>
+            <p>Zeigt in kurzen Audio-Storys, wie ihr zusammenarbeitet, was euch antreibt und euer Alltag aussieht.</p>
           </article>
           <article class="benefit reveal">
             <h4>Menschen, die bleiben</h4>
-            <p>Fachwissen kann man schulen – eine gemeinsame Haltung nicht. Gewinnt Mitstreiter über Resonanz.</p>
+            <p>Fachwissen kann man schulen – eine gemeinsame Haltung nicht. Gewinnt Mitstreiter über echte Passung.</p>
           </article>
           <article class="benefit reveal">
             <h4>Auf Augenhöhe</h4>
