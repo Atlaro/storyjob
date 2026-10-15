@@ -9,6 +9,10 @@ workflows:
       flutter: stable
       xcode: latest
 
+      # Hier binden wir deine Zertifikatsgruppe ein, damit Codemagic das Provisioning Profile findet
+      vars:
+        BUNDLE_IDENTIFIER: "de.storyjob.app"
+
       ios_signing:
         distribution_type: app_store
         bundle_identifier: de.storyjob.app
