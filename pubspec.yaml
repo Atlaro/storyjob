@@ -1,5 +1,6 @@
 name: storyjob
 description: "StoryJob - Human Opportunity Network"
+
 publish_to: "none"
 
 version: 1.0.0+1
@@ -21,6 +22,10 @@ dependencies:
   speech_to_text: ^7.0.0
   record: ^5.1.2
   audioplayers: ^6.0.0
+
+  # Camera & Video
+  camera: ^0.11.0+2
+  video_player: ^2.9.2
 
   # Permissions & System
   permission_handler: ^11.3.1
@@ -58,6 +63,10 @@ dependencies:
   # Utilities
   uuid: ^4.5.0
   intl: ^0.19.0
+  confetti: ^0.8.0
+  google_sign_in: ^7.2.0
+  sign_in_with_apple: ^8.2.0
+  flutter_cache_manager: ^3.4.5
 
 dev_dependencies:
   flutter_test:
@@ -76,19 +85,21 @@ flutter:
     - assets/branding/
     - assets/icons/
     - assets/images/
-    - assets/images/splash/
-    - assets/images/onboarding/
-    - assets/images/marketing/  # <--- Hier neu hinzugefügt
+    - assets/onboarding/
+    - assets/icons/refresh_icon.png
 
   fonts:
     - family: Poppins
       fonts:
         - asset: assets/fonts/Poppins/Poppins-Regular.ttf
           weight: 400
+
         - asset: assets/fonts/Poppins/Poppins-Medium.ttf
           weight: 500
+
         - asset: assets/fonts/Poppins/Poppins-SemiBold.ttf
           weight: 600
+
         - asset: assets/fonts/Poppins/Poppins-Bold.ttf
           weight: 700
 
@@ -101,7 +112,7 @@ flutter_launcher_icons:
 
 flutter_native_splash:
   color: "#0D0F1D"
-  image: "assets/images/splash/splash.webp"
+  image: "assets/branding/app_icon_dark.png"
   android_12:
     color: "#0D0F1D"
-    image: "assets/images/splash/splash.webp"
+    image: "assets/branding/app_icon_dark.png"

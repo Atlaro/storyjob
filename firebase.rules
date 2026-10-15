@@ -1,0 +1,42 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Bestehende Regeln für users, job_stories etc. bleiben bestehen...
+
+    // 1. resonance_events: Strenges Append-Only für eingeloggte Nutzer
+    match /resonance_events/{eventId} {
+      // Nur der Ersteller darf sein eigenes Event genau einmal anlegen
+      allow create: if request.auth != null 
+                    && request.resource.data.actorId == request.auth.uid;
+      
+      // Niemand darf Events im Nachhinein verändern, überschreiben oder löschen
+      allow update, delete: if false;
+      
+      // Normale Nutzer dürfen den Rohdatenstrom nicht lesen (Schutz vor Scraping)
+      allow read: if false;
+    }
+
+    // 2. resonance_pairs: Nur Beteiligte dürfen lesen, Schreiben nur via Backend/Admin
+    match /resonance_pairs/{pairId} {
+      // Ein Nutzer darf das Paar nur lesen, wenn seine UID Teil des Paar-Keys ist
+      allow read: if request.auth != null 
+                  && (request.auth.uid == resource.data.partyA 
+                      || request.auth.uid == resource.data.partyB);
+      
+      // Nur der Client darf den finalen Outcome-Status melden, falls noch offen
+      allow update: if request.auth != null 
+                    && (request.auth.uid == resource.data.partyA || request.auth.uid == resource.data.partyB)
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['outcomeStatus', 'outcomeReportedAt']);
+
+      // Keine direkten Client-Erstellungen oder Löschungen (macht die Cloud Function)
+      allow create, delete: if false;
+    }
+
+    // 3. culture_clusters: Öffentliches Lesen (für Matching-Logik), Schreibschutz
+    match /culture_clusters/{clusterId} {
+      allow read: if request.auth != null;
+      allow write: if false; // Reines IP-Kapital, nur Backend darf schreiben
+    }
+  }
+}

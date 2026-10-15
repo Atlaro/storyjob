@@ -1,346 +1,373 @@
-import 'dart:async';
+// lib/features/auth/screens/onboarding_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-import '../../../core/theme/storyjob_theme.dart';
-import '../../navigation/main_navigation_hub.dart';
+import 'package:storyjob/core/theme/storyjob_theme.dart';
+import 'package:storyjob/core/widgets/glass_button.dart';
+import 'package:storyjob/core/widgets/glass_card.dart';
+import 'package:storyjob/core/widgets/glow_orb.dart';
+import 'package:storyjob/features/auth/screens/role_selection_screen.dart';
 
 class ModernOnboardingScreen extends StatefulWidget {
   const ModernOnboardingScreen({super.key});
 
   @override
-  State createState() => _ModernOnboardingScreenState();
+  State<ModernOnboardingScreen> createState() => _ModernOnboardingScreenState();
 }
 
-class _ModernOnboardingScreenState extends State {
+typedef OnboardingScreen = ModernOnboardingScreen;
+
+class _ModernOnboardingScreenState extends State<ModernOnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  Timer? _slideshowTimer;
+  static const int _totalPages = 3;
 
-  final _onboardingData = [
-    {
-      'title': 'Willkommen bei StoryJob',
-      'text': 'Talente erkennt man nicht auf dem Papier.',
-      'image': 'assets/images/onboarding/onboarding_person.webp',
-    },
-    {
-      'title': 'Erzähle deine Geschichte',
-      'text': 'Zeige Persönlichkeit, Motivation und Potenzial mit deinem Voice Pitch.',
-      'image': 'assets/images/onboarding/story_recording_hero.webp',
-    },
-    {
-      'title': 'Finde den passenden Match',
-      'text': 'Unternehmen hören deine Geschichte bevor sie deinen Lebenslauf sehen.',
-      'image': 'assets/images/onboarding/matches.webp',
-    },
-    {
-      'title': 'Deine Story. Deine Zukunft.',
-      'text': 'Jede Karriere beginnt mit einer Geschichte.',
-      'image': 'assets/images/onboarding/performance.webp',
-    },
-  ];
+  Future<void> _completeOnboarding() async {
+    HapticFeedback.mediumImpact();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('seenOnboarding', true);
 
-  @override
-  void initState() {
-    super.initState();
-    _startAutoSlideshow();
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 350),
+        pageBuilder: (_, __, ___) => const RoleSelectionScreen(),
+        transitionsBuilder: (_, animation, __, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
+    );
   }
 
-  void _startAutoSlideshow() {
-    _slideshowTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
-      if (_currentPage < _onboardingData.length - 1) {
-        _pageController.nextPage(
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.easeInOutCubic,
-        );
-      } else {
-        timer.cancel();
-      }
-    });
+  void _nextPage() {
+    HapticFeedback.lightImpact();
+    if (_currentPage < _totalPages - 1) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 320),
+        curve: Curves.easeInOutCubic,
+      );
+    } else {
+      _completeOnboarding();
+    }
   }
 
   @override
   void dispose() {
-    _slideshowTimer?.cancel();
     _pageController.dispose();
     super.dispose();
-  }
-
-  Future _completeOnboarding() async {
-    HapticFeedback.mediumImpact();
-    _slideshowTimer?.cancel();
-    
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('seenOnboarding', true);
-    } catch (e) {
-      debugPrint('Fehler beim Speichern des Onboarding-Status: $e');
-    }
-
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const MainNavigationHub(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-          transitionDuration: const Duration(milliseconds: 500),
-        ),
-      );
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment.center,
-            radius: 1.3,
-            colors: [Color(0xFF1D1438), StoryJobTheme.backgroundBase],
+      backgroundColor: StoryJobTheme.backgroundBase,
+      body: Stack(
+        children: [
+          // Atmos-Glow Aura passend zum Deep Universe Look
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeOutCubic,
+            top: _currentPage == 1 ? 40 : -60,
+            left: _currentPage.isEven ? -40 : 120,
+            child: GlowOrb(
+              color: StoryJobTheme.primaryViolet.withValues(alpha: 0.35),
+              size: 340,
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeOutCubic,
+            bottom: _currentPage == 0 ? -60 : 30,
+            right: _currentPage.isEven ? -40 : -30,
+            child: GlowOrb(
+              color: StoryJobTheme.cyanAccent.withValues(alpha: 0.28),
+              size: 320,
+            ),
+          ),
+
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 22.0),
+              child: Column(
+                children: [
+                  // HEADER: Branding & Überspringen
+                  SizedBox(
+                    height: 52,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: StoryJobTheme.primaryViolet.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Icon(Icons.mic_rounded, color: StoryJobTheme.cyanAccent, size: 20),
-                        ),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'StoryJob',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
-                            color: StoryJobTheme.textPrimary,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (_currentPage < _onboardingData.length - 1)
-                      TextButton(
-                        onPressed: _completeOnboarding,
-                        style: TextButton.styleFrom(
-                          foregroundColor: StoryJobTheme.textSecondary,
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
+                        Row(
                           children: [
-                            Text('Überspringen', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-                            SizedBox(width: 4),
-                            Icon(Icons.arrow_forward_ios_rounded, size: 12),
+                            Container(
+                              padding: const EdgeInsets.all(7),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: StoryJobTheme.cyanAccent.withValues(alpha: 0.16),
+                                border: Border.all(
+                                  color: StoryJobTheme.cyanAccent.withValues(alpha: 0.40),
+                                ),
+                              ),
+                              child: const Icon(
+                                Icons.auto_awesome_rounded,
+                                size: 16,
+                                color: StoryJobTheme.cyanAccent,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'StoryJob',
+                              style: TextStyle(
+                                color: StoryJobTheme.textPrimary,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
                           ],
                         ),
-                      ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: _onboardingData.length,
-                  onPageChanged: (index) {
-                    setState(() => _currentPage = index);
-                    if (index == _onboardingData.length - 1) {
-                      _slideshowTimer?.cancel();
-                    }
-                  },
-                  itemBuilder: (context, index) {
-                    final data = _onboardingData[index];
-                    final isLastScreen = index == _onboardingData.length - 1;
-
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 28.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            flex: 5,
-                            child: Hero(
-                              tag: 'onboarding_image_$index',
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(24),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: StoryJobTheme.primaryViolet.withValues(alpha: 0.2),
-                                      blurRadius: 30,
-                                      spreadRadius: 5,
-                                    ),
-                                  ],
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(24),
-                                  child: Image.asset(
-                                    data['image']!,
-                                    fit: BoxFit.contain,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                          color: StoryJobTheme.cardSurface,
-                                          borderRadius: BorderRadius.circular(24),
-                                          border: Border.all(color: StoryJobTheme.primaryViolet),
-                                        ),
-                                        child: const Center(
-                                          child: Icon(
-                                            Icons.auto_awesome_rounded,
-                                            size: 80,
-                                            color: StoryJobTheme.cyanAccent,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
+                        if (_currentPage < _totalPages - 1)
+                          TextButton(
+                            onPressed: _completeOnboarding,
+                            child: const Text(
+                              'Überspringen',
+                              style: TextStyle(
+                                color: StoryJobTheme.textSecondary,
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
-                          const SizedBox(height: 32),
-                          Expanded(
-                            flex: 3,
-                            child: Column(
-                              children: [
-                                Text(
-                                  data['title']!,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    fontSize: 26.0,
-                                    fontWeight: FontWeight.w900,
-                                    color: StoryJobTheme.textPrimary,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                                const SizedBox(height: 14),
-                                Text(
-                                  data['text']!,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    fontSize: 15.5,
-                                    color: StoryJobTheme.textSecondary,
-                                    height: 1.5,
-                                  ),
-                                ),
-                              ],
-                            ),
+                      ],
+                    ),
+                  ),
+
+                  // TOP HERO BANNER (Wie in Store Mockups)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        gradient: StoryJobTheme.heroBannerGradient,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: StoryJobTheme.primaryViolet.withValues(alpha: 0.35),
+                            blurRadius: 18,
+                            offset: const Offset(0, 4),
                           ),
-                          if (isLastScreen) ...[
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: SizedBox(
-                                    height: 54,
-                                    child: OutlinedButton(
-                                      style: OutlinedButton.styleFrom(
-                                        side: const BorderSide(color: StoryJobTheme.primaryViolet, width: 2),
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                      ),
-                                      onPressed: _completeOnboarding,
-                                      child: const Text(
-                                        'Anmelden',
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold,
-                                          color: StoryJobTheme.textPrimary,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: SizedBox(
-                                    height: 54,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: StoryJobTheme.primaryViolet,
-                                        foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                        elevation: 6,
-                                        shadowColor: StoryJobTheme.primaryViolet.withValues(alpha: 0.4),
-                                      ),
-                                      onPressed: _completeOnboarding,
-                                      child: const Text(
-                                        'Registrieren',
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                          ],
                         ],
                       ),
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  children: [
-                    SmoothPageIndicator(
-                      controller: _pageController,
-                      count: _onboardingData.length,
-                      effect: const ExpandingDotsEffect(
-                        dotHeight: 8,
-                        dotWidth: 8,
-                        expansionFactor: 3,
-                        activeDotColor: StoryJobTheme.primaryViolet,
-                        dotColor: StoryJobTheme.cardBorder,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.bolt_rounded, color: Colors.white, size: 16),
+                          SizedBox(width: 6),
+                          Text(
+                            'Keine Lebensläufe. Nur deine Story.',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    if (_currentPage < _onboardingData.length - 1)
-                      SizedBox(
-                        width: double.infinity,
-                        height: 54,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: StoryJobTheme.primaryViolet,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                            elevation: 6,
-                            shadowColor: StoryJobTheme.primaryViolet.withValues(alpha: 0.4),
-                          ),
-                          onPressed: () {
-                            HapticFeedback.lightImpact();
-                            _pageController.nextPage(
-                              duration: const Duration(milliseconds: 400),
-                              curve: Curves.easeInOut,
-                            );
-                          },
-                          child: const Text(
-                            'Weiter',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+
+                  // 3 SCHRITTE
+                  Expanded(
+                    child: PageView(
+                      controller: _pageController,
+                      onPageChanged: (index) {
+                        HapticFeedback.selectionClick();
+                        setState(() => _currentPage = index);
+                      },
+                      children: [
+                        // SCHRITT 1: AUDIO STORY
+                        _buildSlide(
+                          badge: 'Deine Stimme',
+                          icon: Icons.mic_external_on_rounded,
+                          accentColor: StoryJobTheme.cyanAccent,
+                          title: 'Erzähl deine Story,\nwer du wirklich bist.',
+                          description:
+                              'Schluss mit starren Lebensläufen und Noten. Zeige in 30-Sekunden Audio-Storys dein echtes Wesen, deine Haltung und wofür du brennst.',
+                          footerText: '🎙️ Deine Stimme erzeugt sofort echtes Vertrauen.',
+                        ),
+
+                        // SCHRITT 2: WERTE-MATCH & PRAKTISCHES KÖNNEN
+                        _buildSlide(
+                          badge: 'Praktisches Talent',
+                          icon: Icons.hub_rounded,
+                          accentColor: StoryJobTheme.pinkMagenta,
+                          title: 'Finde Teams,\ndie zu dir passen.',
+                          description:
+                              'Ob Handwerk, Technik oder Organisation: Bei StoryJob zählt dein praktisches Können. Finde Teams über Werte-Match und echten Team-Fit.',
+                          footerText: '⚡ Höre dir Firmen-DNA und Werkstatt-Vibes an.',
+                        ),
+
+                        // SCHRITT 3: DIALOG AUF AUGENHÖHE
+                        _buildSlide(
+                          badge: 'Auf Augenhöhe',
+                          icon: Icons.chat_bubble_outline_rounded,
+                          accentColor: StoryJobTheme.primaryViolet,
+                          title: 'Direkter Dialog.\nEchte Chancen.',
+                          description:
+                              'Keine Agenturen, kein Anschreiben-Theater. Tausche dich direkt per Voice und Chat aus – mit voller Kontrolle über deine Daten.',
+                          footerText: '🚀 Starte direkt rein – kostenfrei und ohne Umwege.',
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  // FOOTER: Dots & GlassButton
+                  Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                          _totalPages,
+                          (index) => AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            height: 6,
+                            width: _currentPage == index ? 24 : 6,
+                            decoration: BoxDecoration(
+                              gradient: _currentPage == index
+                                  ? const LinearGradient(
+                                      colors: [StoryJobTheme.cyanAccent, StoryJobTheme.pinkMagenta],
+                                    )
+                                  : null,
+                              color: _currentPage == index ? null : Colors.white.withValues(alpha: 0.18),
+                              borderRadius: BorderRadius.circular(3),
+                            ),
                           ),
                         ),
                       ),
-                  ],
+                      const SizedBox(height: 18),
+                      GlassButton(
+                        label: _currentPage == _totalPages - 1
+                            ? 'Jetzt starten 🚀'
+                            : 'Weiter',
+                        isPrimaryGlow: true,
+                        height: 52,
+                        borderRadius: 26,
+                        icon: Icons.arrow_forward_rounded,
+                        onPressed: _nextPage,
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSlide({
+    required String badge,
+    required IconData icon,
+    required Color accentColor,
+    required String title,
+    required String description,
+    required String footerText,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: GlassCard(
+        padding: const EdgeInsets.all(22),
+        borderRadius: 24,
+        borderGradient: StoryJobTheme.dnaCardBorder,
+        hasNeonGlow: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: accentColor.withValues(alpha: 0.50),
+                      width: 1.2,
+                    ),
+                  ),
+                  child: Icon(icon, color: accentColor, size: 24),
+                ),
+                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: accentColor.withValues(alpha: 0.40)),
+                  ),
+                  child: Text(
+                    badge,
+                    style: TextStyle(
+                      color: accentColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 22),
+
+            Text(
+              title,
+              style: const TextStyle(
+                color: StoryJobTheme.textPrimary,
+                fontSize: 25,
+                fontWeight: FontWeight.w700,
+                height: 1.25,
+                letterSpacing: -0.4,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            Text(
+              description,
+              style: const TextStyle(
+                color: StoryJobTheme.textSecondary,
+                fontSize: 14,
+                height: 1.45,
+              ),
+            ),
+
+            const Spacer(),
+
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color: StoryJobTheme.cardSurfaceElevated,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: StoryJobTheme.cardBorder),
+              ),
+              child: Text(
+                footerText,
+                style: const TextStyle(
+                  color: StoryJobTheme.textPrimary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  height: 1.3,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
