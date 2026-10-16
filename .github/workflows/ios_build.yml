@@ -43,7 +43,11 @@ jobs:
 
           # Import certificate to keychain
           echo "$BUILD_CERTIFICATE_BASE64" | base64 --decode > certificate.p12
-          security import certificate.p12 -k build.keychain -P "$P12_PASSWORD" -A
+          if [ -z "$P12_PASSWORD" ]; then
+            security import certificate.p12 -k build.keychain -A
+          else
+            security import certificate.p12 -k build.keychain -P "$P12_PASSWORD" -A
+          fi
           security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" build.keychain
           rm certificate.p12
 
