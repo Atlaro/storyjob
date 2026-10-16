@@ -20,7 +20,7 @@ dependencies:
 
   # Voice & Audio
   speech_to_text: ^7.0.0
-  record: ^5.2.1
+  record: ^7.1.2
   audioplayers: ^6.0.0
 
   # Camera & Video
