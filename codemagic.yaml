@@ -19,7 +19,10 @@ workflows:
     scripts:
       - name: Set up code signing settings
         script: |
-          app-store-connect fetch-signing-files de.storyjob.app
+          app-store-connect fetch-signing-files de.storyjob.app \
+            --issuer-id "$APP_STORE_CONNECT_ISSUER_ID" \
+            --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
+            --private-key "$APP_STORE_CONNECT_PRIVATE_KEY"
 
       - name: Use automatic provisioning in Xcode
         script: |
