@@ -5,6 +5,9 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m1
 
+    integrations:
+      app_store_connect: app_store_credentials
+
     environment:
       flutter: stable
       xcode: latest
@@ -29,8 +32,9 @@ workflows:
           flutter build ipa --release --export-method app-store
 
     artifacts:
-      - build/**/**/*.ipa
+      - build/ios/ipa/*.ipa
 
     publishing:
       app_store_connect:
+        auth: integration
         submit_to_testflight: true
