@@ -13,9 +13,6 @@ workflows:
         distribution_type: app_store
         bundle_identifier: de.storyjob.app
 
-      groups:
-        - app_store_credentials
-
     scripts:
       - name: Use automatic provisioning in Xcode
         script: |
@@ -33,3 +30,8 @@ workflows:
 
     artifacts:
       - build/ios/ipa/*.ipa
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
