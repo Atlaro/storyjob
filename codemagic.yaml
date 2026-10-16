@@ -31,9 +31,15 @@ workflows:
         script: |
           flutter build ipa --release --export-method app-store
 
+      - name: Move IPA to artifact folder
+        script: |
+          mkdir -p build/ios/ipa
+          find build/ios/archive -name "*.xcarchive" -exec xcodebuild -exportArchive -archivePath {} -exportOptionsPath ios/ExportOptions.plist -exportPath build/ios/ipa \; || true
+          # Fallback: Falls die IPA woanders liegt, kopieren wir sie direkt in den Artefakt-Pfad
+          find . -name "*.ipa" -exec cp {} build/ios/ipa/ \;
+
     artifacts:
       - build/ios/ipa/*.ipa
-      - build/ios/ipa/**/*.ipa
 
     publishing:
       app_store_connect:
