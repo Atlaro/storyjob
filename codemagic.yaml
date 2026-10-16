@@ -16,7 +16,7 @@ workflows:
       groups:
         - app_store_credentials
 
-scripts:
+    scripts:
       - name: Set up code signing settings
         script: |
           app-store-connect fetch-signing-files de.storyjob.app
