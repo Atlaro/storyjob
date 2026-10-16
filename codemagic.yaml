@@ -13,7 +13,15 @@ workflows:
         distribution_type: app_store
         bundle_identifier: de.storyjob.app
 
+      groups:
+        - app_store_credentials
+
     scripts:
+      - name: Use automatic provisioning in Xcode
+        script: |
+          cd ios
+          xcode-project use-profiles
+
       - name: Clean project and get dependencies
         script: |
           flutter clean
