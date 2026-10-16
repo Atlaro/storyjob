@@ -6,7 +6,7 @@ workflows:
     instance_type: mac_mini_m1
 
     integrations:
-      app_store_connect: app_store_credentials
+      app_store_connect: StoryJob
 
     environment:
       flutter: stable
