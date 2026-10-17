@@ -41,8 +41,9 @@ jobs:
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security set-keychain-settings -t 3600 -u build.keychain
 
-          # Import certificate to keychain
-          echo "$BUILD_CERTIFICATE_BASE64" | base64 --decode > certificate.p12
+          # Import certificate to keychain using Python for reliable base64 decoding on macOS
+          python3 -c "import os, base64; open('certificate.p12', 'wb').write(base64.b64decode(os.environ['BUILD_CERTIFICATE_BASE64']))"
+
           if [ -z "$P12_PASSWORD" ]; then
             security import certificate.p12 -k build.keychain -A
           else
