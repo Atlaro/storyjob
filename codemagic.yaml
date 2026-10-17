@@ -17,12 +17,12 @@ workflows:
         bundle_identifier: de.storyjob.app
 
     scripts:
-      - name: Get dependencies
+      - name: Clean project
         script: |
           flutter clean
           flutter pub get
 
-      - name: Configure code signing
+      - name: Configure signing
         script: |
           cd ios
           xcode-project use-profiles
@@ -31,12 +31,12 @@ workflows:
         script: |
           flutter build ipa --release --export-method app-store
 
-      - name: Debug
+      - name: Debug IPA output
         script: |
           echo "=== IPA FILES ==="
           find . -name "*.ipa"
 
-          echo "=== XCARCHIVES ==="
+          echo "=== ARCHIVES ==="
           find . -name "*.xcarchive"
 
     artifacts:
