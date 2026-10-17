@@ -5,29 +5,14 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m1
 
-    integrations:
-      app_store_connect: StoryJob
-
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: 'main'
-          include: true
-          source: true
-
     environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: de.storyjob.app
       flutter: stable
       xcode: latest
 
     scripts:
-      - name: Set up code signing settings on Codemagic
-        script: |
-          keychain initialize
-          app-store-connect fetch-signing-files "de.storyjob.app" --type IOS_APP_STORE --create
-          keychain add-certificates
-          xcode-project use-profiles
-
       - name: Clean project and get dependencies
         script: |
           flutter clean
@@ -35,7 +20,7 @@ workflows:
 
       - name: Build iOS App (IPA)
         script: |
-          flutter build ipa --release --export-method app-store
+          flutter build ipa --release --export-method app-store --no-codesign
 
       - name: Debug generated files
         script: |
@@ -43,8 +28,6 @@ workflows:
           find . -name "*.ipa"
           echo "=== XCARCHIVE FILES ==="
           find . -name "*.xcarchive"
-          echo "=== BUILD DIRECTORY ==="
-          ls -R build || true
 
     artifacts:
       - build/ios/ipa/*.ipa
