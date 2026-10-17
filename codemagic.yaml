@@ -8,6 +8,14 @@ workflows:
     integrations:
       app_store_connect: StoryJob
 
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'main'
+          include: true
+          source: true
+
     environment:
       flutter: stable
       xcode: latest
@@ -33,11 +41,14 @@ workflows:
         script: |
           flutter build ipa --release --export-method app-store
 
-      - name: Verify IPA creation
+      - name: Debug generated files
         script: |
-          echo "=== Gefundene IPA-Dateien ==="
+          echo "=== IPA FILES ==="
           find . -name "*.ipa"
-          ls -la build/ios/ipa || true
+          echo "=== XCARCHIVE FILES ==="
+          find . -name "*.xcarchive"
+          echo "=== BUILD DIRECTORY ==="
+          ls -R build || true
 
     artifacts:
       - build/ios/ipa/*.ipa
