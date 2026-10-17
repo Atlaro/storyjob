@@ -20,10 +20,6 @@ workflows:
       flutter: stable
       xcode: latest
 
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: de.storyjob.app
-
     scripts:
       - name: Set up code signing settings on Codemagic
         script: |
