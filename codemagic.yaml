@@ -9,45 +9,56 @@ workflows:
       app_store_connect: StoryJob
 
     environment:
-      flutter: stable
-      xcode: latest
-
       ios_signing:
         distribution_type: app_store
         bundle_identifier: de.storyjob.app
+      flutter: stable
+      xcode: latest
 
     scripts:
-      - name: Clean project
+      - name: Clean project and get dependencies
         script: |
           flutter clean
           flutter pub get
 
-      - name: Configure signing
+      - name: Build and Sign iOS App (IPA)
         script: |
-          cd ios
-          xcode-project use-profiles
+          # 1. Unsigniertes Archiv erzeugen
+          flutter build ipa --release --no-codesign
 
-      - name: Build archive
+          # 2. ExportOptions für App Store Signierung anlegen
+          cat <<EOF > ExportOptions.plist
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store</string>
+              <key>teamID</key>
+              <string>L8CP87ZD83</string>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>de.storyjob.app</key>
+                  <string>StoryJob</string>
+              </dict>
+          </dict>
+          </plist>
+          EOF
+
+          # 3. Signierte IPA exportieren
+          xcodebuild -exportArchive \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath build/ios/ipa
+
+      - name: Verify generated IPA
         script: |
-          flutter build ipa --release --export-method app-store
-
-      - name: Force IPA export and debug
-        script: |
-          echo "=== IPA FILES BEFORE ==="
-          find . -name "*.ipa"
-
-          echo "=== ARCHIVES ==="
-          find . -name "*.xcarchive"
-
-          ls -la build/ios/archive || true
-          ls -la build/ios/ipa || true
-
-          echo "=== IPA FILES AFTER ==="
-          find . -name "*.ipa"
+          ls -la build/ios/ipa/*.ipa
 
     artifacts:
       - build/ios/ipa/*.ipa
-      - build/**/*.ipa
 
     publishing:
       app_store_connect:
