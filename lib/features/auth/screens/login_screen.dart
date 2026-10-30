@@ -1,8 +1,13 @@
 // lib/features/auth/screens/login_screen.dart
+import 'dart:convert';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import 'package:storyjob/core/theme/storyjob_theme.dart';
@@ -149,18 +154,54 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     HapticFeedback.mediumImpact();
 
     try {
-      final googleProvider = GoogleAuthProvider();
-      final userCredential =
-          await FirebaseAuth.instance.signInWithProvider(googleProvider);
+      if (kIsWeb) {
+        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        final userCredential = await FirebaseAuth.instance.signInWithPopup(googleProvider);
+        if (userCredential.user != null) {
+          await _routeUserByRole(userCredential.user!);
+        }
+      } else {
+        final GoogleSignIn googleSignIn = GoogleSignIn();
+        final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
-      if (userCredential.user != null) {
-        await _routeUserByRole(userCredential.user!);
+        if (googleUser == null) {
+          return;
+        }
+
+        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final OAuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+
+        final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+        if (userCredential.user != null) {
+          await _routeUserByRole(userCredential.user!);
+        }
       }
     } catch (e) {
-      setState(() => _errorMessage = 'Google-Anmeldung fehlgeschlagen: $e');
+      final errorString = e.toString().toLowerCase();
+      if (!errorString.contains('canceled') &&
+          !errorString.contains('aborted') &&
+          !errorString.contains('popup_closed') &&
+          !errorString.contains('network_error')) {
+        setState(() => _errorMessage = 'Google-Anmeldung nicht möglich.');
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  String _generateNonce([int length = 32]) {
+    const charset = '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+    final random = Random.secure();
+    return List.generate(length, (_) => charset[random.nextInt(charset.length)]).join();
+  }
+
+  String _sha256ofString(String input) {
+    final bytes = utf8.encode(input);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
   }
 
   Future<void> _loginWithApple() async {
@@ -171,21 +212,42 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
     HapticFeedback.mediumImpact();
 
     try {
-      final appleCredential = await SignInWithApple.getAppleIDCredential(
-        scopes: [AppleIDAuthorizationScopes.email, AppleIDAuthorizationScopes.fullName],
-      );
+      if (kIsWeb) {
+        final AppleAuthProvider appleProvider = AppleAuthProvider();
+        final userCredential = await FirebaseAuth.instance.signInWithPopup(appleProvider);
+        if (userCredential.user != null) {
+          await _routeUserByRole(userCredential.user!);
+        }
+      } else {
+        final rawNonce = _generateNonce();
+        final nonce = _sha256ofString(rawNonce);
 
-      final OAuthCredential oauthCredential = OAuthProvider('apple.com').credential(
-        idToken: appleCredential.identityToken,
-        accessToken: appleCredential.authorizationCode,
-      );
+        final appleCredential = await SignInWithApple.getAppleIDCredential(
+          scopes: [
+            AppleIDAuthorizationScopes.email,
+            AppleIDAuthorizationScopes.fullName,
+          ],
+          nonce: nonce,
+        );
 
-      final result = await FirebaseAuth.instance.signInWithCredential(oauthCredential);
-      if (result.user != null) {
-        await _routeUserByRole(result.user!);
+        final OAuthCredential oauthCredential = OAuthProvider('apple.com').credential(
+          idToken: appleCredential.identityToken,
+          rawNonce: rawNonce,
+        );
+
+        final result = await FirebaseAuth.instance.signInWithCredential(oauthCredential);
+        if (result.user != null) {
+          await _routeUserByRole(result.user!);
+        }
       }
     } catch (e) {
-      setState(() => _errorMessage = 'Apple-Anmeldung fehlgeschlagen: $e');
+      final errorString = e.toString().toLowerCase();
+      if (!errorString.contains('canceled') &&
+          !errorString.contains('cancelled') &&
+          !errorString.contains('authorizationerror code 1001') &&
+          !errorString.contains('unknown')) {
+        setState(() => _errorMessage = 'Apple-Anmeldung nicht möglich.');
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
