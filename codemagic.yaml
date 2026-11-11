@@ -23,8 +23,8 @@ workflows:
 
       - name: Build and Sign iOS App (IPA)
         script: |
-          # 1. Unsigniertes Archiv erzeugen mit expliziter Build-Nummer 11
-          flutter build ipa --release --no-codesign --build-name=1.0.1 --build-number=11
+          # 1. Unsigniertes Archiv erzeugen mit neuer Build-Nummer 12
+          flutter build ipa --release --no-codesign --build-name=1.0.1 --build-number=12
 
           # 2. ExportOptions für App Store Signierung anlegen
           cat <<EOF > ExportOptions.plist
