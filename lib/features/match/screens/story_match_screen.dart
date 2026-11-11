@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:storyjob/core/theme/storyjob_theme.dart';
-import 'package:storyjob/features/match/widgets/resonance_match_card.dart';
 
 class StoryMatchScreen extends StatefulWidget {
   final int initialFilterIndex;
@@ -24,7 +23,7 @@ class StoryMatchScreen extends StatefulWidget {
 class _StoryMatchScreenState extends State<StoryMatchScreen> {
   late int _selectedFilterIndex;
 
-  List<String> get _filters => widget.isRecruiter
+  List get _filters => widget.isRecruiter
       ? [
           'Alle Begegnungen',
           'Höchstes Werte-Match ✨',
@@ -38,9 +37,9 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
           'Flexibel & Frei',
         ];
 
-  late List<Map<String, dynamic>> _visibleMatches;
+  late List _visibleMatches;
 
-  final List<Map<String, dynamic>> _initialMatches = [
+  final List _initialMatches = [
     {
       'id': 'match_bright_minds',
       'company': 'Bright Minds Team',
@@ -48,12 +47,6 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
       'resonanceLabel': '94%',
       'resonanceReason':
           'Ihr sucht beide sinnstiftende Wirkung vor starren Hierarchien. Das Team schätzt deine Hands-on-Mentalität.',
-      'resonancePillars': ['Eigenverantwortung', 'Sinnstiftung', 'Miteinander'],
-      'voiceImpulseTitle': '„Warum echte Fehlerkultur bei uns kein Bullshit-Bingo ist.“',
-      'benefits': ['Flexible Einteilung', 'Gesundheitsvorsorge', '30 Tage Urlaub', 'Gestaltungsfreiraum'],
-      'location': 'Region Passau / Remote',
-      'salary': '55.000 € – 65.000 € p.a.',
-      'isRemote': true,
       'category': 'kultur',
     },
     {
@@ -63,12 +56,6 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
       'resonanceLabel': '88%',
       'resonanceReason':
           'Dein Engagement und deine Ausdauer passen genau zu den anspruchsvollen Projekten des Teams.',
-      'resonancePillars': ['Krisenfestigkeit', 'Ehrenamt', 'Verlässlichkeit'],
-      'voiceImpulseTitle': '„Wie wir asynchron und zu 100% remote entwickeln.“',
-      'benefits': ['Nachhaltigkeit', 'Vorsorge-Budget', 'Gemeinschaft', 'Weiterbildung'],
-      'location': 'Landshut / München',
-      'salary': '70.000 € – 85.000 € p.a.',
-      'isRemote': false,
       'category': 'workstyle',
     },
     {
@@ -78,12 +65,6 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
       'resonanceLabel': '82%',
       'resonanceReason':
           'Ihr teilt dieselbe Vision über zukunftsorientierte Lösungen im Einklang mit Mensch und Natur.',
-      'resonancePillars': ['Zukunftstechnologie', 'Hands-on', 'Nachhaltigkeit'],
-      'voiceImpulseTitle': '„Unser Impact-Ziel für 2027 und warum wir Macher suchen.“',
-      'benefits': ['Sichtbarer Nutzen', 'Moderne Ausstattung', 'Regionale Einsätze'],
-      'location': 'Dingolfing / Bad Birnbach',
-      'salary': 'Nach Vereinbarung',
-      'isRemote': false,
       'category': 'vision',
     },
   ];
@@ -95,26 +76,11 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
     _visibleMatches = List.from(_initialMatches);
   }
 
-  MatchAura _getAuraType(String category) {
-    switch (category) {
-      case 'workstyle':
-        return MatchAura.workstyle;
-      case 'vision':
-        return MatchAura.vision;
-      case 'kultur':
-      case 'sinn':
-      default:
-        return MatchAura.culture;
-    }
-  }
-
-  List<Map<String, dynamic>> _getFilteredMatches() {
+  List _getFilteredMatches() {
     if (_selectedFilterIndex == 1) {
-      return _visibleMatches.where((m) => m['resonanceLabel'] == '94%').toList();
+      return _visibleMatches.where((m) => (m as Map)['resonanceLabel'] == '94%').toList();
     } else if (_selectedFilterIndex == 2) {
-      return _visibleMatches.where((m) => m['category'] == 'sinn' || m['category'] == 'kultur').toList();
-    } else if (_selectedFilterIndex == 3) {
-      return _visibleMatches.where((m) => m['isRemote'] == true).toList();
+      return _visibleMatches.where((m) => (m as Map)['category'] == 'kultur').toList();
     }
     return _visibleMatches;
   }
@@ -145,7 +111,7 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
     Future.delayed(const Duration(milliseconds: 550), () {
       if (mounted) {
         setState(() {
-          _visibleMatches.removeWhere((m) => m['id'] == id);
+          _visibleMatches.removeWhere((m) => (m as Map)['id'] == id);
         });
       }
     });
@@ -153,7 +119,7 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
 
   void _handlePass(String id) {
     setState(() {
-      _visibleMatches.removeWhere((m) => m['id'] == id);
+      _visibleMatches.removeWhere((m) => (m as Map)['id'] == id);
     });
   }
 
@@ -178,9 +144,6 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ===============================================================
-              // 1. APP-HEADER
-              // ===============================================================
               Padding(
                 padding: const EdgeInsets.fromLTRB(18.0, 14.0, 18.0, 10.0),
                 child: Row(
@@ -194,9 +157,9 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(color: StoryJobTheme.cardBorder),
                       ),
-                      child: Row(
+                      child: const Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
+                        children: [
                           Icon(Icons.auto_awesome_rounded, color: StoryJobTheme.cyanAccent, size: 16),
                           SizedBox(width: 8),
                           Text(
@@ -224,8 +187,8 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                             color: StoryJobTheme.primaryViolet.withValues(alpha: 0.35),
                           ),
                         ),
-                        child: Row(
-                          children: const [
+                        child: const Row(
+                          children: [
                             Icon(Icons.fingerprint_rounded, color: StoryJobTheme.cyanAccent, size: 15),
                             SizedBox(width: 6),
                             Text(
@@ -244,9 +207,6 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                 ),
               ),
 
-              // ===============================================================
-              // 2. TITELZEILE
-              // ===============================================================
               Padding(
                 padding: const EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 12.0),
                 child: Column(
@@ -276,9 +236,6 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                 ),
               ),
 
-              // ===============================================================
-              // 3. FILTER-LEISTE
-              // ===============================================================
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18.0),
                 child: SizedBox(
@@ -308,17 +265,9 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                                   : StoryJobTheme.cardBorder,
                               width: 1.0,
                             ),
-                            boxShadow: isSelected
-                                ? [
-                                    BoxShadow(
-                                      color: StoryJobTheme.primaryViolet.withValues(alpha: 0.35),
-                                      blurRadius: 10,
-                                    ),
-                                  ]
-                                : null,
                           ),
                           child: Text(
-                            _filters[index],
+                            _filters[index].toString(),
                             style: TextStyle(
                               color: isSelected ? Colors.white : StoryJobTheme.textSecondary,
                               fontSize: 12.5,
@@ -334,9 +283,6 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
 
               const SizedBox(height: 12),
 
-              // ===============================================================
-              // 4. FEED DER RESONANCE-MATCH-CARDS
-              // ===============================================================
               Expanded(
                 child: filteredMatches.isEmpty
                     ? _buildEmptyState()
@@ -344,23 +290,101 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                         physics: const BouncingScrollPhysics(),
                         padding: const EdgeInsets.only(top: 4.0, bottom: 110.0),
                         itemCount: filteredMatches.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 6),
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
                         itemBuilder: (context, index) {
-                          final matchData = filteredMatches[index];
-                          final String matchId = matchData['id'] as String;
+                          final match = filteredMatches[index] as Map;
+                          final String matchId = match['id'] as String;
 
-                          return ResonanceMatchCard(
-                            key: ValueKey(matchId),
-                            companyName: matchData['company'] as String,
-                            matchPercentage: matchData['resonanceLabel'] as String,
-                            auraType: _getAuraType(matchData['category'] as String),
-                            voiceImpulseTitle: matchData['voiceImpulseTitle'] as String,
-                            locationStr: matchData['location'] as String,
-                            salaryStr: matchData['salary'] as String,
-                            benefitsStr: (matchData['benefits'] as List<String>).take(2).join(' & '),
-                            sharedValues: matchData['resonancePillars'] as List<String>,
-                            onMatch: () => _handleMatch(matchId),
-                            onPass: () => _handlePass(matchId),
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              color: StoryJobTheme.cardSurfaceElevated,
+                              borderRadius: BorderRadius.circular(22),
+                              border: Border.all(color: StoryJobTheme.cardBorder),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        match['company'] as String,
+                                        style: const TextStyle(
+                                          color: StoryJobTheme.textPrimary,
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: StoryJobTheme.primaryViolet.withValues(alpha: 0.25),
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(color: StoryJobTheme.primaryViolet.withValues(alpha: 0.5)),
+                                      ),
+                                      child: Text(
+                                        match['resonanceLabel'] as String,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  match['role'] as String,
+                                  style: const TextStyle(
+                                    color: StoryJobTheme.cyanAccent,
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  match['resonanceReason'] as String,
+                                  style: const TextStyle(
+                                    color: StoryJobTheme.textSecondary,
+                                    fontSize: 12.5,
+                                    height: 1.4,
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: OutlinedButton(
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: StoryJobTheme.textSecondary,
+                                          side: const BorderSide(color: StoryJobTheme.cardBorder),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                        ),
+                                        onPressed: () => _handlePass(matchId),
+                                        child: const Text('Überspringen'),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: StoryJobTheme.cyanAccent,
+                                          foregroundColor: const Color(0xFF070A12),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                        ),
+                                        onPressed: () => _handleMatch(matchId),
+                                        child: const Text('Kennenlernen', style: TextStyle(fontWeight: FontWeight.w700)),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           );
                         },
                       ),

@@ -1,9 +1,9 @@
-// lib/features/match/services/resonance_intelligence_service.dart
+// lib/features/match/services/match_intelligence_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
-class ResonancePairData {
+class MatchPairData {
   final String pairId;
   final int totalInteractions;
   final int voiceListenedSeconds;
@@ -12,7 +12,7 @@ class ResonancePairData {
   final String connectionStage; // 'discovered', 'in_dialog', 'call_scheduled', 'connected', 'collaborating'
   final int dialogDepth;
 
-  const ResonancePairData({
+  const MatchPairData({
     required this.pairId,
     required this.totalInteractions,
     required this.voiceListenedSeconds,
@@ -22,8 +22,8 @@ class ResonancePairData {
     required this.dialogDepth,
   });
 
-  factory ResonancePairData.fromFirestore(Map<String, dynamic> data) {
-    return ResonancePairData(
+  factory MatchPairData.fromFirestore(Map<String, dynamic> data) {
+    return MatchPairData(
       pairId: data['pairId'] ?? '',
       totalInteractions: data['totalInteractions'] ?? 0,
       voiceListenedSeconds: data['voiceListenedSeconds'] ?? 0,
@@ -63,7 +63,7 @@ class ResonancePairData {
   }
 }
 
-class ResonanceIntelligenceService {
+class MatchIntelligenceService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String get _currentUserId => FirebaseAuth.instance.currentUser?.uid ?? 'guest_user';
@@ -74,7 +74,7 @@ class ResonanceIntelligenceService {
   }
 
   /// Liefert einen Live-Stream der Resonanz- und Dialogstufe zwischen zwei Menschen
-  Stream<ResonancePairData?> streamPairData(String targetId) {
+  Stream<MatchPairData?> streamPairData(String targetId) {
     if (_currentUserId == 'guest_user' || targetId.isEmpty) {
       return Stream.value(null);
     }
@@ -86,7 +86,7 @@ class ResonanceIntelligenceService {
         .snapshots()
         .map((snapshot) {
           if (!snapshot.exists || snapshot.data() == null) return null;
-          return ResonancePairData.fromFirestore(snapshot.data()!);
+          return MatchPairData.fromFirestore(snapshot.data()!);
         });
   }
 
@@ -123,7 +123,7 @@ class ResonanceIntelligenceService {
         'connectionStage': stage,
         'stageUpdatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
-      debugPrint('⚡ [ResonanceIntelligence] Stufe erfasst: $stage für Pair $pairId');
+      debugPrint('⚡ [MatchIntelligence] Stufe erfasst: $stage für Pair $pairId');
     } catch (e) {
       debugPrint('❌ Fehler beim Speichern der Verbindungsstufe: $e');
     }
@@ -140,3 +140,7 @@ class ResonanceIntelligenceService {
     return updateConnectionStage(targetId: targetId, stage: mappedStage);
   }
 }
+
+// Aliase für Abwärtskompatibilität bestehender Screens & Imports
+typedef ResonanceIntelligenceService = MatchIntelligenceService;
+typedef ResonancePairData = MatchPairData;

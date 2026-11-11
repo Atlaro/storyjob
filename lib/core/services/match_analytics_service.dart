@@ -1,20 +1,20 @@
-// lib/core/services/resonance_analytics_service.dart
+// lib/core/services/match_analytics_service.dart
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
 
-class ResonanceAnalyticsService with WidgetsBindingObserver {
-  static final ResonanceAnalyticsService _instance = ResonanceAnalyticsService._internal();
-  factory ResonanceAnalyticsService() => _instance;
+class MatchAnalyticsService with WidgetsBindingObserver {
+  static final MatchAnalyticsService _instance = MatchAnalyticsService._internal();
+  factory MatchAnalyticsService() => _instance;
 
-  ResonanceAnalyticsService._internal() {
+  MatchAnalyticsService._internal() {
     WidgetsBinding.instance.addObserver(this);
     _startBatchTimer();
   }
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final List<Map<String, dynamic>> _eventQueue = [];
+  final List _eventQueue = [];
   Timer? _flushTimer;
   bool _isFlushing = false;
 
@@ -29,11 +29,10 @@ class ResonanceAnalyticsService with WidgetsBindingObserver {
     _flushTimer = Timer.periodic(flushInterval, (_) => flush());
   }
 
-  /// Zentraler Einstiegspunkt zum Erfassen jedes Signals
   void track({
     required String eventType,
     required String targetId,
-    required String targetRole, // 'company' oder 'talent'
+    required String targetRole,
     required String screen,
     Map<String, dynamic>? details,
     bool immediateFlush = false,
@@ -49,7 +48,6 @@ class ResonanceAnalyticsService with WidgetsBindingObserver {
       'details': details ?? {},
     };
 
-    // Speicherüberlauf verhindern bei dauerhaftem Offline-Status
     if (_eventQueue.length >= maxQueueCapacity) {
       _eventQueue.removeAt(0);
     }
@@ -61,28 +59,27 @@ class ResonanceAnalyticsService with WidgetsBindingObserver {
     }
   }
 
-  /// Schreibt alle gepufferten Events in einem einzigen Firestore-Batch
   Future<void> flush() async {
     if (_eventQueue.isEmpty || _isFlushing) return;
 
     _isFlushing = true;
-    final List<Map<String, dynamic>> eventsToSend = List.from(_eventQueue);
+    final eventsToSend = List.from(_eventQueue);
     _eventQueue.clear();
 
     try {
       final batch = _firestore.batch();
       final collection = _firestore.collection('resonance_events');
 
-      for (final event in eventsToSend) {
+      for (final dynamic item in eventsToSend) {
+        final Map event = item as Map;
         final docRef = collection.doc(event['eventId'] as String);
-        batch.set(docRef, event);
+        batch.set(docRef, Map<String, dynamic>.from(event));
       }
 
       await batch.commit();
-      debugPrint('⚡ [ResonanceAnalytics] ${eventsToSend.length} Signale erfolgreich gespeichert.');
+      debugPrint('⚡ [MatchAnalytics] ${eventsToSend.length} Signale erfolgreich gespeichert.');
     } catch (e) {
-      debugPrint('❌ [ResonanceAnalytics] Fehler beim Batch-Schreiben: $e');
-      // Begrenzt wieder einfügen ohne Speicherüberlauf
+      debugPrint('❌ [MatchAnalytics] Fehler beim Batch-Schreiben: $e');
       final remainingCapacity = maxQueueCapacity - _eventQueue.length;
       if (remainingCapacity > 0) {
         _eventQueue.insertAll(0, eventsToSend.take(remainingCapacity));
@@ -95,7 +92,7 @@ class ResonanceAnalyticsService with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
-      flush(); // Offene Events vor Hintergrund-Wechsel sichern
+      flush();
     }
   }
 
@@ -105,3 +102,5 @@ class ResonanceAnalyticsService with WidgetsBindingObserver {
     flush();
   }
 }
+
+typedef ResonanceAnalyticsService = MatchAnalyticsService;

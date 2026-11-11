@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:storyjob/core/theme/storyjob_theme.dart';
@@ -130,6 +131,119 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 10),
                           ),
                           child: const Text('Abmelden', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showDeleteAccountDialog() {
+    HapticFeedback.heavyImpact();
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.8),
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 22),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+            child: Container(
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                color: StoryJobTheme.cardSurfaceElevated.withValues(alpha: 0.98),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: const Color(0xFFEF4444).withValues(alpha: 0.5)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(9),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEF4444).withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.delete_forever_rounded, color: Color(0xFFEF4444), size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Text(
+                          'Konto endgültig löschen?',
+                          style: TextStyle(
+                            color: StoryJobTheme.textPrimary,
+                            fontSize: 16.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  const Text(
+                    'Diese Aktion ist unwiderruflich. Dein Profil, deine erfassten Werte, Matches und Unterhaltungen werden vollständig gelöscht.',
+                    style: TextStyle(color: StoryJobTheme.textSecondary, fontSize: 13, height: 1.45),
+                  ),
+                  const SizedBox(height: 22),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: () => Navigator.of(ctx).pop(),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: StoryJobTheme.textSecondary,
+                            side: const BorderSide(color: StoryJobTheme.cardBorder),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                          ),
+                          child: const Text('Abbrechen', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            Navigator.of(ctx).pop();
+                            try {
+                              final user = FirebaseAuth.instance.currentUser;
+                              if (user != null) {
+                                await FirebaseFirestore.instance.collection('users').doc(user.uid).delete();
+                                await user.delete();
+                              }
+                              if (!mounted) return;
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                                (route) => false,
+                              );
+                            } catch (e) {
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Sicherheits-Check erforderlich. Bitte melde dich erneut an: $e'),
+                                  backgroundColor: StoryJobTheme.cardSurfaceElevated,
+                                ),
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFEF4444),
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                          ),
+                          child: const Text('Löschen', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700)),
                         ),
                       ),
                     ],
@@ -430,26 +544,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 24),
 
-            // 5. Abmelden
+            // 5. Account-Aktionen (Abmelden & Konto löschen nach Apple Guideline 5.1.1(v))
+            _buildSectionLabel('KONTO-VERWALTUNG'),
+            const SizedBox(height: 8),
             Container(
               decoration: BoxDecoration(
                 color: StoryJobTheme.cardSurfaceElevated,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: StoryJobTheme.cardBorder),
               ),
-              child: ListTile(
-                onTap: _showLogoutDialog,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
-                leading: const Icon(Icons.logout_rounded, color: Color(0xFFEF4444), size: 20),
-                title: const Text(
-                  'Abmelden',
-                  style: TextStyle(
-                    color: Color(0xFFEF4444),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
+              child: Column(
+                children: [
+                  ListTile(
+                    onTap: _showLogoutDialog,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                    leading: const Icon(Icons.logout_rounded, color: StoryJobTheme.textSecondary, size: 20),
+                    title: const Text(
+                      'Abmelden',
+                      style: TextStyle(
+                        color: StoryJobTheme.textPrimary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, color: StoryJobTheme.textMuted, size: 12),
                   ),
-                ),
-                trailing: const Icon(Icons.arrow_forward_ios_rounded, color: StoryJobTheme.textMuted, size: 12),
+                  _buildDivider(),
+                  ListTile(
+                    onTap: _showDeleteAccountDialog,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+                    leading: const Icon(Icons.delete_forever_rounded, color: Color(0xFFEF4444), size: 20),
+                    title: const Text(
+                      'Konto löschen',
+                      style: TextStyle(
+                        color: Color(0xFFEF4444),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    subtitle: const Text(
+                      'Alle Profildaten und Werte unwiderruflich entfernen',
+                      style: TextStyle(color: StoryJobTheme.textMuted, fontSize: 11.5),
+                    ),
+                    trailing: const Icon(Icons.arrow_forward_ios_rounded, color: StoryJobTheme.textMuted, size: 12),
+                  ),
+                ],
               ),
             ),
 

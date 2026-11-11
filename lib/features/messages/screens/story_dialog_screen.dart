@@ -7,12 +7,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:storyjob/core/services/app_services.dart';
 import 'package:storyjob/core/services/audio_service.dart';
-import 'package:storyjob/core/services/resonance_analytics_service.dart';
+import 'package:storyjob/core/services/match_analytics_service.dart';
 import 'package:storyjob/core/theme/storyjob_theme.dart';
 import 'package:storyjob/core/widgets/glass_card.dart';
 import 'package:storyjob/features/messages/models/message_model.dart';
 import 'package:storyjob/features/messages/widgets/appointment_request_widget.dart';
-import 'package:storyjob/features/match/services/resonance_intelligence_service.dart';
+import 'package:storyjob/features/match/services/match_intelligence_service.dart';
 
 class StoryDialogScreen extends StatefulWidget {
   final String chatId;
@@ -50,8 +50,8 @@ class StoryDialogScreen extends StatefulWidget {
 class _StoryDialogScreenState extends State<StoryDialogScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final ResonanceAnalyticsService _analytics = ResonanceAnalyticsService();
-  final ResonanceIntelligenceService _resonanceService = ResonanceIntelligenceService();
+  final MatchAnalyticsService _analytics = MatchAnalyticsService();
+  final MatchIntelligenceService _resonanceService = MatchIntelligenceService();
 
   bool _isRecording = false;
   int _recordSeconds = 0;
@@ -466,7 +466,7 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
           const SizedBox(height: 10),
 
           // Live-Stream der Beziehungs- und Matching-Ebene
-          StreamBuilder<ResonancePairData?>(
+          StreamBuilder<dynamic>(
             stream: _resonanceService.streamPairData(widget.chatId),
             builder: (context, snapshot) {
               final pair = snapshot.data;

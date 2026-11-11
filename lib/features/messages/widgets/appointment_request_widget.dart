@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:storyjob/core/services/app_services.dart';
 import 'package:storyjob/core/theme/storyjob_theme.dart';
-import 'package:storyjob/features/match/services/resonance_intelligence_service.dart';
+import 'package:storyjob/features/match/services/match_intelligence_service.dart';
 
 class AppointmentRequestWidget extends StatelessWidget {
   final String chatId;
@@ -206,7 +206,7 @@ class AppointmentRequestWidget extends StatelessWidget {
                         });
 
                         // 2. Beziehungsstufe auf 'call_scheduled' aktualisieren
-                        await ResonanceIntelligenceService().updateConnectionStage(
+                        await MatchIntelligenceService().updateConnectionStage(
                           targetId: chatId,
                           stage: 'call_scheduled',
                         );
