@@ -55,7 +55,7 @@ workflows:
   generate-android-keystore:
     name: 1. Einmalig Android Keystore erzeugen
     max_build_duration: 15
-    instance_type: linux_x2
+    instance_type: mac_mini_m1
     scripts:
       - name: Upload-Keystore erstellen
         script: |
@@ -75,7 +75,7 @@ workflows:
   android-all-release:
     name: 2. Android Release Bundles (.aab) - Alle 3 Apps
     max_build_duration: 60
-    instance_type: linux_x2
+    instance_type: mac_mini_m1
     environment:
       android_signing:
         - storyjob_upload_keystore
