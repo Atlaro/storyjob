@@ -46,7 +46,7 @@ class StoryJobBrandHeader extends StatelessWidget {
           : 'Zeig der Arbeitswelt, was wirklich in dir steckt.';
     } else {
       return isRecruiter
-          ? 'Lass den Tag mit neuen Resonanz-Pitches ausklingen.'
+          ? 'Lass den Tag mit neuen Werte-Passung-Pitches ausklingen.'
           : 'Entdecke neue Chancen auf Augenhöhe für morgen.';
     }
   }

@@ -85,7 +85,7 @@ class EarlyAccessTalentCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Hohe Werte-Resonanz',
+                              'Hohe Werte-Match',
                               style: TextStyle(
                                 color: StoryJobTheme.textPrimary.withValues(alpha: 0.5),
                                 fontWeight: FontWeight.w700,
@@ -186,7 +186,7 @@ class EarlyAccessTalentCard extends StatelessWidget {
                           onPressed: () => _triggerUpgrade(context),
                           icon: const Icon(Icons.workspace_premium_rounded, size: 18, color: StoryJobTheme.champagneGold),
                           label: const Text(
-                            'Resonanz-Story vorab entdecken ✨',
+                            'Werte-Passung-Story vorab entdecken ✨',
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               fontSize: 13,

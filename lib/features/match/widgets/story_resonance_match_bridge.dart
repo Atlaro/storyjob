@@ -15,7 +15,7 @@ class StoryResonanceMatchBridge extends StatelessWidget {
     super.key,
     this.userName = 'Du',
     required this.companyName,
-    this.matchScore = 'Hohe Resonanz ✨',
+    this.matchScore = 'Hohe Werte-Passung ✨',
     this.userColor = StoryJobTheme.cyanAccent,
     this.companyColor = StoryJobTheme.primaryViolet,
     this.onBridgeTap,

@@ -61,7 +61,7 @@ class _MatchCardState extends State<MatchCard> {
   }
 
   String _getResonanceLabel(double score) {
-    if (score >= 88) return 'Hohe Resonanz ✨';
+    if (score >= 88) return 'Hohe Werte-Passung ✨';
     if (score >= 70) return 'Starke Wellenlänge';
     return 'Werte-Einklang';
   }
@@ -92,7 +92,7 @@ class _MatchCardState extends State<MatchCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header mit Avatar & Resonanz-Pill
+          // Header mit Avatar & Werte-Passung-Pill
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -172,7 +172,7 @@ class _MatchCardState extends State<MatchCard> {
             ],
           ),
 
-          // Resonanz-Begründung
+          // Werte-Passung-Begründung
           if (widget.resonanceReason != null && widget.resonanceReason!.isNotEmpty) ...[
             const SizedBox(height: 14),
             Container(

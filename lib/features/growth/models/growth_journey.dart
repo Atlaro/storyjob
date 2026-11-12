@@ -8,7 +8,7 @@ enum GrowthCategory {
   voiceStory,     // Eigene Stimme & Audio-Impulse
   coreValues,     // Werte, Haltung & Miteinander (virdrun 'values')
   community,      // Ehrenamt, Vereine & Initiativen
-  dialog,         // Direkter Austausch & Resonanz
+  dialog,         // Direkter Austausch & Werte-Passung
 }
 
 extension GrowthCategoryExtension on GrowthCategory {
@@ -55,7 +55,7 @@ extension GrowthCategoryExtension on GrowthCategory {
       case GrowthCategory.community:
         return 'Gemeinschaft & Engagement';
       case GrowthCategory.dialog:
-        return 'Resonanz & Dialog';
+        return 'Werte-Passung & Dialog';
     }
   }
 

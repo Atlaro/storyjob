@@ -9,7 +9,7 @@ class NotificationService {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       if (!context.mounted) return;
 
-      final title = message.notification?.title ?? 'Neue Resonanz';
+      final title = message.notification?.title ?? 'Neue Werte-Passung';
       final body = message.notification?.body ?? 'Es gibt Neuigkeiten zu deinen Matches.';
 
       showInAppBanner(

@@ -58,7 +58,7 @@ class MatchPairData {
         return 'Im aktiven Austausch';
       case 'discovered':
       default:
-        return 'Resonanz entdeckt';
+        return 'Werte-Passung entdeckt';
     }
   }
 }
@@ -73,7 +73,7 @@ class MatchIntelligenceService {
     return '${ids[0]}_${ids[1]}';
   }
 
-  /// Liefert einen Live-Stream der Resonanz- und Dialogstufe zwischen zwei Menschen
+  /// Liefert einen Live-Stream der Werte-Passung- und Dialogstufe zwischen zwei Menschen
   Stream<MatchPairData?> streamPairData(String targetId) {
     if (_currentUserId == 'guest_user' || targetId.isEmpty) {
       return Stream.value(null);

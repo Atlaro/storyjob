@@ -58,17 +58,17 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
       final doc = await FirebaseFirestore.instance.collection('users').doc(_uid).get();
       if (doc.exists && doc.data() != null) {
         final data = doc.data()!;
-        _nameController.text = data['displayName'] ?? data['fullName'] ?? data['name'] ?? _currentUser?.displayName ?? 'Peter Alt';
+        _nameController.text = data['displayName'] ?? data['fullName'] ?? data['name'] ?? _currentUser?.displayName ?? 'Alex Mustermann';
         _handleController.text = data['handle']?.toString().replaceAll('@', '') ?? 'peteralt';
-        _emailController.text = data['email'] ?? _currentUser?.email ?? 'peter.alt@storyjob.de';
+        _emailController.text = data['email'] ?? _currentUser?.email ?? 'alex.mustermann@beispiel.de';
         _phoneController.text = data['phone'] ?? '';
-        _locationController.text = data['location'] ?? 'Niederbayern';
+        _locationController.text = data['location'] ?? 'München';
         _taglineController.text = data['bio'] ?? data['tagline'] ?? 'Hands-on Macher mit Fokus auf Menschlichkeit, Eigenverantwortung & moderne Teamkultur.';
       } else {
-        _nameController.text = _currentUser?.displayName ?? 'Peter Alt';
+        _nameController.text = _currentUser?.displayName ?? 'Alex Mustermann';
         _handleController.text = 'peteralt';
-        _emailController.text = _currentUser?.email ?? 'peter.alt@storyjob.de';
-        _locationController.text = 'Niederbayern';
+        _emailController.text = _currentUser?.email ?? 'alex.mustermann@beispiel.de';
+        _locationController.text = 'München';
         _taglineController.text = 'Hands-on Macher mit Fokus auf Menschlichkeit, Eigenverantwortung & moderne Teamkultur.';
       }
     } catch (e) {
@@ -207,7 +207,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
                   padding: const EdgeInsets.fromLTRB(18.0, 10.0, 18.0, 40.0),
                   children: [
                     const Text(
-                      'Diese Angaben bilden dein Werteprofil und die Basis für echte Resonanz-Treffer mit passenden Teams.',
+                      'Diese Angaben bilden dein Werteprofil und die Basis für echte Werte-Passung-Treffer mit passenden Teams.',
                       style: TextStyle(
                         color: StoryJobTheme.textSecondary,
                         fontSize: 13,
@@ -238,7 +238,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
                             controller: _nameController,
                             label: 'Name',
                             icon: Icons.person_outline_rounded,
-                            hint: 'z. B. Peter Alt',
+                            hint: 'z. B. Alex Mustermann',
                             validator: (v) => (v == null || v.trim().isEmpty) ? 'Name erforderlich' : null,
                           ),
                           _buildDivider(),
@@ -301,7 +301,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
                             controller: _locationController,
                             label: 'Standort',
                             icon: Icons.location_on_outlined,
-                            hint: 'z. B. Niederbayern / Remote',
+                            hint: 'z. B. München / Remote',
                           ),
                         ],
                       ),

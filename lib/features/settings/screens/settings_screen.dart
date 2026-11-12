@@ -462,7 +462,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   _buildSwitchRow(
                     title: 'Push-Mitteilungen',
-                    subtitle: 'Direkte Updates zu Resonanzen & Dialogen',
+                    subtitle: 'Direkte Updates zu Werte-Passungen & Dialogen',
                     value: _pushNotifications,
                     onChanged: (val) {
                       HapticFeedback.selectionClick();
@@ -472,7 +472,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   _buildDivider(),
                   _buildSwitchRow(
-                    title: 'Werte-Resonanz Alerts',
+                    title: 'Werte-Match Alerts',
                     subtitle: 'Mitteilung bei hoher Werte-Passung (85%+)',
                     value: _matchAlerts,
                     onChanged: (val) {

@@ -10,13 +10,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:storyjob/core/services/app_services.dart';
 import 'package:storyjob/core/services/audio_service.dart';
 import 'package:storyjob/core/services/audio_cache_service.dart';
-import 'package:storyjob/core/services/resonance_analytics_service.dart';
+
 import 'package:storyjob/core/theme/storyjob_theme.dart';
 import 'package:storyjob/core/widgets/glass_card.dart';
 import 'package:storyjob/features/feed/models/story_model.dart';
 import 'package:storyjob/features/identity/models/story_identity.dart';
 import 'package:storyjob/features/identity/services/story_identity_service.dart';
-import 'package:storyjob/features/match/services/story_resonance_engine.dart';
+import 'package:storyjob/features/match/services/values_match_service.dart';
 import 'package:storyjob/features/match/services/matching_service.dart';
 import 'package:storyjob/features/navigation/widgets/story_app_bar.dart';
 import 'package:storyjob/features/profile/screens/profile_detail_screen.dart';
@@ -41,7 +41,7 @@ class StoriesFeedScreen extends StatefulWidget {
 class _StoriesFeedScreenState extends State<StoriesFeedScreen>
     with SingleTickerProviderStateMixin {
   final StoryIdentityService _identityService = StoryIdentityService();
-  final ResonanceAnalyticsService _analytics = ResonanceAnalyticsService();
+  final ValuesMatchService _matchService = ValuesMatchService();
 
   String get _currentUserId =>
       widget.userId ?? FirebaseAuth.instance.currentUser?.uid ?? 'guest_user';
@@ -167,11 +167,11 @@ class _StoriesFeedScreenState extends State<StoriesFeedScreen>
       _selectedFilterCategory = category;
     });
 
-    _analytics.track(
+    _matchService.logInteraction(
       eventType: 'filter_selected',
       targetId: category,
-      targetRole: 'system',
-      screen: 'stories_feed',
+      
+      
       details: {'category': category},
     );
   }
@@ -722,7 +722,7 @@ class _StoriesFeedScreenState extends State<StoriesFeedScreen>
                               impactVision: story.category,
                             );
 
-                            final resonance = StoryResonanzEngine.calculateResonance(
+                            final resonance = ValuesMatchService.calculateMatch(
                               sourceIdentity: myId,
                               targetIdentity: targetIdentity,
                             );
@@ -807,7 +807,7 @@ class _StoriesFeedScreenState extends State<StoriesFeedScreen>
 
 class StoryResonanceCardItem extends StatefulWidget {
   final StoryModel story;
-  final ResonanceResult resonance;
+  final ValuesMatchResult resonance;
   final StoryIdentity identity;
   final bool autoPlayEnabled;
 
@@ -825,7 +825,7 @@ class StoryResonanceCardItem extends StatefulWidget {
 
 class _StoryResonanceCardItemState extends State<StoryResonanceCardItem> {
   final MatchingService _matchingService = MatchingService();
-  final ResonanceAnalyticsService _analytics = ResonanceAnalyticsService();
+  final ValuesMatchService _matchService = ValuesMatchService();
 
   bool _isPlaying = false;
   bool _hasSparked = false;
@@ -865,11 +865,11 @@ class _StoryResonanceCardItemState extends State<StoryResonanceCardItem> {
       final double ratio = (_listenSeconds / totalSec).clamp(0.0, 1.0);
       final String eventType = ratio < 0.20 ? 'story_skip_early' : 'story_listen_ratio';
 
-      _analytics.track(
+      _matchService.logInteraction(
         eventType: eventType,
         targetId: widget.story.userId,
-        targetRole: 'creator',
-        screen: 'stories_feed',
+        
+        
         details: {
           'storyId': widget.story.id,
           'category': widget.story.category,
@@ -920,11 +920,11 @@ class _StoryResonanceCardItemState extends State<StoryResonanceCardItem> {
     if (_hasSparked) {
       AppServices.incrementLikes(widget.story.id);
 
-      _analytics.track(
+      _matchService.logInteraction(
         eventType: 'resonance_spark_triggered',
         targetId: widget.story.userId,
-        targetRole: 'creator',
-        screen: 'stories_feed',
+        
+        
         details: {
           'storyId': widget.story.id,
           'category': widget.story.category,
@@ -957,11 +957,11 @@ class _StoryResonanceCardItemState extends State<StoryResonanceCardItem> {
   Future<void> _handleStartDialog() async {
     HapticFeedback.mediumImpact();
 
-    _analytics.track(
+    _matchService.logInteraction(
       eventType: 'dialog_intent_triggered',
       targetId: widget.story.userId,
-      targetRole: 'creator',
-      screen: 'stories_feed',
+      
+      
       details: {
         'storyId': widget.story.id,
         'category': widget.story.category,
@@ -1305,7 +1305,7 @@ class DailyAudioSparkWidget extends StatefulWidget {
 }
 
 class _DailyAudioSparkWidgetState extends State<DailyAudioSparkWidget> {
-  final ResonanceAnalyticsService _analytics = ResonanceAnalyticsService();
+  final ValuesMatchService _matchService = ValuesMatchService();
   bool _hasAnsweredToday = false;
 
   @override
@@ -1386,11 +1386,11 @@ class _DailyAudioSparkWidgetState extends State<DailyAudioSparkWidget> {
               ),
               onPressed: () {
                 HapticFeedback.mediumImpact();
-                _analytics.track(
+                _matchService.logInteraction(
                   eventType: 'daily_spark_tapped',
                   targetId: 'daily_prompt_reflection',
-                  targetRole: 'system',
-                  screen: 'stories_feed',
+                  
+                  
                   details: {'hasAnswered': _hasAnsweredToday},
                 );
 

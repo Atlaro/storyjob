@@ -19,7 +19,7 @@ class CommunityNetworkScreen extends StatelessWidget {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
         title: const Text(
-          'Resonanz-Kreise™',
+          'Werte-Passung-Kreise™',
           style: TextStyle(
             color: StoryJobTheme.textPrimary,
             fontWeight: FontWeight.bold,
@@ -63,7 +63,7 @@ class CommunityNetworkScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   const Text(
-                    'Resonanz-Kreise verbinden Menschen, Initiativen und Vereine über gelebte Werte und Engagement – nicht über Reichweite.',
+                    'Werte-Passung-Kreise verbinden Menschen, Initiativen und Vereine über gelebte Werte und Engagement – nicht über Reichweite.',
                     style: TextStyle(
                       fontSize: 13.5,
                       color: StoryJobTheme.textSecondary,
@@ -75,7 +75,7 @@ class CommunityNetworkScreen extends StatelessWidget {
                   // KREIS 1: EHRENAMT & EINSATZKRÄFTE
                   _buildResonanceCircleCard(
                     title: '🚒 Ehrenamt & Einsatzkräfte',
-                    subtitle: 'Feuerwehr, BRK, Rettungsdienst & Katastrophenschutz.',
+                    subtitle: 'Einsatzwesen, Rettungsdienst & Katastrophenschutz.',
                     tag: 'Werte: Krisenfestigkeit & Verantwortung',
                     accentColor: StoryJobTheme.neonPink,
                     memberCount: 'Regional aktiv',

@@ -28,7 +28,7 @@ class ResonanceInsightBadge extends StatelessWidget {
     final accentColor = isForRecruiter ? StoryJobTheme.primaryViolet : StoryJobTheme.cyanAccent;
     final double numericPercentage = _parsePercentage(matchPercentage);
 
-    // Resonanz-Begründung
+    // Werte-Passung-Begründung
     final String insightText = storyJobDnaData['resonanceInsight'] ??
         storyJobDnaData['resonanceReason'] ??
         'Eure StoryJob DNA zeigt starke Schnittmengen bei gelebten Werten und Teamkultur.';
@@ -40,7 +40,7 @@ class ResonanceInsightBadge extends StatelessWidget {
         [];
 
     final String displayBadge = matchPercentage.contains('%')
-        ? '$matchPercentage Resonanz'
+        ? '$matchPercentage Werte-Passung'
         : '$matchPercentage ✨';
 
     return Container(
@@ -78,7 +78,7 @@ class ResonanceInsightBadge extends StatelessWidget {
                   Icon(Icons.auto_awesome_rounded, color: accentColor, size: 16),
                   const SizedBox(width: 8),
                   const Text(
-                    'StoryJob DNA Resonanz',
+                    'StoryJob DNA Werte-Passung',
                     style: TextStyle(
                       color: StoryJobTheme.textPrimary,
                       fontSize: 13,
@@ -108,7 +108,7 @@ class ResonanceInsightBadge extends StatelessWidget {
             ],
           ),
 
-          // Der leuchtende Resonanz-Bogen aus den Mockups
+          // Der leuchtende Werte-Passung-Bogen aus den Mockups
           if (showArcGraphic) ...[
             const SizedBox(height: 18),
             SizedBox(
@@ -143,7 +143,7 @@ class ResonanceInsightBadge extends StatelessWidget {
 
           const SizedBox(height: 14),
 
-          // Resonanz-Erklärungstext
+          // Werte-Passung-Erklärungstext
           Align(
             alignment: Alignment.centerLeft,
             child: Text(

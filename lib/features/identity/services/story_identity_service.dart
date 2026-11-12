@@ -83,7 +83,7 @@ class StoryIdentityService {
     }
   }
 
-  /// Vergleicht zwei Identitäten und gibt die menschlichen Resonanzpunkte zurück
+  /// Vergleicht zwei Identitäten und gibt die menschlichen Werte-Passungpunkte zurück
   Future<StoryResonanceAnalysis> calculateResonanceBetween({
     required String currentUserId,
     required String targetUserId,

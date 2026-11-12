@@ -34,7 +34,7 @@ class _RecruiterUpgradeModalState extends State<RecruiterUpgradeModal> {
       'title': 'Bronze • Sofort-Zugang',
       'price': '29 €',
       'sub': 'Einmalig für dieses Profil',
-      'badge': '1 Resonanz',
+      'badge': '1 Werte-Passung',
       'color': const Color(0xFFD97706), // Warm Bronze
       'icon': Icons.military_tech_rounded,
       'benefits': [
@@ -50,13 +50,13 @@ class _RecruiterUpgradeModalState extends State<RecruiterUpgradeModal> {
       'color': const Color(0xFF94A3B8), // Slate Silver
       'icon': Icons.workspace_premium_rounded,
       'benefits': [
-        'Alle 90%+ Resonanzen 24h priorisiert einsehen',
+        'Alle 90%+ Werte-Passungen 24h priorisiert einsehen',
         'Unbegrenzt Story-Dialoge auf Augenhöhe starten',
         'Ausführliche Team-Story (bis zu 3 Min.) hinterlegen',
       ],
     },
     {
-      'title': 'Gold • Enterprise Resonanz',
+      'title': 'Gold • Enterprise Werte-Passung',
       'price': '349 €',
       'sub': 'monatlich • maximale Sichtbarkeit',
       'badge': 'Exklusiv',

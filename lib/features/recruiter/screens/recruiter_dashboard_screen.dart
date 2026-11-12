@@ -247,7 +247,7 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen> {
                   ),
                   const SizedBox(width: 8),
                   const Text(
-                    'Aktive Werte-Resonanzen mit passenden Machern.',
+                    'Aktive Werte-Matchen mit passenden Machern.',
                     style: TextStyle(
                       color: StoryJobTheme.cyanAccent,
                       fontSize: 13.5,
@@ -454,7 +454,7 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: _buildKpiCard(
-                      title: 'Werte-Resonanz',
+                      title: 'Werte-Match',
                       value: '8',
                       icon: Icons.auto_awesome_rounded,
                       color: StoryJobTheme.primaryViolet,
@@ -513,7 +513,7 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen> {
               ),
               const SizedBox(height: 16),
 
-              // 6. Resonanz-Pool (Kandidaten)
+              // 6. Werte-Passung-Pool (Kandidaten)
               StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('users')
@@ -536,7 +536,7 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen> {
                       child: Padding(
                         padding: EdgeInsets.all(32.0),
                         child: Text(
-                          'Noch keine Profile im Resonanz-Pool.',
+                          'Noch keine Profile im Werte-Passung-Pool.',
                           style: TextStyle(color: StoryJobTheme.textSecondary),
                         ),
                       ),
@@ -551,7 +551,7 @@ class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen> {
                       final data = docs[index].data() as Map<String, dynamic>;
                       final candidateName = data['displayName'] ?? data['name'] ?? 'Macher';
                       final roleTitle = data['bio'] ?? data['tagline'] ?? 'Offen für Werte-Matches';
-                      final matchScore = data['matchScore'] ?? '96% Resonanz';
+                      final matchScore = data['matchScore'] ?? '96% Werte-Passung';
                       final chatId = 'chat_${docs[index].id}';
 
                       return Container(

@@ -181,7 +181,7 @@ class AppServices {
     required String password,
     required String role,
     required String displayName,
-    String location = 'Region Niederbayern',
+    String location = 'DACH-Region',
     List<String> engagement = const [],
     List<String> interests = const ['Werte & Haltung', 'Innovation'],
   }) async {

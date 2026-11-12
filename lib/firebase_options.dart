@@ -52,21 +52,20 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBZGGggfkjT0wD27IToxnAf58DeRz0x7Z8',
-    appId: '1:758116924953:android:5abc58619121faa4f63488',
+    appId: '1:758116924953:android:9e3998c65382fab0f63488',
     messagingSenderId: '758116924953',
     projectId: 'storyjob-98017',
     storageBucket: 'storyjob-98017.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAEXPM4UsfamE0ExVEQVVy3uZARJjR2rLQ',
-    appId: '1:758116924953:ios:2f0fe0525532e0c3f63488',
+    appId: '1:758116924953:ios:d82d6658ea5f0755f63488',
     messagingSenderId: '758116924953',
     projectId: 'storyjob-98017',
     storageBucket: 'storyjob-98017.firebasestorage.app',
+    iosClientId: '758116924953-1kp1p4o2fqcrujfunkkt2vm1lgia3gt1.apps.googleusercontent.com',
     iosBundleId: 'de.storyjob.app',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyAEXPM4UsfamE0ExVEQVVy3uZARJjR2rLQ',
     appId: '1:758116924953:ios:2f0fe0525532e0c3f63488',

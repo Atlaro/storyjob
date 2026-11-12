@@ -93,7 +93,7 @@ class BirthdayPopUpDialog extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   const Text(
-                    'Wir wünschen dir ein erfülltes neues Lebensjahr, echte Resonanz und Raum für deine persönliche Entfaltung.',
+                    'Wir wünschen dir ein erfülltes neues Lebensjahr, echte Werte-Passung und Raum für deine persönliche Entfaltung.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: StoryJobTheme.textSecondary,

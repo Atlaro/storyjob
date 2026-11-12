@@ -1,273 +1,156 @@
-// lib/features/recruiter/screens/recruiter_navigation_screen.dart
-import 'dart:ui';
+// lib/features/recruiter/screens/recruiter_dashboard_screen.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:storyjob/core/theme/storyjob_theme.dart';
-import 'package:storyjob/core/widgets/glass_card.dart';
-import 'package:storyjob/features/recruiter/screens/recruiter_dashboard_screen.dart';
-import 'package:storyjob/features/recruiter/screens/recruiter_talent_pool_screen.dart';
+import 'package:storyjob/core/widgets/story_pulse_status_bar.dart';
 import 'package:storyjob/features/recruiter/screens/company_dna_screen.dart';
-import 'package:storyjob/features/record/screens/video_recording_screen.dart';
-import 'package:storyjob/features/voice/screens/voice_story_recorder_screen.dart';
-import 'package:storyjob/features/settings/screens/settings_screen.dart';
+import 'package:storyjob/features/messages/screens/story_dialog_screen.dart';
 
-class RecruiterNavigationScreen extends StatefulWidget {
-  const RecruiterNavigationScreen({super.key});
+class RecruiterDashboardScreen extends StatefulWidget {
+  final String recruiterId;
+
+  const RecruiterDashboardScreen({
+    super.key,
+    this.recruiterId = 'recruiter_demo',
+  });
 
   @override
-  State<RecruiterNavigationScreen> createState() => _RecruiterNavigationScreenState();
+  State<RecruiterDashboardScreen> createState() => _RecruiterDashboardScreenState();
 }
 
-class _RecruiterNavigationScreenState extends State<RecruiterNavigationScreen>
-    with SingleTickerProviderStateMixin {
-  int _currentIndex = 0;
-  late final AnimationController _pulseController;
-  late final Animation<double> _pulseAnimation;
+class _RecruiterDashboardScreenState extends State<RecruiterDashboardScreen> {
+  String _selectedFilter = 'Alle';
+  final List<String> _filters = [
+    'Alle',
+    'Hohe Wellenlänge ✨',
+    'Engagement & Ehrenamt',
+    'Technik & Impact',
+  ];
 
-  late final List<Widget> _pages;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2600),
-    )..repeat(reverse: true);
-
-    _pulseAnimation = Tween<double>(begin: 0.94, end: 1.06).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-
-    _pages = [
-      const RecruiterDashboardScreen(),
-      const RecruiterTalentPoolScreen(),
-      const CompanyDnaScreen(),
-      const SettingsScreen(),
-    ];
+  String get _effectiveCompanyId {
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+    return (currentUid != null && currentUid.isNotEmpty) ? currentUid : widget.recruiterId;
   }
 
-  @override
-  void dispose() {
-    _pulseController.dispose();
-    super.dispose();
-  }
-
-  void _onItemTapped(int index) {
-    HapticFeedback.selectionClick();
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
-  /// Recruiter Action-Hub: Echter Einblick auf Augenhöhe statt Textanzeigen
-  void _openRecruiterActionHub() {
-    HapticFeedback.heavyImpact();
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      barrierColor: Colors.black.withValues(alpha: 0.75),
-      isScrollControlled: true,
-      builder: (ctx) => ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(20, 14, 20, 40),
-            decoration: BoxDecoration(
-              color: StoryJobTheme.cardSurfaceElevated.withValues(alpha: 0.96),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-              border: Border(
-                top: BorderSide(
-                  color: StoryJobTheme.cyanAccent.withValues(alpha: 0.35),
-                  width: 1.2,
-                ),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.50),
-                  blurRadius: 30,
-                  offset: const Offset(0, -10),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 38,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.20),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 22),
-                const Text(
-                  'Team-Kultur sprechen lassen',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: StoryJobTheme.textPrimary,
-                    fontSize: 21,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.4,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                const Text(
-                  'Keine Standard-Stellenanzeigen. Zeigt eure gelebten Werte.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: StoryJobTheme.cyanAccent,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                _buildActionTile(
-                  icon: Icons.mic_rounded,
-                  badgeText: '30 Sek.',
-                  title: '🎙️  Team-Stimme aufnehmen',
-                  subtitle: 'Beantwortet eine Frage zu Teamkultur & Miteinander',
-                  color: StoryJobTheme.cyanAccent,
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const VoiceStoryRecorderScreen(),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 12),
-                _buildActionTile(
-                  icon: Icons.videocam_rounded,
-                  badgeText: '60 Sek.',
-                  title: '📹  Team- & Werte-Impuls',
-                  subtitle: 'Stellt eine Chance oder eure Werkstatt im Kurzvideo vor',
-                  color: StoryJobTheme.pinkMagenta,
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const VideoRecordingScreen(),
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(height: 12),
-                _buildActionTile(
-                  icon: Icons.hub_rounded,
-                  badgeText: 'Kultur',
-                  title: '✨  Firmen-DNA schärfen',
-                  subtitle: 'Werte, Kulturmerkmale & Arbeitsweise pflegen',
-                  color: StoryJobTheme.primaryViolet,
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    setState(() => _currentIndex = 2);
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
+  void _openCompanyIdentity() {
+    HapticFeedback.lightImpact();
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const CompanyDnaScreen(),
       ),
     );
   }
 
-  Widget _buildActionTile({
-    required IconData icon,
-    required String badgeText,
-    required String title,
-    required String subtitle,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return GlassCard(
-      borderRadius: 22,
-      borderGradient: StoryJobTheme.dnaCardBorder,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 15),
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
-      },
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.16),
-              shape: BoxShape.circle,
-              border: Border.all(color: color.withValues(alpha: 0.45), width: 1.3),
-              boxShadow: [
-                BoxShadow(
-                  color: color.withValues(alpha: 0.20),
-                  blurRadius: 12,
-                ),
-              ],
-            ),
-            child: Icon(icon, color: color, size: 23),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
+  void _manageTeamStory(String? currentVideoUrl) {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: StoryJobTheme.cardSurfaceElevated,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Row(
                   children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          color: StoryJobTheme.textPrimary,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.2,
-                        ),
-                      ),
-                    ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: color.withValues(alpha: 0.35), width: 0.8),
+                        color: StoryJobTheme.cyanAccent.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                      child: Text(
-                        badgeText,
-                        style: TextStyle(
-                          color: color,
-                          fontSize: 10.5,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      child: const Icon(Icons.videocam_rounded, color: StoryJobTheme.cyanAccent, size: 24),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '60s Team- & Kultur-Impuls',
+                            style: TextStyle(
+                              color: StoryJobTheme.textPrimary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'Zeigt Talenten und Machern eure gelebten Werte vorab.',
+                            style: TextStyle(
+                              color: StoryJobTheme.textSecondary,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    color: StoryJobTheme.textSecondary,
-                    fontSize: 12,
-                    height: 1.3,
+                const SizedBox(height: 20),
+                ListTile(
+                  leading: const Icon(Icons.video_call_rounded, color: StoryJobTheme.cyanAccent),
+                  title: const Text(
+                    'Impuls aufnehmen (max. 60 Sek.)',
+                    style: TextStyle(color: StoryJobTheme.textPrimary, fontWeight: FontWeight.w600),
                   ),
+                  subtitle: const Text(
+                    'Kamera nutzen für einen ungestellten, echten Einblick.',
+                    style: TextStyle(color: StoryJobTheme.textSecondary, fontSize: 12),
+                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  tileColor: StoryJobTheme.cardSurface,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _openCompanyIdentity();
+                  },
                 ),
+                const SizedBox(height: 10),
+                ListTile(
+                  leading: const Icon(Icons.file_upload_outlined, color: StoryJobTheme.primaryViolet),
+                  title: const Text(
+                    'Bestehendes Video (MP4) hochladen',
+                    style: TextStyle(color: StoryJobTheme.textPrimary, fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: const Text(
+                    'Fertig bearbeitetes Team- oder Kultur-Video einbinden.',
+                    style: TextStyle(color: StoryJobTheme.textSecondary, fontSize: 12),
+                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  tileColor: StoryJobTheme.cardSurface,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _openCompanyIdentity();
+                  },
+                ),
+                if (currentVideoUrl != null && currentVideoUrl.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  ListTile(
+                    leading: const Icon(Icons.play_circle_fill_rounded, color: StoryJobTheme.cyanAccent),
+                    title: const Text(
+                      'Aktuellen Impuls ansehen',
+                      style: TextStyle(color: StoryJobTheme.textPrimary, fontWeight: FontWeight.w600),
+                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    tileColor: StoryJobTheme.cyanAccent.withValues(alpha: 0.12),
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          Icon(
-            Icons.arrow_forward_ios_rounded,
-            color: StoryJobTheme.textMuted.withValues(alpha: 0.7),
-            size: 13,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -275,220 +158,618 @@ class _RecruiterNavigationScreenState extends State<RecruiterNavigationScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: StoryJobTheme.backgroundBase,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
-      extendBody: true,
-      bottomNavigationBar: SizedBox(
-        height: 74,
-        child: Stack(
-          alignment: Alignment.topCenter,
-          clipBehavior: Clip.none,
-          children: [
-            ClipRRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-                child: CustomPaint(
-                  size: const Size(double.infinity, 74),
-                  painter: _RecruiterNotchedNavPainter(),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 70,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildNavItem(
-                    icon: Icons.dashboard_outlined,
-                    activeIcon: Icons.dashboard_rounded,
-                    label: 'Übersicht',
-                    index: 0,
-                    activeColor: StoryJobTheme.cyanAccent,
-                  ),
-                  _buildNavItem(
-                    icon: Icons.people_outline_rounded,
-                    activeIcon: Icons.people_alt_rounded,
-                    label: 'Macher',
-                    index: 1,
-                    activeColor: StoryJobTheme.primaryViolet,
-                  ),
-                  const SizedBox(width: 56),
-                  _buildNavItem(
-                    icon: Icons.corporate_fare_outlined,
-                    activeIcon: Icons.corporate_fare_rounded,
-                    label: 'Firmen-DNA',
-                    index: 2,
-                    activeColor: StoryJobTheme.pinkMagenta,
-                  ),
-                  _buildNavItem(
-                    icon: Icons.tune_rounded,
-                    activeIcon: Icons.tune_rounded,
-                    label: 'Setup',
-                    index: 3,
-                    activeColor: StoryJobTheme.cyanAccent,
-                  ),
-                ],
-              ),
-            ),
-            AnimatedBuilder(
-              animation: _pulseAnimation,
-              builder: (context, child) {
-                final double verticalOffset = -12 + (_pulseAnimation.value - 1.0) * 8;
+      body: SafeArea(
+        bottom: false,
+        child: StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('companies')
+              .doc(_effectiveCompanyId)
+              .snapshots(),
+          builder: (context, companySnapshot) {
+            final companyData = companySnapshot.data?.data() as Map<String, dynamic>?;
+            final companyName = companyData?['name'] as String? ?? 'Team-Profil konfigurieren';
+            final websiteUrl = companyData?['website'] as String? ?? 'Website & Werte verbinden';
+            final logoUrl = companyData?['logoUrl'] as String?;
+            final videoStoryUrl = companyData?['videoStoryUrl'] ?? companyData?['videoPitchUrl'] as String?;
+            final bool hasVideo = videoStoryUrl != null && videoStoryUrl.isNotEmpty;
 
-                return Positioned(
-                  top: verticalOffset,
-                  child: GestureDetector(
-                    onTap: _openRecruiterActionHub,
-                    behavior: HitTestBehavior.opaque,
-                    child: Stack(
-                      alignment: Alignment.center,
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(16.0, 12.0, 16.0, 110.0),
+              physics: const BouncingScrollPhysics(),
+              children: [
+                // 1. App-Header mit StoryJob-Branding (identisch zur Talent-Seite)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
                       children: [
-                        Container(
-                          width: 56 * _pulseAnimation.value,
-                          height: 56 * _pulseAnimation.value,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: StoryJobTheme.cyanAccent.withValues(alpha: 0.30),
-                                blurRadius: 18,
-                                spreadRadius: 1,
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(11),
+                          child: Image.asset(
+                            'assets/branding/app_icon_dark.png',
+                            width: 38,
+                            height: 38,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Icon(
+                                Icons.corporate_fare_rounded,
+                                color: StoryJobTheme.cyanAccent,
+                                size: 28,
+                              );
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        RichText(
+                          text: const TextSpan(
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.4,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: 'Story',
+                                style: TextStyle(color: Colors.white),
                               ),
-                              BoxShadow(
-                                color: StoryJobTheme.primaryViolet.withValues(alpha: 0.25),
-                                blurRadius: 20,
-                                spreadRadius: 1,
+                              TextSpan(
+                                text: 'Job',
+                                style: TextStyle(color: StoryJobTheme.cyanAccent),
                               ),
                             ],
                           ),
                         ),
-                        Container(
-                          width: 52,
-                          height: 52,
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        IconButton(
+                          tooltip: 'Unternehmens-DNA',
+                          icon: const Icon(Icons.tune_rounded, color: StoryJobTheme.cyanAccent),
+                          onPressed: _openCompanyIdentity,
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.notifications_outlined, color: StoryJobTheme.textSecondary),
+                          onPressed: () {
+                            HapticFeedback.selectionClick();
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const StoryDialogScreen(
+                                  chatId: 'recruiter_dialogs',
+                                  targetName: 'Team-Dialoge',
+                                  roleContext: 'Aktive Gespräche mit Machern',
+                                  matchScore: 'StoryJob Teams',
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // 2. 24h Pulse Status-Leiste (Recruiter & StoryJob Teams)
+                StoryPulseStatusBar(
+                  isRecruiter: true,
+                  currentUserName: companyName == 'Team-Profil konfigurieren' ? 'Euer Team' : companyName,
+                ),
+                const SizedBox(height: 18),
+
+                // Begrüßung & Status
+                const Text(
+                  'Willkommen auf Augenhöhe',
+                  style: TextStyle(
+                    color: StoryJobTheme.textPrimary,
+                    fontSize: 26,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Container(
+                      width: 7,
+                      height: 7,
+                      decoration: const BoxDecoration(
+                        color: StoryJobTheme.cyanAccent,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Expanded(
+                      child: Text(
+                        'Aktive Werte-Matchen mit passenden Machern.',
+                        style: TextStyle(
+                          color: StoryJobTheme.cyanAccent,
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // 3. Unternehmens- & Team-Identitäts-Header
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: StoryJobTheme.cardSurfaceElevated,
+                    borderRadius: BorderRadius.circular(22),
+                    border: Border.all(color: StoryJobTheme.cardBorder),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.16),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      GestureDetector(
+                        onTap: _openCompanyIdentity,
+                        child: Container(
+                          width: 48,
+                          height: 48,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            gradient: const LinearGradient(
-                              colors: [
-                                StoryJobTheme.cyanAccent,
-                                StoryJobTheme.primaryViolet,
-                                StoryJobTheme.pinkMagenta,
+                            color: StoryJobTheme.primaryViolet.withValues(alpha: 0.2),
+                            border: Border.all(color: StoryJobTheme.cyanAccent.withValues(alpha: 0.5), width: 1.5),
+                          ),
+                          child: ClipOval(
+                            child: logoUrl != null && logoUrl.isNotEmpty
+                                ? Image.network(
+                                    logoUrl,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => const Icon(
+                                      Icons.business_rounded,
+                                      color: StoryJobTheme.cyanAccent,
+                                      size: 24,
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.add_photo_alternate_outlined,
+                                    color: StoryJobTheme.cyanAccent,
+                                    size: 22,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              companyName,
+                              style: const TextStyle(
+                                color: StoryJobTheme.textPrimary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Row(
+                              children: [
+                                const Icon(Icons.link_rounded, size: 14, color: StoryJobTheme.cyanAccent),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    websiteUrl,
+                                    style: const TextStyle(
+                                      color: StoryJobTheme.textSecondary,
+                                      fontSize: 12,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                               ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
                             ),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.50),
-                              width: 1.3,
+                          ],
+                        ),
+                      ),
+                      TextButton.icon(
+                        style: TextButton.styleFrom(
+                          foregroundColor: StoryJobTheme.cyanAccent,
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          backgroundColor: StoryJobTheme.cyanAccent.withValues(alpha: 0.12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        onPressed: _openCompanyIdentity,
+                        icon: const Icon(Icons.edit_outlined, size: 14),
+                        label: const Text('Anpassen', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // 4. Team-Story / Kultur-Impuls Banner (StoryJob Teams)
+                GestureDetector(
+                  onTap: () => _manageTeamStory(videoStoryUrl),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          StoryJobTheme.primaryViolet.withValues(alpha: 0.30),
+                          StoryJobTheme.cardSurfaceElevated,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(
+                        color: hasVideo
+                            ? StoryJobTheme.cyanAccent.withValues(alpha: 0.5)
+                            : StoryJobTheme.cardBorder,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(9),
+                          decoration: BoxDecoration(
+                            color: StoryJobTheme.cyanAccent.withValues(alpha: 0.14),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            hasVideo ? Icons.play_arrow_rounded : Icons.videocam_rounded,
+                            color: StoryJobTheme.cyanAccent,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      hasVideo ? 'Team-Impuls aktiv' : 'Kein Team-Impuls hinterlegt',
+                                      style: const TextStyle(
+                                        color: StoryJobTheme.textPrimary,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: StoryJobTheme.cyanAccent.withValues(alpha: 0.15),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Text(
+                                      'StoryJob Teams',
+                                      style: TextStyle(
+                                        color: StoryJobTheme.cyanAccent,
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                hasVideo
+                                    ? 'Macher & Talente erleben eure Kultur vor der ersten Nachricht.'
+                                    : 'Stelle euer Team und eure Mission in 60 Sekunden vor.',
+                                style: const TextStyle(
+                                  color: StoryJobTheme.textSecondary,
+                                  fontSize: 11.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.arrow_forward_ios_rounded, color: StoryJobTheme.textMuted, size: 14),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 5. KPI-Übersicht im Slate-Dark-Format
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildKpiCard(
+                        title: 'Macher-Stories',
+                        value: '24',
+                        icon: Icons.mic_rounded,
+                        color: StoryJobTheme.cyanAccent,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _buildKpiCard(
+                        title: 'Werte-Match',
+                        value: '8',
+                        icon: Icons.auto_awesome_rounded,
+                        color: StoryJobTheme.primaryViolet,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _buildKpiCard(
+                        title: 'Im Dialog',
+                        value: '3',
+                        icon: Icons.forum_rounded,
+                        color: StoryJobTheme.champagneGold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // 6. Filter Chips
+                SizedBox(
+                  height: 42,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _filters.length,
+                    itemBuilder: (context, index) {
+                      final filter = _filters[index];
+                      final isSelected = _selectedFilter == filter;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ChoiceChip(
+                          label: Text(filter),
+                          selected: isSelected,
+                          selectedColor: StoryJobTheme.cyanAccent.withValues(alpha: 0.18),
+                          backgroundColor: StoryJobTheme.cardSurfaceElevated,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(
+                              color: isSelected
+                                  ? StoryJobTheme.cyanAccent.withValues(alpha: 0.4)
+                                  : StoryJobTheme.cardBorder,
                             ),
+                          ),
+                          labelStyle: TextStyle(
+                            color: isSelected ? StoryJobTheme.cyanAccent : StoryJobTheme.textSecondary,
+                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                            fontSize: 12,
+                          ),
+                          onSelected: (selected) {
+                            HapticFeedback.selectionClick();
+                            setState(() {
+                              _selectedFilter = filter;
+                            });
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // 7. Werte-Passung-Pool (Kandidaten & StoryJob DNA)
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('users')
+                      .where('role', isEqualTo: 'talent')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(32.0),
+                          child: CircularProgressIndicator(color: StoryJobTheme.cyanAccent),
+                        ),
+                      );
+                    }
+
+                    final docs = snapshot.data?.docs ?? [];
+
+                    if (docs.isEmpty) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(32.0),
+                          child: Text(
+                            'Noch keine Profile im Werte-Passung-Pool.',
+                            style: TextStyle(color: StoryJobTheme.textSecondary),
+                          ),
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: docs.length,
+                      itemBuilder: (context, index) {
+                        final data = docs[index].data() as Map<String, dynamic>;
+                        final candidateName = data['displayName'] ?? data['name'] ?? 'Macher';
+                        final roleTitle = data['bio'] ?? data['tagline'] ?? 'Offen für Werte-Matches';
+                        final matchScore = data['matchScore'] ?? '96% Werte-Passung';
+                        final chatId = 'chat_${docs[index].id}';
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 14),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: StoryJobTheme.cardSurfaceElevated,
+                            borderRadius: BorderRadius.circular(22),
+                            border: Border.all(color: StoryJobTheme.cardBorder),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.45),
+                                color: Colors.black.withValues(alpha: 0.16),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
                             ],
                           ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.add_rounded,
-                              color: Colors.white,
-                              size: 30,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        const CircleAvatar(
+                                          radius: 22,
+                                          backgroundColor: StoryJobTheme.cardSurface,
+                                          child: Icon(Icons.person_rounded, color: StoryJobTheme.cyanAccent),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                candidateName,
+                                                style: const TextStyle(
+                                                  color: StoryJobTheme.textPrimary,
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                roleTitle,
+                                                style: const TextStyle(
+                                                  color: StoryJobTheme.textSecondary,
+                                                  fontSize: 12,
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: StoryJobTheme.cyanAccent.withValues(alpha: 0.14),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: StoryJobTheme.cyanAccent.withValues(alpha: 0.35)),
+                                    ),
+                                    child: Text(
+                                      matchScore,
+                                      style: const TextStyle(
+                                        color: StoryJobTheme.cyanAccent,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 11.5,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 14),
+                              Row(
+                                children: [
+                                  const Icon(Icons.graphic_eq_rounded, color: StoryJobTheme.primaryViolet, size: 16),
+                                  const SizedBox(width: 6),
+                                  const Text(
+                                    'StoryJob DNA™ aktiv',
+                                    style: TextStyle(color: StoryJobTheme.textSecondary, fontSize: 12),
+                                  ),
+                                  const Spacer(),
+                                  TextButton.icon(
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: StoryJobTheme.cyanAccent,
+                                    ),
+                                    onPressed: () {
+                                      HapticFeedback.selectionClick();
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (_) => StoryDialogScreen(
+                                            chatId: chatId,
+                                            targetName: candidateName,
+                                            roleContext: roleTitle,
+                                            matchScore: matchScore,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    icon: const Icon(Icons.forum_rounded, size: 16),
+                                    label: const Text(
+                                      'Dialog auf Augenhöhe',
+                                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildNavItem({
+  Widget _buildKpiCard({
+    required String title,
+    required String value,
     required IconData icon,
-    required IconData activeIcon,
-    required String label,
-    required int index,
-    required Color activeColor,
+    required Color color,
   }) {
-    final bool isSelected = _currentIndex == index;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () => _onItemTapped(index),
-        behavior: HitTestBehavior.opaque,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              isSelected ? activeIcon : icon,
-              color: isSelected ? activeColor : StoryJobTheme.textMuted,
-              size: 21,
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: StoryJobTheme.cardSurfaceElevated,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: StoryJobTheme.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.14),
+              shape: BoxShape.circle,
             ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? StoryJobTheme.textPrimary : StoryJobTheme.textMuted,
-                fontSize: 10.5,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                letterSpacing: 0.2,
-              ),
+            child: Icon(icon, color: color, size: 16),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            value,
+            style: const TextStyle(
+              color: StoryJobTheme.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            title,
+            style: const TextStyle(
+              color: StoryJobTheme.textSecondary,
+              fontSize: 11,
+            ),
+          ),
+        ],
       ),
     );
   }
-}
-
-// ============================================================================
-// GESCHWUNGENE CRADLE-NOTCH KONTUR FÜR ARBEITGEBER
-// ============================================================================
-class _RecruiterNotchedNavPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final double width = size.width;
-    final double height = size.height;
-    final double center = width / 2;
-    const double notchRadius = 35.0;
-    const double notchDepth = 13.0;
-    const double shoulderWidth = 14.0;
-
-    final fillPaint = Paint()
-      ..color = StoryJobTheme.backgroundBase.withValues(alpha: 0.88)
-      ..style = PaintingStyle.fill;
-    final linePaint = Paint()
-      ..color = StoryJobTheme.cardBorder.withValues(alpha: 0.8)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0;
-
-    final path = Path();
-    path.moveTo(0, 0);
-    path.lineTo(center - notchRadius - shoulderWidth, 0);
-    path.cubicTo(center - notchRadius, 0, center - notchRadius + 5, notchDepth, center, notchDepth);
-    path.cubicTo(center + notchRadius - 5, notchDepth, center + notchRadius, 0, center + notchRadius + shoulderWidth, 0);
-    path.lineTo(width, 0);
-    path.lineTo(width, height);
-    path.lineTo(0, height);
-    path.close();
-
-    canvas.drawPath(path, fillPaint);
-
-    final borderPath = Path();
-    borderPath.moveTo(0, 0);
-    borderPath.lineTo(center - notchRadius - shoulderWidth, 0);
-    borderPath.cubicTo(center - notchRadius, 0, center - notchRadius + 5, notchDepth, center, notchDepth);
-    borderPath.cubicTo(center + notchRadius - 5, notchDepth, center + notchRadius, 0, center + notchRadius + shoulderWidth, 0);
-    borderPath.lineTo(width, 0);
-    canvas.drawPath(borderPath, linePaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

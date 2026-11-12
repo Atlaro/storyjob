@@ -150,41 +150,20 @@ class _StorySplashScreenState extends State<StorySplashScreen>
               opacity: _fadeAnim,
               child: ScaleTransition(
                 scale: _scaleAnim,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // StoryJob-Banner im Querformat (identisch zu story_auth_screen)
-                    Image.asset(
-                      'assets/images/storyjob_banner.jpg',
+                child: Image.asset(
+                  'assets/images/storyjob_banner.jpg',
+                  width: 280,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => Image.asset(
+                    'assets/images/storyjob_banner.png',
+                    width: 280,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => Image.asset(
+                      'assets/images/branding_onboarding.png',
                       width: 280,
                       fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) => Image.asset(
-                        'assets/images/storyjob_banner.png',
-                        width: 280,
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => Image.asset(
-                          'assets/images/branding_onboarding.png',
-                          width: 280,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
                     ),
-
-                    const SizedBox(height: 38),
-
-                    // Feiner Ladebalken
-                    SizedBox(
-                      width: 48,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: const LinearProgressIndicator(
-                          minHeight: 2.2,
-                          backgroundColor: Colors.white10,
-                          valueColor: AlwaysStoppedAnimation<Color>(StoryJobTheme.cyanAccent),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),

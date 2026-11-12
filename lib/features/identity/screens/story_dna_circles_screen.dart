@@ -705,8 +705,8 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
               ),
               const SizedBox(height: 22),
 
-              // Resonanz-Kreise
-              _buildSectionLabel('Resonanz-Kreise'),
+              // Werte-Passung-Kreise
+              _buildSectionLabel('Werte-Passung-Kreise'),
               const SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(

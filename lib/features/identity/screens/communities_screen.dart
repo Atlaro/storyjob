@@ -28,7 +28,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
 
   final List<Map<String, dynamic>> _suggestedCommunities = [
     {
-      'title': 'Feuerwehr, THW & Rettungsdienst',
+      'title': 'Einsatzwesen & Katastrophenschutz',
       'icon': Icons.emergency_rounded,
       'color': Color(0xFFEF4444),
     },
@@ -177,7 +177,7 @@ class _CommunitiesScreenState extends State<CommunitiesScreen> {
               ),
               const SizedBox(height: 6),
               const Text(
-                'Gemeinsames Engagement schafft echte Resonanz. Wähle Vereine, Initiativen oder Netzwerke, in denen du aktiv bist.',
+                'Gemeinsames Engagement schafft echte Werte-Passung. Wähle Vereine, Initiativen oder Netzwerke, in denen du aktiv bist.',
                 style: TextStyle(
                   fontSize: 13.5,
                   color: StoryJobTheme.textSecondary,

@@ -200,7 +200,7 @@ class _LoginSecurityScreenState extends State<LoginSecurityScreen> {
                   ),
                   const SizedBox(height: 14),
                   const Text(
-                    'Gemäß DSGVO werden alle deine Profildaten, Sprachaufnahmen, Stories, Match-Resonanzen und Chat-Verläufe unwiderruflich entfernt.',
+                    'Gemäß DSGVO werden alle deine Profildaten, Sprachaufnahmen, Stories, Match-Werte-Passungen und Chat-Verläufe unwiderruflich entfernt.',
                     style: TextStyle(
                       color: StoryJobTheme.textSecondary,
                       fontSize: 13,

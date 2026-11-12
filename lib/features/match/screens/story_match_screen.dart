@@ -1,8 +1,9 @@
 // lib/features/match/screens/story_match_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:storyjob/core/theme/storyjob_theme.dart';
+
+typedef MatchItem = Map<String, dynamic>;
 
 class StoryMatchScreen extends StatefulWidget {
   final int initialFilterIndex;
@@ -23,49 +24,48 @@ class StoryMatchScreen extends StatefulWidget {
 class _StoryMatchScreenState extends State<StoryMatchScreen> {
   late int _selectedFilterIndex;
 
-  List get _filters => widget.isRecruiter
-      ? [
-          'Alle Begegnungen',
-          'Höchstes Werte-Match ✨',
-          'Ehrenamt & Macher',
-          'Regionale Verwurzelung',
-        ]
-      : [
-          'Alle Chancen',
-          'Höchstes Werte-Match ✨',
-          'Kultur & Teamgeist',
-          'Flexibel & Frei',
-        ];
+  List<String> get _filters => widget.isRecruiter
+      ? ['Für euch', 'Top-Match ✨', 'Ehrenamt', 'Region']
+      : ['Für dich', 'Top-Match ✨', 'Kultur', 'Flexibel'];
 
-  late List _visibleMatches;
+  late List<MatchItem> _visibleMatches;
 
-  final List _initialMatches = [
+  final List<MatchItem> _initialMatches = [
     {
       'id': 'match_bright_minds',
       'company': 'Bright Minds Team',
       'role': 'Projekt- & Teamkoordination (m/w/d)',
-      'resonanceLabel': '94%',
-      'resonanceReason':
-          'Ihr sucht beide sinnstiftende Wirkung vor starren Hierarchien. Das Team schätzt deine Hands-on-Mentalität.',
+      'location': 'München & Hybrid',
+      'timeAgo': 'Neu heute',
+      'score': 94,
+      'tags': <String>['Vollzeit', 'Teamgeist', 'Sinnstiftend'],
+      'resonanceReason': 'Gleiche Haltung zu Eigenverantwortung und flachen Hierarchien.',
       'category': 'kultur',
+      'saved': false,
     },
     {
       'id': 'match_innovatech',
       'company': 'Innovatech Gemeinschaft',
       'role': 'Initiativen- & Transformationsleitung',
-      'resonanceLabel': '88%',
-      'resonanceReason':
-          'Dein Engagement und deine Ausdauer passen genau zu den anspruchsvollen Projekten des Teams.',
+      'location': 'Hamburg / Remote',
+      'timeAgo': 'Vor 1d',
+      'score': 88,
+      'tags': <String>['Führung', 'Gestaltung', 'Innovation'],
+      'resonanceReason': 'Dein Engagement passt genau zu den Zukunftsprojekten des Teams.',
       'category': 'workstyle',
+      'saved': false,
     },
     {
       'id': 'match_future_systems',
       'company': 'Future Systems Handwerk & Tech',
       'role': 'Macher für regenerative Systeme',
-      'resonanceLabel': '82%',
-      'resonanceReason':
-          'Ihr teilt dieselbe Vision über zukunftsorientierte Lösungen im Einklang mit Mensch und Natur.',
+      'location': 'München',
+      'timeAgo': 'Vor 2d',
+      'score': 82,
+      'tags': <String>['Praxis', 'Nachhaltigkeit', 'Region'],
+      'resonanceReason': 'Gemeinsame Vision über zukunftsorientierte Lösungen in der Region.',
       'category': 'vision',
+      'saved': false,
     },
   ];
 
@@ -73,28 +73,31 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
   void initState() {
     super.initState();
     _selectedFilterIndex = widget.initialFilterIndex;
-    _visibleMatches = List.from(_initialMatches);
+    _visibleMatches = List<MatchItem>.from(_initialMatches);
   }
 
-  List _getFilteredMatches() {
+  List<MatchItem> _getFilteredMatches() {
     if (_selectedFilterIndex == 1) {
-      return _visibleMatches.where((m) => (m as Map)['resonanceLabel'] == '94%').toList();
+      return _visibleMatches.where((m) => (m['score'] as int) >= 90).toList();
     } else if (_selectedFilterIndex == 2) {
-      return _visibleMatches.where((m) => (m as Map)['category'] == 'kultur').toList();
+      return _visibleMatches.where((m) => m['category'] == 'kultur').toList();
     }
     return _visibleMatches;
   }
 
-  void _handleMatch(String id) {
+  void _handleMatch(String id, String company) {
+    HapticFeedback.mediumImpact();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Row(
+        content: Row(
           children: [
-            Icon(Icons.auto_awesome_rounded, color: StoryJobTheme.cyanAccent, size: 18),
-            SizedBox(width: 10),
-            Text(
-              'Team-Fit bestätigt! Dialog gestartet ✨',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+            const Icon(Icons.auto_awesome_rounded, color: StoryJobTheme.cyanAccent, size: 18),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Dialog mit $company gestartet ✨',
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+              ),
             ),
           ],
         ),
@@ -102,24 +105,18 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
-          side: const BorderSide(color: StoryJobTheme.cyanAccent, width: 1.0),
+          side: const BorderSide(color: StoryJobTheme.cyanAccent),
         ),
         duration: const Duration(seconds: 2),
       ),
     );
 
-    Future.delayed(const Duration(milliseconds: 550), () {
+    Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
         setState(() {
-          _visibleMatches.removeWhere((m) => (m as Map)['id'] == id);
+          _visibleMatches.removeWhere((m) => m['id'] == id);
         });
       }
-    });
-  }
-
-  void _handlePass(String id) {
-    setState(() {
-      _visibleMatches.removeWhere((m) => (m as Map)['id'] == id);
     });
   }
 
@@ -129,268 +126,295 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
 
     return Scaffold(
       backgroundColor: StoryJobTheme.backgroundBase,
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment.topCenter,
-            radius: 1.3,
-            colors: [
-              Color(0xFF1B1435),
-              StoryJobTheme.backgroundBase,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(18.0, 14.0, 18.0, 10.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      height: 38,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Kompakter Header
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 12, 18, 6),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Werte-Matches',
+                    style: TextStyle(
+                      fontSize: 23,
+                      fontWeight: FontWeight.w800,
+                      color: StoryJobTheme.textPrimary,
+                      letterSpacing: -0.4,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      widget.onOpenDna?.call();
+                    },
+                    child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: StoryJobTheme.cardSurfaceElevated,
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: StoryJobTheme.cardBorder),
+                        color: StoryJobTheme.primaryViolet.withValues(alpha: 0.16),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: StoryJobTheme.primaryViolet.withValues(alpha: 0.4)),
                       ),
                       child: const Row(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.auto_awesome_rounded, color: StoryJobTheme.cyanAccent, size: 16),
-                          SizedBox(width: 8),
+                          Icon(Icons.fingerprint_rounded, color: StoryJobTheme.cyanAccent, size: 15),
+                          SizedBox(width: 6),
                           Text(
-                            'StoryJob',
+                            'DNA aktiv',
                             style: TextStyle(
                               color: StoryJobTheme.textPrimary,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        HapticFeedback.lightImpact();
-                        widget.onOpenDna?.call();
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-                        decoration: BoxDecoration(
-                          color: StoryJobTheme.primaryViolet.withValues(alpha: 0.16),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: StoryJobTheme.primaryViolet.withValues(alpha: 0.35),
-                          ),
-                        ),
-                        child: const Row(
-                          children: [
-                            Icon(Icons.fingerprint_rounded, color: StoryJobTheme.cyanAccent, size: 15),
-                            SizedBox(width: 6),
-                            Text(
-                              'StoryJob DNA aktiv',
-                              style: TextStyle(
-                                color: StoryJobTheme.textPrimary,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Team-Fit & Werte-Match',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w700,
-                        color: StoryJobTheme.textPrimary,
-                        letterSpacing: -0.4,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      widget.isRecruiter
-                          ? 'Menschen, deren Haltung und Werte mit eurem Team matchen'
-                          : 'Teams und Chancen auf deiner echten Wellenlänge',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: StoryJobTheme.textSecondary,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18.0),
-                child: SizedBox(
-                  height: 38,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: _filters.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 8),
-                    itemBuilder: (context, index) {
-                      final isSelected = _selectedFilterIndex == index;
-                      return GestureDetector(
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          setState(() => _selectedFilterIndex = index);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14),
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? StoryJobTheme.primaryViolet.withValues(alpha: 0.24)
-                                : StoryJobTheme.cardSurfaceElevated,
-                            borderRadius: BorderRadius.circular(18),
-                            border: Border.all(
-                              color: isSelected
-                                  ? StoryJobTheme.primaryViolet
-                                  : StoryJobTheme.cardBorder,
-                              width: 1.0,
-                            ),
-                          ),
-                          child: Text(
-                            _filters[index].toString(),
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : StoryJobTheme.textSecondary,
-                              fontSize: 12.5,
-                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
                   ),
-                ),
+                ],
               ),
+            ),
 
-              const SizedBox(height: 12),
-
-              Expanded(
-                child: filteredMatches.isEmpty
-                    ? _buildEmptyState()
-                    : ListView.separated(
-                        physics: const BouncingScrollPhysics(),
-                        padding: const EdgeInsets.only(top: 4.0, bottom: 110.0),
-                        itemCount: filteredMatches.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 12),
-                        itemBuilder: (context, index) {
-                          final match = filteredMatches[index] as Map;
-                          final String matchId = match['id'] as String;
-
-                          return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 16),
-                            padding: const EdgeInsets.all(18),
-                            decoration: BoxDecoration(
-                              color: StoryJobTheme.cardSurfaceElevated,
-                              borderRadius: BorderRadius.circular(22),
-                              border: Border.all(color: StoryJobTheme.cardBorder),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        match['company'] as String,
-                                        style: const TextStyle(
-                                          color: StoryJobTheme.textPrimary,
-                                          fontSize: 17,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: StoryJobTheme.primaryViolet.withValues(alpha: 0.25),
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(color: StoryJobTheme.primaryViolet.withValues(alpha: 0.5)),
-                                      ),
-                                      child: Text(
-                                        match['resonanceLabel'] as String,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  match['role'] as String,
-                                  style: const TextStyle(
-                                    color: StoryJobTheme.cyanAccent,
-                                    fontSize: 13.5,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  match['resonanceReason'] as String,
-                                  style: const TextStyle(
-                                    color: StoryJobTheme.textSecondary,
-                                    fontSize: 12.5,
-                                    height: 1.4,
-                                  ),
-                                ),
-                                const SizedBox(height: 14),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor: StoryJobTheme.textSecondary,
-                                          side: const BorderSide(color: StoryJobTheme.cardBorder),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                        ),
-                                        onPressed: () => _handlePass(matchId),
-                                        child: const Text('Überspringen'),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: StoryJobTheme.cyanAccent,
-                                          foregroundColor: const Color(0xFF070A12),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                        ),
-                                        onPressed: () => _handleMatch(matchId),
-                                        child: const Text('Kennenlernen', style: TextStyle(fontWeight: FontWeight.w700)),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+            // Saubere Unterstrich-Tabs
+            Container(
+              decoration: const BoxDecoration(
+                border: Border(bottom: BorderSide(color: StoryJobTheme.cardBorder, width: 1)),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: List.generate(_filters.length, (index) {
+                  final isSelected = _selectedFilterIndex == index;
+                  return GestureDetector(
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      setState(() => _selectedFilterIndex = index);
+                    },
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: isSelected ? StoryJobTheme.cyanAccent : Colors.transparent,
+                            width: 2.5,
+                          ),
+                        ),
                       ),
+                      child: Text(
+                        _filters[index],
+                        style: TextStyle(
+                          color: isSelected ? StoryJobTheme.cyanAccent : StoryJobTheme.textSecondary,
+                          fontSize: 13.5,
+                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  );
+                }),
               ),
-            ],
-          ),
+            ),
+
+            // Kartenliste im aufgeräumten Split-Card-Design
+            Expanded(
+              child: filteredMatches.isEmpty
+                  ? _buildEmptyState()
+                  : ListView.separated(
+                      physics: const BouncingScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(16, 14, 16, 120),
+                      itemCount: filteredMatches.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final match = filteredMatches[index];
+                        final int score = match['score'] as int;
+                        final bool isSaved = match['saved'] as bool;
+                        final List<String> tags = match['tags'] as List<String>;
+
+                        return Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: StoryJobTheme.cardSurface,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: StoryJobTheme.cardBorder),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // LINKE SPALTE: Match-Score & Merken
+                              Column(
+                                children: [
+                                  Container(
+                                    width: 64,
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: StoryJobTheme.cyanAccent.withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(14),
+                                      border: Border.all(
+                                        color: StoryJobTheme.cyanAccent.withValues(alpha: 0.35),
+                                      ),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        const Icon(
+                                          Icons.bolt_rounded,
+                                          color: StoryJobTheme.cyanAccent,
+                                          size: 16,
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          '$score%',
+                                          style: const TextStyle(
+                                            color: StoryJobTheme.cyanAccent,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                        const Text(
+                                          'Match',
+                                          style: TextStyle(
+                                            color: StoryJobTheme.textSecondary,
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  IconButton(
+                                    onPressed: () {
+                                      HapticFeedback.lightImpact();
+                                      setState(() {
+                                        match['saved'] = !isSaved;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                                      color: isSaved ? StoryJobTheme.amberEnergy : StoryJobTheme.textMuted,
+                                      size: 22,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(width: 14),
+
+                              // RECHTE SPALTE: Infos & Direkt-Aktion
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          match['location'] as String,
+                                          style: const TextStyle(
+                                            color: StoryJobTheme.textSecondary,
+                                            fontSize: 11.5,
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: StoryJobTheme.cardSurfaceElevated,
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Text(
+                                            match['timeAgo'] as String,
+                                            style: const TextStyle(
+                                              color: StoryJobTheme.textMuted,
+                                              fontSize: 10.5,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      match['role'] as String,
+                                      style: const TextStyle(
+                                        color: StoryJobTheme.textPrimary,
+                                        fontSize: 15.5,
+                                        fontWeight: FontWeight.w700,
+                                        height: 1.25,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 3),
+                                    Text(
+                                      match['company'] as String,
+                                      style: const TextStyle(
+                                        color: StoryJobTheme.primaryViolet,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Wrap(
+                                      spacing: 6,
+                                      runSpacing: 4,
+                                      children: tags.map((tag) {
+                                        return Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                          decoration: BoxDecoration(
+                                            color: StoryJobTheme.cardSurfaceElevated,
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Text(
+                                            tag,
+                                            style: const TextStyle(
+                                              color: StoryJobTheme.textSecondary,
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      match['resonanceReason'] as String,
+                                      style: const TextStyle(
+                                        color: StoryJobTheme.textSecondary,
+                                        fontSize: 12,
+                                        height: 1.35,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 14),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      height: 40,
+                                      child: ElevatedButton.icon(
+                                        onPressed: () => _handleMatch(
+                                          match['id'] as String,
+                                          match['company'] as String,
+                                        ),
+                                        icon: const Icon(Icons.chat_bubble_outline_rounded, size: 15),
+                                        label: const Text(
+                                          'Kennenlernen',
+                                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
+                                        ),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: StoryJobTheme.mintSuccess,
+                                          foregroundColor: const Color(0xFF0A0B10),
+                                          elevation: 0,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
         ),
       ),
     );
@@ -400,38 +424,17 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: StoryJobTheme.cardSurfaceElevated,
-              border: Border.all(color: StoryJobTheme.cardBorder),
-            ),
-            child: const Icon(
-              Icons.graphic_eq_rounded,
-              size: 42,
-              color: StoryJobTheme.cyanAccent,
-            ),
+        children: const [
+          Icon(Icons.graphic_eq_rounded, size: 42, color: StoryJobTheme.cyanAccent),
+          SizedBox(height: 14),
+          Text(
+            'Alle aktuellen Matches angesehen',
+            style: TextStyle(color: StoryJobTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: 20),
-          const Text(
-            'Keine offenen Matches',
-            style: TextStyle(
-              color: StoryJobTheme.textPrimary,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 6),
-          const Text(
-            'Wir suchen gerade nach Teams,\ndie auf deiner echten Wellenlänge funken.',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: StoryJobTheme.textSecondary,
-              fontSize: 13.5,
-              height: 1.4,
-            ),
+          SizedBox(height: 4),
+          Text(
+            'Schau später wieder vorbei für neue Vorschläge.',
+            style: TextStyle(color: StoryJobTheme.textSecondary, fontSize: 13),
           ),
         ],
       ),

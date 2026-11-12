@@ -127,7 +127,7 @@ class JobStory {
     return JobStory.fromMap(data, doc.id);
   }
 
-  /// Berechnet die prozentuale Werte-Resonanz zu den Werten eines Talents
+  /// Berechnet die prozentuale Werte-Match zu den Werten eines Talents
   int calculateResonanceWith(List<String> talentValues) {
     if (requiredValues.isEmpty || talentValues.isEmpty) return 70;
 

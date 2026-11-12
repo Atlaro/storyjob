@@ -181,7 +181,7 @@ class _InterestsScreenState extends State<InterestsScreen> {
               ),
               const SizedBox(height: 4),
               const Text(
-                'Wähle Themen aus, die dich begeistern und über die du mit passenden Menschen in Resonanz gehst.',
+                'Wähle Themen aus, die dich begeistern und über die du mit passenden Menschen in Werte-Passung gehst.',
                 style: TextStyle(
                   fontSize: 13.5,
                   color: StoryJobTheme.textSecondary,

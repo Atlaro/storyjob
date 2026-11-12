@@ -20,7 +20,7 @@ class _RecruiterTalentPoolScreenState extends State<RecruiterTalentPoolScreen> {
 
   final List<String> _filters = const [
     'Alle Macher (18)',
-    '🚒 Feuerwehr & BRK',
+    '🚒 Einsatzwesen & Ehrenamt',
     '✨ Höchstes Werte-Match (90%+)',
     '⚡ Macher & Haltung',
     '🌱 Nachhaltigkeit & Impact',
@@ -28,21 +28,21 @@ class _RecruiterTalentPoolScreenState extends State<RecruiterTalentPoolScreen> {
 
   final List<Map<String, dynamic>> _talents = [
     {
-      'name': 'Peter Alt',
-      'handle': 'peter',
+      'name': 'Alex Mustermann',
+      'handle': 'alex',
       'roleFocus': 'Vertriebsleitung & Projektentwicklung',
       'matchScore': '95%',
       'scoreValue': 95,
       'isProtected': false, // Bereit für direkten Dialog
       'matchReason':
-          'Bringt bewiesene Krisenfestigkeit & Führungserfahrung aus dem Ehrenamt (BRK/Feuerwehr) mit. Sucht echte Werte vor starren Hierarchien.',
+          'Bringt bewiesene Krisenfestigkeit & Führungserfahrung aus dem Ehrenamt (Ehrenamt & Einsatzdienst) mit. Sucht echte Werte vor starren Hierarchien.',
       'pillars': ['Krisenfestigkeit', 'Ehrenamt', 'Hands-on', 'Führung'],
-      'engagement': ['🚒 Feuerwehr', '🚑 BRK Katastrophenschutz'],
+      'engagement': ['🚒 Feuerwehr', '🚑 Katastrophenschutz & Ehrenamt'],
       'values': ['Verantwortung', 'Verlässlichkeit', 'Innovation'],
       'audioDuration': '01:43 Min.',
       'audioUrl': 'https://storyjob.de/demo_audio_peter.aac',
       'audioPitchSnippet': '„Warum für mich Verlässlichkeit und echter Teameinsatz an erster Stelle stehen...“',
-      'location': 'Niederbayern • Hybrid / Remote',
+      'location': 'München • Hybrid / Remote',
       'category': 'ehrenamt',
       'accentColor': StoryJobTheme.cyanAccent,
     },
@@ -80,7 +80,7 @@ class _RecruiterTalentPoolScreenState extends State<RecruiterTalentPoolScreen> {
       'audioDuration': '01:25 Min.',
       'audioUrl': 'https://storyjob.de/demo_audio_michael.aac',
       'audioPitchSnippet': '„Projekte müssen nicht nur auf dem Papier grün sein, sondern in der Praxis funktionieren...“',
-      'location': 'Passau / Landshut • Hybrid',
+      'location': 'München / Nürnberg • Hybrid',
       'category': 'nachhaltig',
       'accentColor': StoryJobTheme.mintSuccess,
     },

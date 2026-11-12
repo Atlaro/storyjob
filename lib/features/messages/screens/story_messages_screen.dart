@@ -29,13 +29,13 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
   List<String> get _filters => widget.isRecruiter
       ? [
           'Alle Begegnungen',
-          'Hohe Resonanz ✨',
+          'Hohe Werte-Passung ✨',
           'Ehrenamt & Macher',
           'Regionale Verwurzelung',
         ]
       : [
           'Alle Chancen',
-          'Hohe Resonanz ✨',
+          'Hohe Werte-Passung ✨',
           'Sinn & Kultur',
           'Flexibel & Frei',
         ];
@@ -208,7 +208,7 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Werte-Resonanz',
+                    'Werte-Match',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w700,

@@ -23,7 +23,7 @@ class UserGrowthProfileScreen extends StatefulWidget {
 class _UserGrowthProfileScreenState extends State<UserGrowthProfileScreen> {
   bool _isSaving = false;
 
-  // Praktische Kern-Fähigkeiten (Mockup: Handwerkliches Geschick, Kreative Gestaltung, etc.)
+  // Praktische Kern-Fähigkeiten
   double _skillHandwerk = 0.85;
   double _skillGestaltung = 0.70;
   double _skillProblemloesung = 0.90;
@@ -105,6 +105,7 @@ class _UserGrowthProfileScreenState extends State<UserGrowthProfileScreen> {
     return Scaffold(
       backgroundColor: StoryJobTheme.backgroundBase,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           'Praktisches Talent & Skills',
           style: TextStyle(
@@ -115,10 +116,6 @@ class _UserGrowthProfileScreenState extends State<UserGrowthProfileScreen> {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: StoryJobTheme.textPrimary, size: 18),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
         centerTitle: true,
         actions: [
           IconButton(
@@ -130,7 +127,7 @@ class _UserGrowthProfileScreenState extends State<UserGrowthProfileScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10.0),
+          padding: const EdgeInsets.fromLTRB(18.0, 10.0, 18.0, 110.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -212,7 +209,7 @@ class _UserGrowthProfileScreenState extends State<UserGrowthProfileScreen> {
               const SizedBox(height: 18),
 
               // ===============================================================
-              // 3. PRAXIS-PROJEKTE GRID (2 Spalten wie im Mockup)
+              // 3. PRAXIS-PROJEKTE GRID
               // ===============================================================
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 4.0),
@@ -305,7 +302,7 @@ class _UserGrowthProfileScreenState extends State<UserGrowthProfileScreen> {
               const SizedBox(height: 22),
 
               // ===============================================================
-              // 4. VISION & HALTUNG (Bestehende Daten erhalten)
+              // 4. VISION & HALTUNG
               // ===============================================================
               const Padding(
                 padding: EdgeInsets.only(left: 4.0),
@@ -432,7 +429,6 @@ class _UserGrowthProfileScreenState extends State<UserGrowthProfileScreen> {
                         ),
                 ),
               ),
-              const SizedBox(height: 24),
             ],
           ),
         ),

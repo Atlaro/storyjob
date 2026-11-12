@@ -24,7 +24,7 @@ class StoryExtractionResult {
 
 class StoryAiProcessor {
   /// Analysiert Audio-Transkriptionen per Haltungs- und Sinn-Erkennung
-  /// und speichert Werte, Arbeitsweisen & Engagement für das Resonanz-Matching.
+  /// und speichert Werte, Arbeitsweisen & Engagement für das Werte-Passung-Matching.
   static Future<StoryExtractionResult> processAndTagProfile({
     required String userId,
     required String transcriptText,
@@ -45,14 +45,14 @@ class StoryAiProcessor {
           lowerText.contains('sanitäter') ||
           lowerText.contains('notfall') ||
           lowerText.contains('katastrophenschutz')) {
-        communities.add('Feuerwehr, THW & Rettungsdienst');
+        communities.add('Einsatzwesen & Katastrophenschutz');
         values.add('Ruhe & Verlässlichkeit in Krisen');
       }
       if (lowerText.contains('feuerwehr') ||
           lowerText.contains('brandschutz') ||
           lowerText.contains('löschzug') ||
           lowerText.contains('thw')) {
-        communities.add('Feuerwehr, THW & Rettungsdienst');
+        communities.add('Einsatzwesen & Katastrophenschutz');
         values.add('Gemeinschaft & Zusammenhalt');
       }
       if (lowerText.contains('verein') ||

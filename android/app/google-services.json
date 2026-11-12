@@ -7,12 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:758116924953:android:5abc58619121faa4f63488",
+        "mobilesdk_app_id": "1:758116924953:android:9e3998c65382fab0f63488",
         "android_client_info": {
-          "package_name": "com.example.flutter_application_1"
+          "package_name": "de.storyjob.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "758116924953-ct05e610gk95apanbe4s7dofi4knpqr3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBZGGggfkjT0wD27IToxnAf58DeRz0x7Z8"
@@ -20,7 +25,91 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "758116924953-ct05e610gk95apanbe4s7dofi4knpqr3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "758116924953-1kp1p4o2fqcrujfunkkt2vm1lgia3gt1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "de.storyjob.app"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:758116924953:android:1ed2c0e1f592d9caf63488",
+        "android_client_info": {
+          "package_name": "de.storyjob.dna"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "758116924953-ct05e610gk95apanbe4s7dofi4knpqr3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZGGggfkjT0wD27IToxnAf58DeRz0x7Z8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "758116924953-ct05e610gk95apanbe4s7dofi4knpqr3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "758116924953-1kp1p4o2fqcrujfunkkt2vm1lgia3gt1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "de.storyjob.app"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:758116924953:android:6ecdfccd5ffbddb1f63488",
+        "android_client_info": {
+          "package_name": "de.storyjob.teams"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "758116924953-ct05e610gk95apanbe4s7dofi4knpqr3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZGGggfkjT0wD27IToxnAf58DeRz0x7Z8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "758116924953-ct05e610gk95apanbe4s7dofi4knpqr3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "758116924953-1kp1p4o2fqcrujfunkkt2vm1lgia3gt1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "de.storyjob.app"
+              }
+            }
+          ]
         }
       }
     }

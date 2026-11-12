@@ -62,7 +62,7 @@ class StoryModel {
   final int playsCount;
   final int likesCount;
   final List<String> tags; // Engagement, Aktivitäten, Interessen
-  final List<String> values; // Kernwerte für den menschlichen Resonanz-Fit (z. B. Verlässlichkeit, Hands-on)
+  final List<String> values; // Kernwerte für den menschlichen Werte-Passung-Fit (z. B. Verlässlichkeit, Hands-on)
   final String? organizationName; // Name von Team, Verein, Initiative oder Betrieb
   final String? promptQuestion; // z. B. Daily Spark Frage: "Worauf legst du im Team Wert?"
   final StoryType type;

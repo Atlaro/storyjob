@@ -31,7 +31,7 @@ class ResonanceResult {
 }
 
 class StoryResonanceEngine {
-  /// Berechnet die menschliche Werte-Resonanz zwischen zwei Profilen, Werten, Engagement und Audio-Präsenz.
+  /// Berechnet die menschliche Werte-Match zwischen zwei Profilen, Werten, Engagement und Audio-Präsenz.
   static ResonanceResult calculateResonance({
     StoryIdentity? userIdentity,
     StoryIdentity? sourceIdentity,
@@ -80,7 +80,7 @@ class StoryResonanceEngine {
             .toList() ??
         [];
 
-    // 2. Resonanz-Gewichtung berechnen
+    // 2. Werte-Passung-Gewichtung berechnen
     double baseScore = 60.0;
 
     // Werte-Fundament (höchste Priorität, max +20)
@@ -115,14 +115,14 @@ class StoryResonanceEngine {
 
     int finalScore = baseScore.clamp(50.0, 98.0).toInt();
 
-    // 3. Resonanz-Titel & Begründung erzeugen
+    // 3. Werte-Passung-Titel & Begründung erzeugen
     String primaryFactor = 'Kulturelle Wellenlänge & Haltung';
-    String title = 'Hohe Werte-Resonanz ✨';
+    String title = 'Hohe Werte-Match ✨';
     String explanation = 'Geteilte Vorstellungen von Teamkultur, Verlässlichkeit und Zusammenarbeit auf Augenhöhe.';
 
     if (matchingValues.length >= 2 && matchingCommunities.isNotEmpty) {
       primaryFactor = 'Werte (${matchingValues.take(2).join(', ')}) & gemeinsame Initiative';
-      title = 'Tiefe Werte-Resonanz ✨';
+      title = 'Tiefe Werte-Match ✨';
       explanation = 'Starke Verbindung über die Werte ${matchingValues.take(2).join(' und ')} sowie Engagement im Bereich ${matchingCommunities.first}.';
     } else if (matchingValues.length >= 2) {
       primaryFactor = 'Geteilte Werte (${matchingValues.take(2).join(', ')})';
@@ -130,11 +130,11 @@ class StoryResonanceEngine {
       explanation = 'Gemeinsames Fundament über gelebte Werte: ${matchingValues.take(3).join(', ')}.';
     } else if (matchingCommunities.isNotEmpty) {
       primaryFactor = 'Gemeinsame Verwurzelung (${matchingCommunities.first})';
-      title = 'Gemeinschafts-Resonanz 🤝';
+      title = 'Gemeinschafts-Werte-Passung 🤝';
       explanation = 'Verbindung über geteilte Vereine, Initiativen oder regionale Verbundenheit.';
     } else if (matchingInterests.length >= 2) {
       primaryFactor = 'Fokusfelder (${matchingInterests.take(2).join(', ')})';
-      title = 'Themen-Resonanz ✨';
+      title = 'Themen-Werte-Passung ✨';
       explanation = 'Große Schnittmenge bei aktuellen Projekten und Zukunftsthemen.';
     }
 
@@ -180,5 +180,4 @@ class StoryResonanceEngine {
 }
 
 // Typ-Aliase für bestehende Importe
-typedef StoryResonanzEngine = StoryResonanceEngine;
 typedef CompanyResonanceEngine = StoryResonanceEngine;

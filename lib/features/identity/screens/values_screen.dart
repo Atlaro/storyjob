@@ -180,7 +180,7 @@ class _ValuesScreenState extends State<ValuesScreen> {
               ),
               const SizedBox(height: 4),
               const Text(
-                'Wähle Werte aus, die dein tägliches Handeln, deine Haltung und die Resonanz zu anderen Menschen prägen.',
+                'Wähle Werte aus, die dein tägliches Handeln, deine Haltung und die Werte-Passung zu anderen Menschen prägen.',
                 style: TextStyle(
                   fontSize: 13.5,
                   color: StoryJobTheme.textSecondary,

@@ -97,7 +97,7 @@ class CompanyDna {
     return CompanyDna.fromMap(data, doc.id);
   }
 
-  /// Berechnet gemeinsame Schnittmengen an Werten für den Resonanzabgleich
+  /// Berechnet gemeinsame Schnittmengen an Werten für den Werte-Passungabgleich
   List<String> getSharedValues(List<String> userValues) {
     final Set<String> targetSet = userValues.map((v) => v.toLowerCase().trim()).toSet();
     return coreValues

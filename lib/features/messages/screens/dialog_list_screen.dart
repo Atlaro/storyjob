@@ -138,7 +138,7 @@ class DialogListScreen extends StatelessWidget {
             'Austausch auf Augenhöhe';
         final matchScore = data['matchScore'] as String? ??
             data['resonanceLevel'] as String? ??
-            'Hohe Resonanz ✨';
+            'Hohe Werte-Passung ✨';
         final lastMessage = data['lastMessage'] as String? ?? 'Neuer StoryDialog gestartet';
         final timeStr = data['time'] as String? ?? 'Heute';
 
@@ -323,7 +323,7 @@ class DialogListScreen extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             const Text(
-              'Sobald Resonanz auf eine Story entsteht oder eine Wellenlänge entdeckt wird, startet euer Dialog auf Augenhöhe direkt hier.',
+              'Sobald Werte-Passung auf eine Story entsteht oder eine Wellenlänge entdeckt wird, startet euer Dialog auf Augenhöhe direkt hier.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: StoryJobTheme.textSecondary,

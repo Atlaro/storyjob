@@ -41,8 +41,8 @@ class _ModernOnboardingScreenState extends State<ModernOnboardingScreen> {
     ),
     OnboardingPageData(
       title: 'Finde Teams, die\nauf deiner Wellenlänge sind.',
-      subtitle: 'Keine Algorithmus-Noten und kein Recruiting-Sprech.\nSondern Resonanz, Sinn und Dialoge auf Augenhöhe.',
-      badgeText: 'Werte-Resonanz ⚡',
+      subtitle: 'Keine Algorithmus-Noten und kein Recruiting-Sprech.\nSondern Werte-Passung, Sinn und Dialoge auf Augenhöhe.',
+      badgeText: 'Werte-Match ⚡',
       imagePath: 'assets/onboarding/matches.webp',
     ),
   ];

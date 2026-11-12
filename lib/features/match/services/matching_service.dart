@@ -8,11 +8,11 @@ class MatchingService {
 
   String get _currentUserId => FirebaseAuth.instance.currentUser?.uid ?? 'guest_user';
 
-  /// Registriert ein Resonanz-Signal auf eine Story oder Initiative
+  /// Registriert ein Werte-Passung-Signal auf eine Story oder Initiative
   Future<bool> registerResonanceInterest({
     required String targetEntityId,
     required String storyId,
-    String resonanceLevel = 'Hohe Resonanz ✨',
+    String resonanceLevel = 'Hohe Werte-Passung ✨',
     List<String> sharedValues = const [],
     String resonanceReason = 'Gemeinsame Werte und Haltung.',
   }) async {
@@ -29,7 +29,7 @@ class MatchingService {
           existingData['hasInterestedParty'] == true;
 
       if (existingDoc.exists && otherPartyInterested) {
-        // Beidseitige Resonanz entstanden!
+        // Beidseitige Werte-Passung entstanden!
         final batch = _firestore.batch();
 
         batch.set(
@@ -59,7 +59,7 @@ class MatchingService {
             'sharedValues': sharedValues,
             'resonanceReason': resonanceReason,
             'createdAt': FieldValue.serverTimestamp(),
-            'lastMessage': 'Werte-Resonanz entdeckt ✨ Startet euren Dialog auf Augenhöhe.',
+            'lastMessage': 'Werte-Match entdeckt ✨ Startet euren Dialog auf Augenhöhe.',
             'lastMessageTimestamp': FieldValue.serverTimestamp(),
           },
           SetOptions(merge: true),

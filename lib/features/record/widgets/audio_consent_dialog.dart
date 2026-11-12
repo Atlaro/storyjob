@@ -52,7 +52,7 @@ Future<bool> showAudioConsentDialog(BuildContext context) async {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Damit deine persönliche Audio-Story von passenden Teams und Partnern im wertebasierten Resonanzabgleich gehört werden kann, verarbeiten wir deine Aufnahme verschlüsselt nach strengen DSGVO-Vorgaben.',
+                  'Damit deine persönliche Audio-Story von passenden Teams und Partnern im wertebasierten Werte-Passungabgleich gehört werden kann, verarbeiten wir deine Aufnahme verschlüsselt nach strengen DSGVO-Vorgaben.',
                   style: TextStyle(
                     color: StoryJobTheme.textSecondary,
                     fontSize: 13,

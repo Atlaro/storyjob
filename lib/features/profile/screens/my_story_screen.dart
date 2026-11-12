@@ -71,7 +71,7 @@ class _MyStoryScreenState extends State<MyStoryScreen> {
           builder: (context, snapshot) {
             final data = snapshot.data?.data() ?? {};
 
-            final name = data['displayName'] ?? data['name'] ?? _currentUser?.displayName ?? 'Peter Alt';
+            final name = data['displayName'] ?? data['name'] ?? _currentUser?.displayName ?? 'Alex Mustermann';
             final handle = data['handle'] ?? '@peteralt';
             final bio = data['bio'] ??
                 'Hands-on Macher mit Fokus auf Menschlichkeit, Eigenverantwortung & moderne Teamkultur.';
@@ -81,7 +81,7 @@ class _MyStoryScreenState extends State<MyStoryScreen> {
               data['values'] ?? ['Teamgeist', 'Verlässlichkeit', 'Eigenverantwortung', 'Sinnstiftung'],
             );
             final communities = List<String>.from(
-              data['communities'] ?? ['BRK Katastrophenschutz', 'Feuerwehr Hartkirchen'],
+              data['communities'] ?? ['Katastrophenschutz & Ehrenamt', 'Einsatzgruppe Nord'],
             );
             final profileVisibility = (data['profileVisibilityPercent'] as num?)?.toDouble() ?? 95.0;
 

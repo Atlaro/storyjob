@@ -15,7 +15,7 @@ class ResonanceDimension {
   });
 
   String get qualitativeLabel {
-    if (score >= 0.88) return 'Starke Resonanz ✨';
+    if (score >= 0.88) return 'Starke Werte-Passung ✨';
     if (score >= 0.70) return 'Gleiche Wellenlänge';
     return 'Harmonisch';
   }
@@ -24,7 +24,7 @@ class ResonanceDimension {
 class StoryResonanceMirrorCard extends StatelessWidget {
   final String partnerName;
   final String roleOrCompany;
-  final String overallMatchScore; // z. B. "Hohe Resonanz ✨" oder "94%"
+  final String overallMatchScore; // z. B. "Hohe Werte-Passung ✨" oder "94%"
   final String coreReasonQuote;
   final List<ResonanceDimension> dimensions;
   final List<String> sharedValues;
@@ -67,7 +67,7 @@ class StoryResonanceMirrorCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. Header: Partner & Resonanz-Label
+          // 1. Header: Partner & Werte-Passung-Label
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,7 +127,7 @@ class StoryResonanceMirrorCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // 2. Resonanz-Spiegel: Die Begründung
+          // 2. Werte-Passung-Spiegel: Die Begründung
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
@@ -170,9 +170,9 @@ class StoryResonanceMirrorCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // 3. Resonanz-Achsen (Schwingungs-Balken)
+          // 3. Werte-Passung-Achsen (Schwingungs-Balken)
           const Text(
-            'Gemeinsame Resonanz-Ebenen:',
+            'Gemeinsame Werte-Passung-Ebenen:',
             style: TextStyle(
               color: StoryJobTheme.textSecondary,
               fontSize: 12,

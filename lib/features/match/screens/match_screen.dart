@@ -47,7 +47,7 @@ class _StoryMatchDetailScreenState extends State<StoryMatchDetailScreen> {
     final company = widget.matchData['company'] as String? ?? 'Team / Initiative';
     final role = widget.matchData['role'] as String? ?? 'Wirkungsfeld';
     final resonanceLevel = widget.matchData['matchScore'] != null
-        ? 'Hohe Werte-Resonanz ✨'
+        ? 'Hohe Werte-Match ✨'
         : 'Starke Wellenlänge';
     final resonanceReason = widget.matchData['resonanceReason'] as String? ??
         'Geteilte Grundhaltungen, Verlässlichkeit und ein Miteinander auf Augenhöhe.';
@@ -102,7 +102,7 @@ class _StoryMatchDetailScreenState extends State<StoryMatchDetailScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 1. Header-Kachel mit Resonanz-Badge & Rolle
+              // 1. Header-Kachel mit Werte-Passung-Badge & Rolle
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
@@ -178,7 +178,7 @@ class _StoryMatchDetailScreenState extends State<StoryMatchDetailScreen> {
 
               const SizedBox(height: 14),
 
-              // 2. Resonanz & Kultur-Begründung
+              // 2. Werte-Passung & Kultur-Begründung
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(

@@ -19,7 +19,7 @@ class StoryJobTheme {
   // ============================================================================
   static const Color primaryViolet = Color(0xFF9B51E0);         // Cyber-Violett aus Mockups
   static const Color cyanAccent = Color(0xFF00F0FF);            // Elektrisches Neon-Cyan
-  static const Color pinkMagenta = Color(0xFFFF2E93);           // Resonanz-Pink / Audio-Highlight
+  static const Color pinkMagenta = Color(0xFFFF2E93);           // Werte-Passung-Pink / Audio-Highlight
   static const Color neonPink = Color(0xFFFF2E93);              // Alias für Abwärtskompatibilität
   static const Color amberEnergy = Color(0xFFFF9F43);           // Warmes Gold für Macher / Aktivität
   static const Color mintSuccess = Color(0xFF00F5A0);           // Match-Bestätigung / Werte-Check
@@ -60,7 +60,7 @@ class StoryJobTheme {
     ],
   );
 
-  // 2. Audio- & Resonanz-Welle (Pink bis Cyan)
+  // 2. Audio- & Werte-Passung-Welle (Pink bis Cyan)
   static const LinearGradient soundWaveGradient = LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,

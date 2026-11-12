@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:storyjob/core/theme/storyjob_theme.dart';
 import 'package:storyjob/core/widgets/glass_card.dart';
+import 'package:storyjob/core/widgets/story_pulse_status_bar.dart';
 import 'package:storyjob/features/identity/models/story_identity.dart';
 import 'package:storyjob/features/match/screens/story_match_screen.dart';
 import 'package:storyjob/features/profile/screens/user_growth_profile_screen.dart';
@@ -24,9 +25,9 @@ class TalentNavigationScreen extends StatefulWidget {
 class _TalentNavigationScreenState extends State<TalentNavigationScreen>
     with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
+  final int _matchBadgeCount = 3;
   late final AnimationController _pulseController;
   late final Animation<double> _pulseAnimation;
-
   late final List<Widget> _pages;
 
   @override
@@ -45,8 +46,13 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
     final currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
     _pages = [
-      const _TalentStoriesTab(),
-      const StoryMatchScreen(),
+      _TalentStoriesTab(
+        onOpenCreationHub: _openStoryCreationHub,
+        onNavigateToTab: _onItemTapped,
+      ),
+      StoryMatchScreen(
+        onOpenDna: () => _onItemTapped(2),
+      ),
       UserGrowthProfileScreen(
         userId: currentUserId,
         identity: const StoryIdentity(),
@@ -127,7 +133,6 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
                   style: TextStyle(
                     color: StoryJobTheme.textSecondary,
                     fontSize: 13,
-                    fontWeight: FontWeight.w400,
                   ),
                 ),
                 const SizedBox(height: 26),
@@ -225,17 +230,11 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
                         color: iconColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: iconColor.withValues(alpha: 0.35),
-                          width: 0.8,
-                        ),
+                        border: Border.all(color: iconColor.withValues(alpha: 0.35), width: 0.8),
                       ),
                       child: Text(
                         badgeText,
@@ -254,7 +253,6 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
                   style: const TextStyle(
                     color: StoryJobTheme.textSecondary,
                     fontSize: 12.5,
-                    fontWeight: FontWeight.w400,
                     height: 1.3,
                   ),
                 ),
@@ -314,12 +312,13 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
                     label: 'Match',
                     index: 1,
                     activeColor: StoryJobTheme.primaryViolet,
+                    badgeCount: _matchBadgeCount,
                   ),
                   const SizedBox(width: 56),
                   _buildNavItem(
                     icon: Icons.fingerprint_rounded,
                     activeIcon: Icons.fingerprint_rounded,
-                    label: 'StoryJob DNA',
+                    label: 'DNA',
                     index: 2,
                     activeColor: StoryJobTheme.pinkMagenta,
                   ),
@@ -417,6 +416,7 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
     required String label,
     required int index,
     required Color activeColor,
+    int badgeCount = 0,
   }) {
     final bool isSelected = _currentIndex == index;
     return Expanded(
@@ -426,10 +426,41 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              isSelected ? activeIcon : icon,
-              color: isSelected ? activeColor : StoryJobTheme.textMuted,
-              size: 21,
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(
+                  isSelected ? activeIcon : icon,
+                  color: isSelected ? activeColor : StoryJobTheme.textMuted,
+                  size: 21,
+                ),
+                if (badgeCount > 0)
+                  Positioned(
+                    right: -8,
+                    top: -4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4.5, vertical: 1.5),
+                      decoration: BoxDecoration(
+                        color: StoryJobTheme.pinkMagenta,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: StoryJobTheme.pinkMagenta.withValues(alpha: 0.45),
+                            blurRadius: 6,
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        '$badgeCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 4),
             Text(
@@ -494,53 +525,75 @@ class _NotchedNavBorderPainter extends CustomPainter {
 }
 
 // ============================================================================
-// STORIES FEED TAB
+// STORIES HOME TAB (Mit app_icon_dark.png + 24h Pulse-Status-Leiste)
 // ============================================================================
-class _TalentStoriesTab extends StatefulWidget {
-  const _TalentStoriesTab();
+class _TalentStoriesTab extends StatelessWidget {
+  final VoidCallback onOpenCreationHub;
+  final Function(int) onNavigateToTab;
 
-  @override
-  State<_TalentStoriesTab> createState() => _TalentStoriesTabState();
-}
+  const _TalentStoriesTab({
+    required this.onOpenCreationHub,
+    required this.onNavigateToTab,
+  });
 
-class _TalentStoriesTabState extends State<_TalentStoriesTab> {
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    final firstName = (user?.displayName != null && user!.displayName!.isNotEmpty)
+        ? user.displayName!.split(' ').first
+        : 'Mitglied';
+
     return Scaffold(
       backgroundColor: StoryJobTheme.backgroundBase,
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(18, 14, 18, 110),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 110),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              // TOP-LEISTE MIT OFFIZIELLEM APP-ICON (app_icon_dark.png)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    height: 38,
-                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: StoryJobTheme.cardSurfaceElevated,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: StoryJobTheme.cardBorder,
-                        width: 1,
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(11),
+                        child: Image.asset(
+                          'assets/branding/app_icon_dark.png',
+                          width: 38,
+                          height: 38,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const Icon(
+                            Icons.auto_awesome_rounded,
+                            color: StoryJobTheme.cyanAccent,
+                            size: 28,
+                          ),
+                        ),
                       ),
-                    ),
-                    child: Image.asset(
-                      'assets/branding/app_icon_dark.png',
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(
-                          Icons.auto_awesome_rounded,
-                          color: StoryJobTheme.cyanAccent,
-                          size: 20,
-                        );
-                      },
-                    ),
+                      const SizedBox(width: 10),
+                      RichText(
+                        text: const TextSpan(
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.4,
+                          ),
+                          children: [
+                            TextSpan(
+                              text: 'Story',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            TextSpan(
+                              text: 'Job',
+                              style: TextStyle(color: StoryJobTheme.cyanAccent),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                   GestureDetector(
                     onTap: () {
@@ -557,173 +610,161 @@ class _TalentStoriesTabState extends State<_TalentStoriesTab> {
                         ),
                       );
                     },
-                    child: Container(
-                      width: 38,
-                      height: 38,
-                      decoration: BoxDecoration(
-                        color: StoryJobTheme.cardSurfaceElevated,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: StoryJobTheme.cardBorder),
-                      ),
-                      child: const Icon(
-                        Icons.chat_bubble_outline_rounded,
-                        color: StoryJobTheme.textSecondary,
-                        size: 18,
-                      ),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: StoryJobTheme.cardSurfaceElevated,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: StoryJobTheme.cardBorder),
+                          ),
+                          child: const Icon(
+                            Icons.notifications_none_rounded,
+                            color: StoryJobTheme.textPrimary,
+                            size: 20,
+                          ),
+                        ),
+                        Positioned(
+                          right: 2,
+                          top: 2,
+                          child: Container(
+                            width: 9,
+                            height: 9,
+                            decoration: const BoxDecoration(
+                              color: StoryJobTheme.cyanAccent,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 22),
-              const Text(
-                'Guten Morgen, Peter',
-                style: TextStyle(
-                  color: StoryJobTheme.textPrimary,
-                  fontSize: 25,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.4,
-                ),
+
+              const SizedBox(height: 18),
+
+              // 24H PULSE STATUS-LEISTE (Talente & Team-Einblicke)
+              StoryPulseStatusBar(
+                isRecruiter: false,
+                currentUserName: firstName,
               ),
-              const SizedBox(height: 5),
-              Row(
-                children: [
-                  Container(
-                    width: 7,
-                    height: 7,
-                    decoration: const BoxDecoration(
-                      color: StoryJobTheme.mintSuccess,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Text(
-                    '3 neue Teams teilen deine Werte',
-                    style: TextStyle(
-                      color: StoryJobTheme.textSecondary,
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
-              ),
+
               const SizedBox(height: 20),
 
-              // Frage des Tages mit GlassCard
+              // Begrüßung
+              Text(
+                'Guten Morgen,\n$firstName 👋',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: StoryJobTheme.textPrimary,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w800,
+                  height: 1.2,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  'Teile deine Werte und Stimme, um Teams zu finden, die wirklich zu dir passen.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: StoryJobTheme.textSecondary,
+                    fontSize: 13.5,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Prominenter Haupt-Button
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: ElevatedButton.icon(
+                  onPressed: onOpenCreationHub,
+                  icon: const Icon(Icons.add_circle_outline_rounded, size: 22, color: Color(0xFF0A0B10)),
+                  label: const Text(
+                    'Neue Story aufnehmen',
+                    style: TextStyle(
+                      fontSize: 15.5,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0A0B10),
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: StoryJobTheme.cyanAccent,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(28),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // Sektions-Überschrift
+              GestureDetector(
+                onTap: () => onNavigateToTab(1),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    Text(
+                      'In deiner Wellenlänge',
+                      style: TextStyle(
+                        color: StoryJobTheme.textPrimary,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Icon(Icons.chevron_right_rounded, color: StoryJobTheme.textSecondary),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              // Karte 1: Matches
               GlassCard(
-                borderRadius: 22,
-                borderGradient: StoryJobTheme.dnaCardBorder,
-                hasNeonGlow: true,
-                padding: const EdgeInsets.all(20),
+                borderRadius: 20,
+                padding: const EdgeInsets.all(18),
+                onTap: () => onNavigateToTab(1),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: const [
-                            Icon(
-                              Icons.graphic_eq_rounded,
-                              color: StoryJobTheme.cyanAccent,
-                              size: 15,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              'FRAGE DES TAGES',
-                              style: TextStyle(
-                                color: StoryJobTheme.cyanAccent,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: StoryJobTheme.cardSurface,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: StoryJobTheme.cardBorder),
-                          ),
-                          child: const Text(
-                            '30 Sek.',
-                            style: TextStyle(
-                              color: StoryJobTheme.textSecondary,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
                     const Text(
-                      '„Was war dein wichtigstes Learning in einem Projekt dieses Jahr?“',
+                      '3 neue Werte-Matches entdeckt',
                       style: TextStyle(
                         color: StoryJobTheme.textPrimary,
-                        fontSize: 16.5,
-                        fontWeight: FontWeight.w600,
-                        height: 1.45,
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 48,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          HapticFeedback.lightImpact();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const VoiceStoryRecorderScreen(),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.mic_rounded, size: 18, color: StoryJobTheme.cyanAccent),
-                        label: const Text(
-                          'Antwort aufnehmen',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: StoryJobTheme.textPrimary,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: StoryJobTheme.cyanAccent.withValues(alpha: 0.14),
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24),
-                            side: BorderSide(
-                              color: StoryJobTheme.cyanAccent.withValues(alpha: 0.4),
-                            ),
-                          ),
-                        ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Teams aus deiner Region teilen deine Haltung zu Teamgeist & Eigenverantwortung.',
+                      style: TextStyle(
+                        color: StoryJobTheme.textSecondary,
+                        fontSize: 13,
+                        height: 1.35,
                       ),
                     ),
                     const SizedBox(height: 14),
-                    Row(
-                      children: const [
-                        Text('🔥', style: TextStyle(fontSize: 13)),
-                        SizedBox(width: 6),
-                        Text(
-                          '4 Tage aktiv',
-                          style: TextStyle(
-                            color: StoryJobTheme.amberEnergy,
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          '  •  Noch 1 Antwort für mehr Sichtbarkeit',
-                          style: TextStyle(
-                            color: StoryJobTheme.textSecondary,
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
+                    OutlinedButton(
+                      onPressed: () => onNavigateToTab(1),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: StoryJobTheme.textPrimary,
+                        side: BorderSide(color: Colors.white.withValues(alpha: 0.25)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                      ),
+                      child: const Text('Matches ansehen', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                     ),
                   ],
                 ),
@@ -731,258 +772,104 @@ class _TalentStoriesTabState extends State<_TalentStoriesTab> {
 
               const SizedBox(height: 14),
 
-              // Metrik-Kacheln
-              Row(
-                children: [
-                  Expanded(
-                    child: GlassCard(
-                      borderRadius: 20,
-                      padding: const EdgeInsets.all(18),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              // Karte 2: DNA & Daily Spark
+              GlassCard(
+                borderRadius: 20,
+                borderGradient: StoryJobTheme.dnaCardBorder,
+                padding: const EdgeInsets.all(18),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 68,
+                      height: 84,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        gradient: const LinearGradient(
+                          colors: [StoryJobTheme.primaryViolet, StoryJobTheme.pinkMagenta],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Row(
-                            children: const [
-                              Icon(Icons.bolt_rounded, size: 15, color: StoryJobTheme.primaryViolet),
-                              SizedBox(width: 6),
-                              Text(
-                                'Werte-Matches',
-                                style: TextStyle(
-                                  color: StoryJobTheme.textSecondary,
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          const Text(
-                            '12',
+                          Icon(Icons.fingerprint_rounded, color: Colors.white, size: 28),
+                          SizedBox(height: 4),
+                          Text(
+                            'DNA',
                             style: TextStyle(
-                              color: StoryJobTheme.textPrimary,
-                              fontSize: 28,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          const Text(
-                            '3 warten auf Dialog',
-                            style: TextStyle(
-                              color: StoryJobTheme.primaryViolet,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w800,
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: GlassCard(
-                      borderRadius: 20,
-                      padding: const EdgeInsets.all(18),
+                    const SizedBox(width: 16),
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: const [
-                              Icon(Icons.headphones_rounded, size: 15, color: StoryJobTheme.cyanAccent),
-                              SizedBox(width: 6),
-                              Text(
-                                'Deine Story',
-                                style: TextStyle(
-                                  color: StoryJobTheme.textSecondary,
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
                           const Text(
-                            '37',
+                            'Schärfe deine StoryJob DNA',
                             style: TextStyle(
                               color: StoryJobTheme.textPrimary,
-                              fontSize: 28,
+                              fontSize: 15.5,
                               fontWeight: FontWeight.w700,
-                              letterSpacing: -0.5,
                             ),
                           ),
                           const SizedBox(height: 4),
                           const Text(
-                            'Teams haben zugehört',
+                            'Beantworte die Frage des Tages in 30 Sekunden für bessere Treffer.',
                             style: TextStyle(
                               color: StoryJobTheme.textSecondary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w400,
+                              fontSize: 12.5,
+                              height: 1.35,
                             ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              OutlinedButton(
+                                onPressed: () => onNavigateToTab(2),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: StoryJobTheme.textPrimary,
+                                  side: BorderSide(color: Colors.white.withValues(alpha: 0.25)),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                ),
+                                child: const Text('DNA öffnen', style: TextStyle(fontSize: 12.5)),
+                              ),
+                              const SizedBox(width: 8),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const VoiceStoryRecorderScreen(),
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: StoryJobTheme.primaryViolet,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                ),
+                                child: const Text('Einsprechen', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 26),
-
-              // Aus der Community
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 4,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: StoryJobTheme.amberEnergy,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Aus der Community',
-                        style: TextStyle(
-                          color: StoryJobTheme.textPrimary,
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const Text(
-                    'Alle hören',
-                    style: TextStyle(
-                      color: StoryJobTheme.cyanAccent,
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 126,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  clipBehavior: Clip.none,
-                  children: [
-                    _buildCommunityAudioCard(
-                      author: 'Sarah M.',
-                      role: 'Product Designerin',
-                      duration: '0:28',
-                      tag: 'Kreativität',
-                      tagColor: StoryJobTheme.cyanAccent,
-                    ),
-                    _buildCommunityAudioCard(
-                      author: 'Tobias K.',
-                      role: 'Tech Lead',
-                      duration: '0:31',
-                      tag: 'Teamkultur',
-                      tagColor: StoryJobTheme.primaryViolet,
-                    ),
-                    _buildCommunityAudioCard(
-                      author: 'Elena R.',
-                      role: 'Brand Stratege',
-                      duration: '0:24',
-                      tag: 'Werte & Sinn',
-                      tagColor: StoryJobTheme.pinkMagenta,
                     ),
                   ],
                 ),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCommunityAudioCard({
-    required String author,
-    required String role,
-    required String duration,
-    required String tag,
-    required Color tagColor,
-  }) {
-    return GlassCard(
-      borderRadius: 20,
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(14),
-      borderColor: tagColor.withValues(alpha: 0.3),
-      child: SizedBox(
-        width: 170,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  tag,
-                  style: TextStyle(
-                    color: tagColor,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(
-                  duration,
-                  style: const TextStyle(
-                    color: StoryJobTheme.textSecondary,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: tagColor.withValues(alpha: 0.16),
-                  ),
-                  child: Icon(Icons.play_arrow_rounded, color: tagColor, size: 22),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        author,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: StoryJobTheme.textPrimary,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      Text(
-                        role,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: StoryJobTheme.textSecondary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
         ),
       ),
     );

@@ -94,7 +94,7 @@ class StoryDnaCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '$matchesCount Resonanzen',
+                      '$matchesCount Werte-Passungen',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 11,
@@ -111,7 +111,7 @@ class StoryDnaCard extends StatelessWidget {
 
           // Hauptüberschrift & Beschreibung
           Text(
-            isProtected ? 'Profil vor fremden Blicken geschützt' : 'Resonanz-Ebenen & Werte-Kreise',
+            isProtected ? 'Profil vor fremden Blicken geschützt' : 'Werte-Passung-Ebenen & Werte-Kreise',
             style: const TextStyle(
               color: StoryJobTheme.textPrimary,
               fontSize: 16,

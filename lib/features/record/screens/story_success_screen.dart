@@ -166,7 +166,7 @@ class _StorySuccessScreenState extends State<StorySuccessScreen> {
                   Text(
                     widget.isVideo
                         ? 'Dein Video zeigt deine authentische Persönlichkeit. Aktiviere es jetzt für passende Teams und Projekte.'
-                        : 'Deine Stimme macht den Unterschied. Aktiviere deine Story, um den wertebasierten Resonanzabgleich auf deiner Wellenlänge zu starten.',
+                        : 'Deine Stimme macht den Unterschied. Aktiviere deine Story, um den wertebasierten Werte-Passungabgleich auf deiner Wellenlänge zu starten.',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontSize: 13,
@@ -204,7 +204,7 @@ class _StorySuccessScreenState extends State<StorySuccessScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: const [
                               Text(
-                                'Bereit für Werte-Resonanz',
+                                'Bereit für Werte-Match',
                                 style: TextStyle(
                                   color: StoryJobTheme.textPrimary,
                                   fontWeight: FontWeight.w600,
@@ -252,7 +252,7 @@ class _StorySuccessScreenState extends State<StorySuccessScreen> {
                               ),
                             )
                           : const Text(
-                              'Story aktivieren & Resonanz starten ✨',
+                              'Story aktivieren & Werte-Passung starten ✨',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,

@@ -29,7 +29,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
 
   final List<String> _types = const [
     '💡 Feature-Wunsch',
-    '✨ Werte-Resonanz',
+    '✨ Werte-Match',
     '🛠️ Fehler melden',
     '💬 Lob & Eindruck',
   ];

@@ -19,7 +19,7 @@ extension StoryDnaTierExtension on StoryDnaTier {
       case StoryDnaTier.resonanz:
         return 'Werte-Fokus';
       case StoryDnaTier.magnet:
-        return 'Resonanz-Magnet';
+        return 'Werte-Passung-Magnet';
       case StoryDnaTier.praesenz:
         return 'Volle Präsenz';
     }
@@ -32,7 +32,7 @@ extension StoryDnaTierExtension on StoryDnaTier {
       case StoryDnaTier.resonanz:
         return 'Deine Werte sind sichtbar. Teams mit ähnlicher Wellenlänge entdecken dein Profil.';
       case StoryDnaTier.magnet:
-        return 'Hohe Resonanz. Teams und Macher erleben sofort ein klares Bild deiner Persönlichkeit.';
+        return 'Hohe Werte-Passung. Teams und Macher erleben sofort ein klares Bild deiner Persönlichkeit.';
       case StoryDnaTier.praesenz:
         return 'Maximale Entfaltung. Deine Story inspiriert und verbindet dich direkt auf Augenhöhe.';
     }
@@ -41,11 +41,11 @@ extension StoryDnaTierExtension on StoryDnaTier {
   String get perkDescription {
     switch (this) {
       case StoryDnaTier.starter:
-        return 'Erste Wahrnehmung im Resonanzfeld';
+        return 'Erste Wahrnehmung im Werte-Passungfeld';
       case StoryDnaTier.resonanz:
         return 'Sichtbar für Werte-Gemeinschaften';
       case StoryDnaTier.magnet:
-        return 'Hohe Resonanz bei passenden Teams';
+        return 'Hohe Werte-Passung bei passenden Teams';
       case StoryDnaTier.praesenz:
         return 'Vollständige Entfaltung auf Augenhöhe';
     }
@@ -56,7 +56,7 @@ extension StoryDnaTierExtension on StoryDnaTier {
       case StoryDnaTier.starter:
         return const Color(0xFFB47854); // Edles Warmbronze
       case StoryDnaTier.resonanz:
-        return StoryJobTheme.primaryViolet; // Violett: Werte & Resonanz
+        return StoryJobTheme.primaryViolet; // Violett: Werte & Werte-Passung
       case StoryDnaTier.magnet:
         return StoryJobTheme.champagneGold; // Gold: Magnetismus
       case StoryDnaTier.praesenz:
@@ -332,7 +332,7 @@ class StoryLevelTrackerWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Nächster Resonanz-Schritt:',
+                        'Nächster Werte-Passung-Schritt:',
                         style: TextStyle(
                           color: StoryJobTheme.textPrimary,
                           fontSize: 12,

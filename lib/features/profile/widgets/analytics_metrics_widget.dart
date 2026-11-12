@@ -61,7 +61,7 @@ class AnalyticsMetricsWidget extends StatelessWidget {
                 child: _buildMetricItem(
                   title: 'Dialog-Quote',
                   value: '${resonanceConversionRate.toStringAsFixed(0)}%',
-                  subtitle: 'Resonanz zu Gespräch',
+                  subtitle: 'Werte-Passung zu Gespräch',
                   icon: Icons.forum_rounded,
                   color: StoryJobTheme.emeraldGreen,
                 ),
@@ -90,7 +90,7 @@ class AnalyticsMetricsWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Audio-Story Resonanzfaktor',
+                  'Audio-Story Werte-Passungfaktor',
                   style: TextStyle(
                     color: StoryJobTheme.textSecondary,
                     fontSize: 12.5,
