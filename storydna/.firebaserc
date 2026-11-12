@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "liorya-13656"
+  },
+  "targets": {
+    "storyjob-98017": {
+      "hosting": {
+        "storydna": [
+          "storydna-app"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

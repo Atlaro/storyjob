@@ -1,0 +1,25 @@
+Auflistung der Ordnerpfade
+Volumeseriennummer : C208-5853
+C:\USERS\FAM-A\STORYJOB-APP\STORYDNA\LIB
+|   main.dart
+|   
++---core
+|   +---services
+|   +---theme
+|   |       storyjob_theme.dart
+|   |       
+|   \---widgets
+|           glass_button.dart
+|           glass_card.dart
+|           
+\---features
+    \---identity
+        +---models
+        |       story_identity.dart
+        |       
+        +---screens
+        |   |   story_dna_screen.dart
+        |   |   
+        |   +---tabs
+        |   \---widgets
+        \---services
