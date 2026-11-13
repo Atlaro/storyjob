@@ -77,3 +77,10 @@ tasks.withType<org.gradle.api.Task>().configureEach {
         enabled = false
     }
 }
+
+// Crashlytics Mapping Upload fÃ¼r Gradle 9 deaktivieren
+tasks.withType<org.gradle.api.Task>().configureEach {
+    if (name.contains("uploadCrashlyticsMappingFileRelease")) {
+        enabled = false
+    }
+}
