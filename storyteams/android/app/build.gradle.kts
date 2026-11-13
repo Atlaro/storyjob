@@ -64,3 +64,12 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+// Crashlytics Mapping Upload Task fuer Gradle 9 komplett deaktivieren
+actions.all {
+    tasks.configureEach {
+        if (name.contains("uploadCrashlyticsMappingFileRelease")) {
+            enabled = false
+        }
+    }
+}

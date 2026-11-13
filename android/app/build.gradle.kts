@@ -70,3 +70,12 @@ flutter {
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }
+
+// Crashlytics Mapping Upload Task fuer Gradle 9 komplett deaktivieren
+actions.all {
+    tasks.configureEach {
+        if (name.contains("uploadCrashlyticsMappingFileRelease")) {
+            enabled = false
+        }
+    }
+}
