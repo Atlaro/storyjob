@@ -1,1 +1,17 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"storyjob-98017","appId":"1:758116924953:android:6ecdfccd5ffbddb1f63488","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"storyjob-98017","configurations":{"android":"1:758116924953:android:6ecdfccd5ffbddb1f63488","ios":"1:758116924953:ios:60ac4a58971c017af63488","web":"1:758116924953:web:28b500b82099f7a1f63488","windows":"1:758116924953:web:bdd6a2ffe6cd4b52f63488"}}}}}}
+{
+  "hosting": {
+    "site": "storyjob-teams",
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
