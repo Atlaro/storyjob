@@ -175,7 +175,7 @@ class StoryIdentity {
     final rawEchoes = map['echoes'];
     final List<ResonanceEcho> parsedEchoes = (rawEchoes is List)
         ? rawEchoes
-            .whereType<Map<String, dynamic>>()
+            .whereType>()
             .map((e) => ResonanceEcho.fromMap(e))
             .toList()
         : const [];
