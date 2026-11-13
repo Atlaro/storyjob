@@ -7,12 +7,7 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-android {
-firebaseCrashlytics {
-    mappingFileUploadEnabled = false
-}
-
-    namespace = "de.storyjob.dna"
+android {namespace = "de.storyjob.dna"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
