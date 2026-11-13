@@ -8,6 +8,10 @@ plugins {
 }
 
 android {
+firebaseCrashlytics {
+    mappingFileUploadEnabled = false
+}
+
     namespace = "de.storyjob.dna"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion

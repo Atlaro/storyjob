@@ -8,6 +8,10 @@ plugins {
 }
 
 android {
+firebaseCrashlytics {
+    mappingFileUploadEnabled = false
+}
+
     namespace = "de.storyjob.teams"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
