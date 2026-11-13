@@ -13,10 +13,12 @@ workflows:
       xcode: latest
     scripts:
       - name: Clean project and get dependencies
+        working_directory: storyjob
         script: |
           flutter clean
           flutter pub get
       - name: Build and Sign iOS App (IPA)
+        working_directory: storyjob
         script: |
           flutter build ipa --release --no-codesign --build-name=1.0.2 --build-number=13
           cat <<EOF > ExportOptions.plist
@@ -43,10 +45,11 @@ workflows:
             -exportOptionsPlist ExportOptions.plist \
             -exportPath build/ios/ipa
       - name: Verify generated IPA
+        working_directory: storyjob
         script: |
           ls -la build/ios/ipa/*.ipa
     artifacts:
-      - build/ios/ipa/*.ipa
+      - storyjob/build/ios/ipa/*.ipa
     publishing:
       app_store_connect:
         auth: integration
@@ -82,23 +85,24 @@ workflows:
       flutter: stable
     scripts:
       - name: Build StoryJob (.aab)
+        working_directory: storyjob
         script: |
           flutter pub get
           flutter build appbundle --release
       - name: Build StoryJob DNA (.aab)
+        working_directory: storydna
         script: |
-          cd ../storydna
           flutter pub get
           flutter build appbundle --release
       - name: Build StoryJob Teams (.aab)
+        working_directory: storyteams
         script: |
-          cd ../storyteams
           flutter pub get
           flutter build appbundle --release
     artifacts:
-      - build/app/outputs/bundle/release/*.aab
-      - ../storydna/build/app/outputs/bundle/release/*.aab
-      - ../storyteams/build/app/outputs/bundle/release/*.aab
+      - storyjob/build/app/outputs/bundle/release/*.aab
+      - storydna/build/app/outputs/bundle/release/*.aab
+      - storyteams/build/app/outputs/bundle/release/*.aab
 
   ios-storydna-release:
     name: StoryJob DNA iOS Release
@@ -114,13 +118,13 @@ workflows:
       xcode: latest
     scripts:
       - name: Build and Sign iOS DNA (IPA)
+        working_directory: storydna
         script: |
-          cd ../storydna
           flutter clean
           flutter pub get
           flutter build ipa --release --build-name=1.0.0 --build-number=1
     artifacts:
-      - ../storydna/build/ios/ipa/*.ipa
+      - storydna/build/ios/ipa/*.ipa
     publishing:
       app_store_connect:
         auth: integration
@@ -140,13 +144,13 @@ workflows:
       xcode: latest
     scripts:
       - name: Build and Sign iOS Teams (IPA)
+        working_directory: storyteams
         script: |
-          cd ../storyteams
           flutter clean
           flutter pub get
           flutter build ipa --release --build-name=1.0.0 --build-number=1
     artifacts:
-      - ../storyteams/build/ios/ipa/*.ipa
+      - storyteams/build/ios/ipa/*.ipa
     publishing:
       app_store_connect:
         auth: integration
