@@ -426,7 +426,7 @@ class _TeamsLandingScreenState extends State<TeamsLandingScreen> {
                                   ),
                                   const SizedBox(height: 3),
                                   Text(
-                                    '${team.category} • ${team.location}',
+                                    '${team.motto} • ${team.location}',
                                     style: const TextStyle(
                                       color: StoryJobTheme.textSecondary,
                                       fontSize: 12.5,
