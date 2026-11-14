@@ -46,3 +46,14 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Backups, node_modules & private keys
+*.zip
+**/node_modules/
+*.p8
+*.p12
+*.key
+*.cer
+*.pem
+*.certSigningRequest
+
