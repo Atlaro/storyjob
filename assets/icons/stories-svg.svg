@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <!-- Hinteres Rechteck (Blau: #06B6D4) -->
+  <rect x="16" y="16" width="48" height="48" fill="none" stroke="#06B6D4" stroke-width="6" stroke-linejoin="round" rx="8" opacity="0.6" />
+  
+  <!-- Mittleres Rechteck (Violett: #8B5CF6) -->
+  <rect x="26" y="26" width="48" height="48" fill="none" stroke="#8B5CF6" stroke-width="6" stroke-linejoin="round" rx="8" opacity="0.8" />
+  
+  <!-- Vorderes Rechteck (Pink: #EC4899) -->
+  <rect x="36" y="36" width="48" height="48" fill="none" stroke="#EC4899" stroke-width="6" stroke-linejoin="round" rx="8" />
+</svg>
