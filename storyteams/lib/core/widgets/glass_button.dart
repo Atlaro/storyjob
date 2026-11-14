@@ -38,7 +38,16 @@ class GlassButton extends StatelessWidget {
           height: height,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(borderRadius),
-            gradient: isPrimaryGlow ? StoryJobTheme.brandGradient : null,
+            gradient: isPrimaryGlow
+                ? const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      StoryJobTheme.primaryViolet,
+                      StoryJobTheme.cyanAccent,
+                    ],
+                  )
+                : null,
             color: isPrimaryGlow
                 ? null
                 : (backgroundColor ?? StoryJobTheme.cardSurfaceElevated),

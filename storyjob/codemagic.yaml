@@ -1,0 +1,153 @@
+workflows:
+  ios-release-workflow:
+    name: StoryJob iOS Release
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+    integrations:
+      app_store_connect: StoryJob
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: de.storyjob.app
+      flutter: stable
+      xcode: latest
+    scripts:
+      - name: Clean project and get dependencies
+        script: |
+          flutter clean
+          flutter pub get
+      - name: Build and Sign iOS App (IPA)
+        script: |
+          flutter build ipa --release --no-codesign --build-name=1.0.2 --build-number=13
+          cat <<EOF > ExportOptions.plist
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store</string>
+              <key>teamID</key>
+              <string>L8CP87ZD83</string>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>de.storyjob.app</key>
+                  <string>StoryJob</string>
+              </dict>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            -exportOptionsPlist ExportOptions.plist \
+            -exportPath build/ios/ipa
+      - name: Verify generated IPA
+        script: |
+          ls -la build/ios/ipa/*.ipa
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+
+  generate-android-keystore:
+    name: 1. Einmalig Android Keystore erzeugen
+    max_build_duration: 15
+    instance_type: mac_mini_m1
+    scripts:
+      - name: Upload-Keystore erstellen
+        script: |
+          mkdir -p keystore_out
+          keytool -genkeypair -v \
+            -keystore keystore_out/storyjob-upload.jks \
+            -alias upload \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass Hallo123 \
+            -keypass Hallo123 \
+            -dname "CN=Peter Alt, O=StoryJob, L=Bad Birnbach, ST=Bavaria, C=DE"
+    artifacts:
+      - keystore_out/storyjob-upload.jks
+
+  android-all-release:
+    name: 2. Android Release Bundles (.aab) - Alle 3 Apps
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+    environment:
+      android_signing:
+        - storyjob_upload_keystore
+      flutter: stable
+    scripts:
+      - name: Build StoryJob (.aab)
+        script: |
+          flutter pub get
+          flutter build appbundle --release
+      - name: Build StoryJob DNA (.aab)
+        script: |
+          cd storydna
+          flutter pub get
+          flutter build appbundle --release
+      - name: Build StoryJob Teams (.aab)
+        script: |
+          cd storyteams
+          flutter pub get
+          flutter build appbundle --release
+    artifacts:
+      - build/app/outputs/bundle/release/*.aab
+      - storydna/build/app/outputs/bundle/release/*.aab
+      - storyteams/build/app/outputs/bundle/release/*.aab
+
+  ios-storydna-release:
+    name: StoryJob DNA iOS Release
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+    integrations:
+      app_store_connect: StoryJob
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: de.storyjob.dna
+      flutter: stable
+      xcode: latest
+    scripts:
+      - name: Build and Sign iOS DNA (IPA)
+        script: |
+          cd storydna
+          flutter clean
+          flutter pub get
+          flutter build ipa --release --build-name=1.0.0 --build-number=1
+    artifacts:
+      - storydna/build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+
+  ios-storyteams-release:
+    name: StoryJob Teams iOS Release
+    max_build_duration: 60
+    instance_type: mac_mini_m1
+    integrations:
+      app_store_connect: StoryJob
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: de.storyjob.teams
+      flutter: stable
+      xcode: latest
+    scripts:
+      - name: Build and Sign iOS Teams (IPA)
+        script: |
+          cd storyteams
+          flutter clean
+          flutter pub get
+          flutter build ipa --release --build-name=1.0.0 --build-number=1
+    artifacts:
+      - storyteams/build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true

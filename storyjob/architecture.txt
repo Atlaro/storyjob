@@ -1,0 +1,191 @@
+Auflistung der Ordnerpfade
+Volumeseriennummer : C208-5853
+C:\USERS\FAM-A\STORYJOB-APP\STORYJOB\LIB
+|   firebase_options.dart
+|   main.dart
+|   
++---core
+|   |   services.dart
+|   |   
+|   +---services
+|   |       app_services.dart
+|   |       audio_cache_service.dart
+|   |       audio_service.dart
+|   |       fcm_service.dart
+|   |       match_analytics_service.dart
+|   |       notification_service.dart
+|   |       stt_service.dart
+|   |       
+|   +---theme
+|   |       storyjob_theme.dart
+|   |       
+|   \---widgets
+|           glass_button.dart
+|           glass_card.dart
+|           glass_input.dart
+|           glass_modal.dart
+|           glow_orb.dart
+|           storyjob_brand_header.dart
+|           story_level_tracker_widget.dart
+|           story_refresh_indicator.dart
+|           
++---features
+|   +---auth
+|   |   \---screens
+|   |           guest_upgrade_screen.dart
+|   |           login_screen.dart
+|   |           register_screen.dart
+|   |           story_auth_screen.dart
+|   |           story_splash_screen.dart
+|   |           
+|   +---community
+|   |   \---screens
+|   |           community_network_screen.dart
+|   |           
+|   +---feed
+|   |   +---models
+|   |   |       story_model.dart
+|   |   |       
+|   |   +---screens
+|   |   |       stories_feed_screen.dart
+|   |   |       
+|   |   \---widgets
+|   |           story_feed_card.dart
+|   |           
+|   +---growth
+|   |   +---models
+|   |   |       growth_journey.dart
+|   |   |       
+|   |   +---screens
+|   |   |       growth_journey_edit_screen.dart
+|   |   |       growth_journey_screen.dart
+|   |   |       
+|   |   \---services
+|   |           growth_service.dart
+|   |           
+|   +---identity
+|   |   +---models
+|   |   |       story_identity.dart
+|   |   |       story_identity_provider.dart
+|   |   |       
+|   |   +---screens
+|   |   |       communities_screen.dart
+|   |   |       goals_screen.dart
+|   |   |       interests_screen.dart
+|   |   |       motivators_screen.dart
+|   |   |       story_dna_circles_screen.dart
+|   |   |       strengths_screen.dart
+|   |   |       values_screen.dart
+|   |   |       workstyle_screen.dart
+|   |   |       
+|   |   \---services
+|   |           story_ai_processor.dart
+|   |           story_identity_service.dart
+|   |           
+|   +---match
+|   |   +---screens
+|   |   |       match_screen.dart
+|   |   |       story_match_screen.dart
+|   |   |       
+|   |   +---services
+|   |   |       company_resonance_engine.dart
+|   |   |       matching_service.dart
+|   |   |       match_intelligence_service.dart
+|   |   |       story_matching_engine.dart
+|   |   |       
+|   |   \---widgets
+|   |           match_card.dart
+|   |           resonance_insight_badge.dart
+|   |           story_fit_card.dart
+|   |           story_match_card.dart
+|   |           story_resonance_match_bridge.dart
+|   |           talent_company_filter_sheet.dart
+|   |           
+|   +---messages
+|   |   +---models
+|   |   |       message_model.dart
+|   |   |       
+|   |   +---screens
+|   |   |       dialog_list_screen.dart
+|   |   |       story_dialog_screen.dart
+|   |   |       story_messages_screen.dart
+|   |   |       
+|   |   \---widgets
+|   |           appointment_request_widget.dart
+|   |           
+|   +---navigation
+|   |   +---onboarding
+|   |   |   \---screens
+|   |   |           potential_onboarding_screen.dart
+|   |   |           
+|   |   +---screens
+|   |   \---widgets
+|   |           birthday_popup_dialog.dart
+|   |           story_app_bar.dart
+|   |           
+|   +---profile
+|   |   +---screens
+|   |   |       my_story_screen.dart
+|   |   |       personal_data_screen.dart
+|   |   |       profile_detail_screen.dart
+|   |   |       user_growth_profile_screen.dart
+|   |   |       
+|   |   \---widgets
+|   |           analytics_metrics_widget.dart
+|   |           security_trust_widget.dart
+|   |           story_dna_card.dart
+|   |           story_dna_web_view.dart
+|   |           story_profile_header.dart
+|   |           
+|   +---record
+|   |   +---screens
+|   |   |       story_recording_screen.dart
+|   |   |       story_success_screen.dart
+|   |   |       video_recording_screen.dart
+|   |   |       
+|   |   +---services
+|   |   |       audio_upload_service.dart
+|   |   |       
+|   |   \---widgets
+|   |           audio_consent_dialog.dart
+|   |           ripple_painter.dart
+|   |           story_format_modal.dart
+|   |           
+|   +---recruiter
+|   |   +---models
+|   |   |       company_dna.dart
+|   |   |       job_story.dart
+|   |   |       
+|   |   +---screens
+|   |   |       company_dna_screen.dart
+|   |   |       recruiter_dashboard_screen.dart
+|   |   |       recruiter_navigation_screen.dart
+|   |   |       recruiter_talent_pool_screen.dart
+|   |   |       
+|   |   \---widgets
+|   |           company_benefit_pitch_card.dart
+|   |           early_access_talent_card.dart
+|   |           recruiter_upgrade_modal.dart
+|   |           
+|   +---settings
+|   |   \---screens
+|   |       |   login_security_screen.dart
+|   |       |   settings_screen.dart
+|   |       |   
+|   |       \---widgets
+|   |               feedback_dialog.dart
+|   |               legal_licenses_modal.dart
+|   |               
+|   +---talent
+|   |   \---screens
+|   |           talent_navigation_screen.dart
+|   |           
+|   +---video
+|   |   \---screens
+|   |           match_video_card.dart
+|   |           
+|   \---voice
+|       \---screens
+|               voice_story_recorder_screen.dart
+|               
+\---models

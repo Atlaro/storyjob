@@ -1,0 +1,8 @@
+Auflistung der Ordnerpfade
+Volumeseriennummer : C208-5853
+C:\USERS\FAM-A\STORYJOB-APP\STORYTEAMS\LIB
+    main.dart
+    team_role.dart
+    
+Es sind keine Unterordner vorhanden 
+
