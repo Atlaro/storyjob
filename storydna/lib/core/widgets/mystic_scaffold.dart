@@ -1,6 +1,6 @@
 // lib/core/widgets/mystic_scaffold.dart
 import 'package:flutter/material.dart';
-import 'package:storyjob/core/widgets/glow_orb.dart';
+import 'package:storydna/core/widgets/glow_orb.dart';
 
 class MysticScaffold extends StatelessWidget {
   final Widget body;

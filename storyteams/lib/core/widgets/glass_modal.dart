@@ -2,7 +2,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:storyjob/core/theme/storyjob_theme.dart';
+import 'package:storyteams/core/theme/storyjob_theme.dart';
 
 class GlassBottomSheet extends StatelessWidget {
   final Widget child;

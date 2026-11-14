@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:storydna/core/theme/storyjob_theme.dart';
+import 'package:storyteams/core/theme/storyjob_theme.dart';
 
 class GlassButton extends StatelessWidget {
   final String label;

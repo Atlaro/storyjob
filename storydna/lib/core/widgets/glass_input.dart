@@ -1,7 +1,7 @@
 // lib/core/widgets/glass_input.dart
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:storyjob/core/theme/storyjob_theme.dart';
+import 'package:storydna/core/theme/storyjob_theme.dart';
 
 class GlassInput extends StatelessWidget {
   final TextEditingController controller;
