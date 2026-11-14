@@ -70,7 +70,7 @@ class StoryTeamsApp extends StatelessWidget {
               if (activeTeamId != null && activeTeamId.isNotEmpty) {
                 return TeamsWorkspaceScreen(teamId: activeTeamId);
               }
-              return const TeamsLandingScreen();
+              return TeamsLandingScreen();
             },
           );
         },

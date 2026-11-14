@@ -72,7 +72,7 @@ class _TeamsAuthScreenState extends State<TeamsAuthScreen> {
   void _openLanding() {
     if (!mounted) return;
     Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const TeamsLandingScreen()),
+      MaterialPageRoute(builder: (_) => TeamsLandingScreen()),
       (route) => false,
     );
   }
