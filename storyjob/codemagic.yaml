@@ -44,9 +44,9 @@ workflows:
             -exportPath build/ios/ipa
       - name: Verify generated IPA
         script: |
-          ls -la build/ios/ipa/*.ipa
+          ls -la storydna/build/ios/ipa/*.ipa storyteams/build/ios/ipa/*.ipa 2>/dev/null || ls -la */build/ios/ipa/*.ipa
     artifacts:
-      - build/ios/ipa/*.ipa
+      - */build/ios/ipa/*.ipa
     publishing:
       app_store_connect:
         auth: integration

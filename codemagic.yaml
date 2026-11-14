@@ -47,9 +47,9 @@ workflows:
       - name: Verify generated IPA
         working_directory: storyjob
         script: |
-          ls -la build/ios/ipa/*.ipa
+          ls -la storydna/build/ios/ipa/*.ipa storyteams/build/ios/ipa/*.ipa 2>/dev/null || ls -la */build/ios/ipa/*.ipa
     artifacts:
-      - storyjob/build/ios/ipa/*.ipa
+      - storyjob/*/build/ios/ipa/*.ipa
     publishing:
       app_store_connect:
         auth: integration
@@ -134,7 +134,7 @@ workflows:
       - name: Verify generated DNA IPA
         working_directory: storydna
         script: |
-          ls -la build/ios/ipa/*.ipa
+          ls -la storydna/build/ios/ipa/*.ipa storyteams/build/ios/ipa/*.ipa 2>/dev/null || ls -la */build/ios/ipa/*.ipa
     artifacts:
       - storydna/build/ios/ipa/*.ipa
     publishing:
@@ -170,7 +170,7 @@ workflows:
       - name: Verify generated Teams IPA
         working_directory: storyteams
         script: |
-          ls -la build/ios/ipa/*.ipa
+          ls -la storydna/build/ios/ipa/*.ipa storyteams/build/ios/ipa/*.ipa 2>/dev/null || ls -la */build/ios/ipa/*.ipa
     artifacts:
       - storyteams/build/ios/ipa/*.ipa
     publishing:
