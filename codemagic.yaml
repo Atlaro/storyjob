@@ -137,30 +137,10 @@ workflows:
           flutter pub get
           LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "6833954712" || echo 0)
           NEXT_BUILD=$((LATEST_BUILD + 1))
-          flutter build ipa --release --no-codesign --build-name=1.0.0 --build-number=$NEXT_BUILD
-          cat <<EOF > ExportOptions.plist
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>method</key>
-              <string>app-store</string>
-              <key>teamID</key>
-              <string>L8CP87ZD83</string>
-              <key>signingStyle</key>
-              <string>manual</string>
-              <key>provisioningProfiles</key>
-              <dict>
-                  <key>de.storyjob.dna</key>
-                  <string>storyjob_dna_appstore</string>
-              </dict>
-          </dict>
-          </plist>
-          EOF
-          xcodebuild -exportArchive \
-            -archivePath build/ios/archive/Runner.xcarchive \
-            -exportOptionsPlist ExportOptions.plist \
-            -exportPath build/ios/ipa
+          flutter build ipa --release \
+            --build-name=1.0.0 \
+            --build-number=$NEXT_BUILD \
+            --export-options-plist=/Users/builder/export_options.plist
       - name: Verify generated DNA IPA
         working_directory: storydna
         script: |
@@ -198,30 +178,10 @@ workflows:
           set -e
           flutter clean
           flutter pub get
-          flutter build ipa --release --no-codesign --build-name=1.0.0 --build-number=1
-          cat <<EOF > ExportOptions.plist
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>method</key>
-              <string>app-store</string>
-              <key>teamID</key>
-              <string>L8CP87ZD83</string>
-              <key>signingStyle</key>
-              <string>manual</string>
-              <key>provisioningProfiles</key>
-              <dict>
-                  <key>de.storyjob.teams</key>
-                  <string>storyjob_teams_appstore</string>
-              </dict>
-          </dict>
-          </plist>
-          EOF
-          xcodebuild -exportArchive \
-            -archivePath build/ios/archive/Runner.xcarchive \
-            -exportOptionsPlist ExportOptions.plist \
-            -exportPath build/ios/ipa
+          flutter build ipa --release \
+            --build-name=1.0.0 \
+            --build-number=1 \
+            --export-options-plist=/Users/builder/export_options.plist
       - name: Verify generated Teams IPA
         working_directory: storyteams
         script: |
