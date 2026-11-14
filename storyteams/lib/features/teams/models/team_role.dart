@@ -50,7 +50,38 @@ extension TeamRolleInfo on TeamRolle {
     }
   }
 
+  Color get badgeColor {
+    switch (this) {
+      case TeamRolle.leitung:
+        return StoryJobTheme.goldAccent;
+      case TeamRolle.vorstand:
+        return StoryJobTheme.primaryViolet;
+      case TeamRolle.mitglied:
+        return StoryJobTheme.cyanAccent;
+      case TeamRolle.anwaerter:
+        return StoryJobTheme.mintSuccess;
+      case TeamRolle.neuling:
+        return StoryJobTheme.textSecondary;
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case TeamRolle.leitung:
+        return Icons.verified_user_rounded;
+      case TeamRolle.vorstand:
+        return Icons.shield_rounded;
+      case TeamRolle.mitglied:
+        return Icons.verified_rounded;
+      case TeamRolle.anwaerter:
+        return Icons.school_rounded;
+      case TeamRolle.neuling:
+        return Icons.person_outline_rounded;
+    }
+  }
+
   bool get darfVerwalten => this == TeamRolle.leitung || this == TeamRolle.vorstand;
+  bool get darfVerifizieren => this == TeamRolle.leitung || this == TeamRolle.vorstand;
   bool get istAktiv => this != TeamRolle.neuling;
 }
 
@@ -78,6 +109,17 @@ extension AvailabilityInfo on AvailabilityStatus {
         return 'Bedingt abkömmlich';
       case AvailabilityStatus.abwesend:
         return 'Abwesend / Ruhe';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case AvailabilityStatus.einsatzbereit:
+        return Icons.check_circle_rounded;
+      case AvailabilityStatus.bedingt:
+        return Icons.timelapse_rounded;
+      case AvailabilityStatus.abwesend:
+        return Icons.bedtime_rounded;
     }
   }
 

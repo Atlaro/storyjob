@@ -243,7 +243,10 @@ class _TeamsAuthScreenState extends State<TeamsAuthScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: StoryJobTheme.cardSurfaceElevated,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: StoryJobTheme.cyanAccent.withValues(alpha: 0.35)),
+        ),
         title: const Text(
           'Mit Einladungscode beitreten',
           style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
@@ -253,7 +256,7 @@ class _TeamsAuthScreenState extends State<TeamsAuthScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Gib den 6-stelligen Team-Code deines Vereins, deiner Wehr oder deines Betriebs ein.',
+              'Gib den Team-Code deines Vereins, deiner Wehr oder deines Betriebs ein.',
               style: TextStyle(color: StoryJobTheme.textSecondary, fontSize: 13),
             ),
             const SizedBox(height: 14),
@@ -302,237 +305,302 @@ class _TeamsAuthScreenState extends State<TeamsAuthScreen> {
 
     return Scaffold(
       backgroundColor: StoryJobTheme.backgroundBase,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 66,
-                      height: 66,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: StoryJobTheme.cardSurfaceElevated,
-                        border: Border.all(color: accent.withValues(alpha: 0.5), width: 1.5),
-                      ),
-                      child: Icon(Icons.groups_rounded, color: accent, size: 32),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  RichText(
-                    textAlign: TextAlign.center,
-                    text: const TextSpan(
-                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
-                      children: [
-                        TextSpan(text: 'StoryJob ', style: TextStyle(color: Colors.white)),
-                        TextSpan(text: 'Teams', style: TextStyle(color: StoryJobTheme.cyanAccent)),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Echte Kameradschaft. Live-Status, Dienstplan & Kultur für Vereine, Blaulicht und Betriebe.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: StoryJobTheme.textSecondary, fontSize: 13.5, height: 1.35),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Perspektiv-Umschalter: Leitung/Vorstand vs. Mitglied/Neuling
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildRolePill(
-                          selected: _isLeaderEntry,
-                          label: 'Leitung & Vorstand',
-                          icon: Icons.shield_outlined,
-                          color: StoryJobTheme.primaryViolet,
-                          onTap: () => setState(() => _isLeaderEntry = true),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: _buildRolePill(
-                          selected: !_isLeaderEntry,
-                          label: 'Mitglied & Anwärter',
-                          icon: Icons.person_add_alt_1_outlined,
-                          color: StoryJobTheme.cyanAccent,
-                          onTap: () => setState(() => _isLeaderEntry = false),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
-
-                  if (_error != null) ...[
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.redAccent.withValues(alpha: 0.14),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        _error!,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(color: Color(0xFFFCA5A5), fontSize: 12.5),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
+      body: Stack(
+        children: [
+          // Mystic Glass & Glow Hintergrund-Auren
+          Positioned(
+            top: -80,
+            left: -60,
+            child: Container(
+              width: 320,
+              height: 320,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    accent.withValues(alpha: 0.24),
+                    Colors.transparent,
                   ],
-
-                  // Apple Sign-In (App Store Guideline 4.8 konform)
-                  ElevatedButton.icon(
-                    onPressed: _isLoading ? null : _signInWithApple,
-                    icon: const Icon(Icons.apple, size: 22),
-                    label: const Text('Mit Apple fortfahren'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 13),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                      textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Google Sign-In
-                  OutlinedButton.icon(
-                    onPressed: _isLoading ? null : () => _signInProvider(GoogleAuthProvider(), 'Google'),
-                    icon: const Text(
-                      'G',
-                      style: TextStyle(color: Color(0xFFEA4335), fontWeight: FontWeight.w900, fontSize: 17),
-                    ),
-                    label: const Text('Mit StoryJob-Google-Konto fortfahren'),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-
-                  GlassCard(
-                    padding: const EdgeInsets.all(16),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          if (_isRegister) ...[
-                            TextFormField(
-                              controller: _nameController,
-                              style: const TextStyle(color: Colors.white, fontSize: 14),
-                              decoration: const InputDecoration(
-                                hintText: 'Dein Name / Rufname im Team',
-                                prefixIcon: Icon(Icons.badge_outlined, size: 19),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                          ],
-                          TextFormField(
-                            controller: _emailController,
-                            keyboardType: TextInputType.emailAddress,
-                            style: const TextStyle(color: Colors.white, fontSize: 14),
-                            decoration: const InputDecoration(
-                              hintText: 'E-Mail-Adresse',
-                              prefixIcon: Icon(Icons.email_outlined, size: 19),
-                            ),
-                            validator: (v) => (v == null || !v.contains('@')) ? 'Gültige E-Mail eingeben' : null,
-                          ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            controller: _passwordController,
-                            obscureText: _obscure,
-                            style: const TextStyle(color: Colors.white, fontSize: 14),
-                            decoration: InputDecoration(
-                              hintText: 'Passwort',
-                              prefixIcon: const Icon(Icons.lock_outline_rounded, size: 19),
-                              suffixIcon: IconButton(
-                                icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 19),
-                                onPressed: () => setState(() => _obscure = !_obscure),
-                              ),
-                            ),
-                            validator: (v) => (v == null || v.length < 6) ? 'Mindestens 6 Zeichen' : null,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _submitEmail,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: accent,
-                      foregroundColor: _isLeaderEntry ? Colors.white : Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                    ),
-                    child: Text(
-                      _isLoading
-                          ? 'Verbinde...'
-                          : (_isRegister ? 'Team-Konto erstellen' : 'In StoryJob Teams starten'),
-                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Gastmodus (Demo-Einblick) & Einladungscode getrennt zugänglich
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: _isLoading ? null : () => _signInAsGuest(),
-                          icon: const Icon(Icons.explore_outlined, size: 16),
-                          label: const Text('Als Gast testen', style: TextStyle(fontSize: 12.5)),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: StoryJobTheme.textSecondary,
-                            side: const BorderSide(color: StoryJobTheme.cardBorder),
-                            padding: const EdgeInsets.symmetric(vertical: 11),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: _isLoading ? null : _showInviteCodeDialog,
-                          icon: const Icon(Icons.vpn_key_outlined, size: 16),
-                          label: const Text('Einladungscode', style: TextStyle(fontSize: 12.5)),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: StoryJobTheme.cyanAccent,
-                            side: BorderSide(color: StoryJobTheme.cyanAccent.withValues(alpha: 0.45)),
-                            padding: const EdgeInsets.symmetric(vertical: 11),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        _isRegister ? 'Bereits im Ökosystem?' : 'Noch kein Konto?',
-                        style: const TextStyle(color: StoryJobTheme.textSecondary, fontSize: 13),
-                      ),
-                      TextButton(
-                        onPressed: () => setState(() => _isRegister = !_isRegister),
-                        child: Text(
-                          _isRegister ? 'Einloggen' : 'Registrieren',
-                          style: TextStyle(color: accent, fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
+          Positioned(
+            bottom: -70,
+            right: -50,
+            child: Container(
+              width: 280,
+              height: 280,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    StoryJobTheme.cyanAccent.withValues(alpha: 0.16),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 68,
+                          height: 68,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                accent,
+                                StoryJobTheme.primaryViolet,
+                              ],
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: accent.withValues(alpha: 0.35),
+                                blurRadius: 24,
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.groups_rounded,
+                            color: StoryJobTheme.bg0,
+                            size: 34,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      RichText(
+                        textAlign: TextAlign.center,
+                        text: const TextSpan(
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.5,
+                          ),
+                          children: [
+                            TextSpan(text: 'StoryJob ', style: TextStyle(color: Colors.white)),
+                            TextSpan(text: 'Teams', style: TextStyle(color: StoryJobTheme.cyanAccent)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Echte Kameradschaft. Live-Status, Dienstplan & Kultur für Vereine, Blaulicht und Betriebe.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: StoryJobTheme.textSecondary,
+                          fontSize: 13.5,
+                          height: 1.35,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Perspektiv-Umschalter: Leitung/Vorstand vs. Mitglied/Neuling
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildRolePill(
+                              selected: _isLeaderEntry,
+                              label: 'Leitung & Vorstand',
+                              icon: Icons.shield_outlined,
+                              color: StoryJobTheme.primaryViolet,
+                              onTap: () => setState(() => _isLeaderEntry = true),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: _buildRolePill(
+                              selected: !_isLeaderEntry,
+                              label: 'Mitglied & Anwärter',
+                              icon: Icons.person_add_alt_1_outlined,
+                              color: StoryJobTheme.cyanAccent,
+                              onTap: () => setState(() => _isLeaderEntry = false),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+
+                      if (_error != null) ...[
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent.withValues(alpha: 0.14),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            _error!,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Color(0xFFFCA5A5), fontSize: 12.5),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                      ],
+
+                      // Apple Sign-In (App Store Guideline 4.8 konform)
+                      ElevatedButton.icon(
+                        onPressed: _isLoading ? null : _signInWithApple,
+                        icon: const Icon(Icons.apple, size: 22),
+                        label: const Text('Mit Apple fortfahren'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 13),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                          textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Google Sign-In
+                      OutlinedButton.icon(
+                        onPressed: _isLoading ? null : () => _signInProvider(GoogleAuthProvider(), 'Google'),
+                        icon: const Text(
+                          'G',
+                          style: TextStyle(color: Color(0xFFEA4335), fontWeight: FontWeight.w900, fontSize: 17),
+                        ),
+                        label: const Text('Mit StoryJob-Google-Konto fortfahren'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+
+                      GlassCard(
+                        padding: const EdgeInsets.all(16),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              if (_isRegister) ...[
+                                TextFormField(
+                                  controller: _nameController,
+                                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                                  decoration: const InputDecoration(
+                                    hintText: 'Dein Name / Rufname im Team',
+                                    prefixIcon: Icon(Icons.badge_outlined, size: 19),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                              ],
+                              TextFormField(
+                                controller: _emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                style: const TextStyle(color: Colors.white, fontSize: 14),
+                                decoration: const InputDecoration(
+                                  hintText: 'E-Mail-Adresse',
+                                  prefixIcon: Icon(Icons.email_outlined, size: 19),
+                                ),
+                                validator: (v) => (v == null || !v.contains('@')) ? 'Gültige E-Mail eingeben' : null,
+                              ),
+                              const SizedBox(height: 12),
+                              TextFormField(
+                                controller: _passwordController,
+                                obscureText: _obscure,
+                                style: const TextStyle(color: Colors.white, fontSize: 14),
+                                decoration: InputDecoration(
+                                  hintText: 'Passwort',
+                                  prefixIcon: const Icon(Icons.lock_outline_rounded, size: 19),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(_obscure ? Icons.visibility_off_outlined : Icons.visibility_outlined, size: 19),
+                                    onPressed: () => setState(() => _obscure = !_obscure),
+                                  ),
+                                ),
+                                validator: (v) => (v == null || v.length < 6) ? 'Mindestens 6 Zeichen' : null,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+
+                      ElevatedButton(
+                        onPressed: _isLoading ? null : _submitEmail,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: accent,
+                          foregroundColor: _isLeaderEntry ? Colors.white : Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                        ),
+                        child: Text(
+                          _isLoading
+                              ? 'Verbinde...'
+                              : (_isRegister ? 'Team-Konto erstellen' : 'In StoryJob Teams starten'),
+                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Gastmodus (Demo-Einblick) & Einladungscode getrennt zugänglich
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: _isLoading ? null : () => _signInAsGuest(),
+                              icon: const Icon(Icons.explore_outlined, size: 16),
+                              label: const Text('Als Gast testen', style: TextStyle(fontSize: 12.5)),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: StoryJobTheme.textSecondary,
+                                side: const BorderSide(color: StoryJobTheme.cardBorder),
+                                padding: const EdgeInsets.symmetric(vertical: 11),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: _isLoading ? null : _showInviteCodeDialog,
+                              icon: const Icon(Icons.vpn_key_outlined, size: 16),
+                              label: const Text('Einladungscode', style: TextStyle(fontSize: 12.5)),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: StoryJobTheme.cyanAccent,
+                                side: BorderSide(color: StoryJobTheme.cyanAccent.withValues(alpha: 0.45)),
+                                padding: const EdgeInsets.symmetric(vertical: 11),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _isRegister ? 'Bereits im Ökosystem?' : 'Noch kein Konto?',
+                            style: const TextStyle(color: StoryJobTheme.textSecondary, fontSize: 13),
+                          ),
+                          TextButton(
+                            onPressed: () => setState(() => _isRegister = !_isRegister),
+                            child: Text(
+                              _isRegister ? 'Einloggen' : 'Registrieren',
+                              style: TextStyle(color: accent, fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

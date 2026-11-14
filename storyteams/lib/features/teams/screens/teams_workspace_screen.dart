@@ -1,6 +1,7 @@
 // lib/features/teams/screens/teams_workspace_screen.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:storyteams/core/theme/storyjob_theme.dart';
 import 'package:storyteams/features/teams/models/team_models.dart';
 import 'package:storyteams/features/teams/models/team_role.dart';
@@ -41,7 +42,10 @@ class _TeamsWorkspaceScreenState extends State<TeamsWorkspaceScreen> {
           builder: (context, memberSnap) {
             final rawMember = memberSnap.data?.data();
             final memberData = (rawMember is Map<String, dynamic>) ? rawMember : <String, dynamic>{};
-            final myRole = TeamRolleInfo.fromKey(memberData['role']?.toString());
+            TeamRolle myRole = TeamRolleInfo.fromKey(memberData['role']?.toString());
+            if (team.leaderUid == _service.currentUid) {
+              myRole = TeamRolle.leitung;
+            }
 
             final pages = [
               RosterPulseTab(team: team, myRole: myRole, service: _service),
@@ -52,26 +56,114 @@ class _TeamsWorkspaceScreenState extends State<TeamsWorkspaceScreen> {
             return Scaffold(
               backgroundColor: StoryJobTheme.backgroundBase,
               appBar: AppBar(
+                backgroundColor: StoryJobTheme.bg0,
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(team.name, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            team.name,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        if (team.isVerified) ...[
+                          const SizedBox(width: 6),
+                          const Icon(
+                            Icons.verified_rounded,
+                            color: StoryJobTheme.goldAccent,
+                            size: 17,
+                          ),
+                        ],
+                      ],
+                    ),
                     Text(
                       '${team.type} • Rolle: ${myRole.titel}',
-                      style: const TextStyle(fontSize: 11.5, color: StoryJobTheme.cyanAccent),
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        color: StoryJobTheme.cyanAccent,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
+                actions: [
+                  if (team.inviteCode.isNotEmpty)
+                    GestureDetector(
+                      onTap: () {
+                        Clipboard.setData(ClipboardData(text: team.inviteCode));
+                        HapticFeedback.lightImpact();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            backgroundColor: StoryJobTheme.cardSurfaceElevated,
+                            content: Text('Einladungscode "${team.inviteCode}" kopiert!'),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(right: 14),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(999),
+                          color: StoryJobTheme.goldAccent.withValues(alpha: 0.14),
+                          border: Border.all(
+                            color: StoryJobTheme.goldAccent.withValues(alpha: 0.45),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.copy_rounded,
+                              size: 13,
+                              color: StoryJobTheme.goldAccent,
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              team.inviteCode,
+                              style: const TextStyle(
+                                color: StoryJobTheme.goldAccent,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
               ),
               body: IndexedStack(index: _selectedIndex, children: pages),
               bottomNavigationBar: NavigationBar(
                 backgroundColor: StoryJobTheme.cardSurfaceElevated,
+                indicatorColor: StoryJobTheme.cyanAccent.withValues(alpha: 0.18),
                 selectedIndex: _selectedIndex,
-                onDestinationSelected: (idx) => setState(() => _selectedIndex = idx),
+                onDestinationSelected: (idx) {
+                  HapticFeedback.selectionClick();
+                  setState(() => _selectedIndex = idx);
+                },
                 destinations: const [
-                  NavigationDestination(icon: Icon(Icons.traffic_rounded), label: 'Status & Roster'),
-                  NavigationDestination(icon: Icon(Icons.event_available_rounded), label: 'Dienstplan'),
-                  NavigationDestination(icon: Icon(Icons.fingerprint_rounded), label: 'Team-DNA'),
+                  NavigationDestination(
+                    icon: Icon(Icons.traffic_outlined),
+                    selectedIcon: Icon(Icons.traffic_rounded, color: StoryJobTheme.cyanAccent),
+                    label: 'Status & Roster',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.event_available_outlined),
+                    selectedIcon: Icon(Icons.event_available_rounded, color: StoryJobTheme.cyanAccent),
+                    label: 'Dienstplan',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.fingerprint_outlined),
+                    selectedIcon: Icon(Icons.fingerprint_rounded, color: StoryJobTheme.cyanAccent),
+                    label: 'Team-DNA',
+                  ),
                 ],
               ),
             );

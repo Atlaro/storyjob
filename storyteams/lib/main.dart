@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:storyteams/core/theme/storyjob_theme.dart';
 import 'package:storyteams/features/auth/screens/teams_auth_screen.dart';
 import 'package:storyteams/features/teams/screens/teams_landing_screen.dart';
@@ -11,11 +12,22 @@ import 'package:storyteams/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: StoryJobTheme.backgroundBase,
+      systemNavigationBarIconBrightness: Brightness.light,
+    ),
+  );
+
   try {
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   } catch (e) {
     debugPrint('Firebase Init: $e');
   }
+
   runApp(const StoryTeamsApp());
 }
 
