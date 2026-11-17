@@ -23,6 +23,10 @@ workflows:
         working_directory: storyjob
         script: |
           set -e
+          # Swift Package Manager Cache bereinigen, um Git-Fehler zu verhindern[cite: 12]
+          rm -rf ~/Library/Caches/org.swift.swiftpm
+          rm -rf ~/Library/Developer/Xcode/DerivedData
+          
           flutter clean
           flutter pub get
           LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "6833954712" || echo 0)
@@ -118,6 +122,10 @@ workflows:
         working_directory: storydna
         script: |
           set -e
+          # Swift Package Manager Cache bereinigen
+          rm -rf ~/Library/Caches/org.swift.swiftpm
+          rm -rf ~/Library/Developer/Xcode/DerivedData
+          
           flutter clean
           flutter pub get
           LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "6833954712" || echo 0)
@@ -161,6 +169,10 @@ workflows:
         working_directory: storyteams
         script: |
           set -e
+          # Swift Package Manager Cache bereinigen
+          rm -rf ~/Library/Caches/org.swift.swiftpm
+          rm -rf ~/Library/Developer/Xcode/DerivedData
+          
           flutter clean
           flutter pub get
           flutter build ipa --release \
