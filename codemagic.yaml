@@ -23,14 +23,21 @@ workflows:
         working_directory: storyjob
         script: |
           set -e
-          # Swift Package Manager Cache bereinigen, um Git-Fehler zu verhindern[cite: 12]
+          # Swift Package Manager Cache bereinigen, um Git-Fehler zu verhindern
           rm -rf ~/Library/Caches/org.swift.swiftpm
           rm -rf ~/Library/Developer/Xcode/DerivedData
           
           flutter clean
           flutter pub get
+          
+          # Robuste Build-Nummern-Ermittlung
           LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "6833954712" || echo 0)
           NEXT_BUILD=$((LATEST_BUILD + 1))
+          if [ "$FCI_BUILD_NUMBER" -ge "$NEXT_BUILD" ]; then
+            NEXT_BUILD=$FCI_BUILD_NUMBER
+          fi
+          echo "Using Build Number: $NEXT_BUILD"
+
           flutter build ipa --release \
             --build-name=1.0.2 \
             --build-number=$NEXT_BUILD \
@@ -122,14 +129,19 @@ workflows:
         working_directory: storydna
         script: |
           set -e
-          # Swift Package Manager Cache bereinigen
           rm -rf ~/Library/Caches/org.swift.swiftpm
           rm -rf ~/Library/Developer/Xcode/DerivedData
           
           flutter clean
           flutter pub get
+          
           LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "6833954712" || echo 0)
           NEXT_BUILD=$((LATEST_BUILD + 1))
+          if [ "$FCI_BUILD_NUMBER" -ge "$NEXT_BUILD" ]; then
+            NEXT_BUILD=$FCI_BUILD_NUMBER
+          fi
+          echo "Using Build Number: $NEXT_BUILD"
+
           flutter build ipa --release \
             --build-name=1.0.0 \
             --build-number=$NEXT_BUILD \
@@ -169,15 +181,22 @@ workflows:
         working_directory: storyteams
         script: |
           set -e
-          # Swift Package Manager Cache bereinigen
           rm -rf ~/Library/Caches/org.swift.swiftpm
           rm -rf ~/Library/Developer/Xcode/DerivedData
           
           flutter clean
           flutter pub get
+          
+          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "6833954712" || echo 0)
+          NEXT_BUILD=$((LATEST_BUILD + 1))
+          if [ "$FCI_BUILD_NUMBER" -ge "$NEXT_BUILD" ]; then
+            NEXT_BUILD=$FCI_BUILD_NUMBER
+          fi
+          echo "Using Build Number: $NEXT_BUILD"
+
           flutter build ipa --release \
             --build-name=1.0.0 \
-            --build-number=1 \
+            --build-number=$NEXT_BUILD \
             --export-options-plist=/Users/builder/export_options.plist
       - name: Verify generated Teams IPA
         working_directory: storyteams
