@@ -30,13 +30,12 @@ workflows:
           flutter clean
           flutter pub get
           
-          # Robuste Build-Nummern-Ermittlung
-          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "6833954712" || echo 0)
-          NEXT_BUILD=$((LATEST_BUILD + 1))
-          if [ "$FCI_BUILD_NUMBER" -ge "$NEXT_BUILD" ]; then
+          # Erzwinge eine Build-Nummer höher als 2 (nutzt Codemagic Build-Index oder mindestens 3)
+          NEXT_BUILD=3
+          if [ "$FCI_BUILD_NUMBER" -ge 3 ]; then
             NEXT_BUILD=$FCI_BUILD_NUMBER
           fi
-          echo "Using Build Number: $NEXT_BUILD"
+          echo "Using Forced/Safe Build Number: $NEXT_BUILD"
 
           flutter build ipa --release \
             --build-name=1.0.2 \
@@ -135,12 +134,11 @@ workflows:
           flutter clean
           flutter pub get
           
-          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "6833954712" || echo 0)
-          NEXT_BUILD=$((LATEST_BUILD + 1))
-          if [ "$FCI_BUILD_NUMBER" -ge "$NEXT_BUILD" ]; then
+          NEXT_BUILD=3
+          if [ "$FCI_BUILD_NUMBER" -ge 3 ]; then
             NEXT_BUILD=$FCI_BUILD_NUMBER
           fi
-          echo "Using Build Number: $NEXT_BUILD"
+          echo "Using Safe Build Number: $NEXT_BUILD"
 
           flutter build ipa --release \
             --build-name=1.0.0 \
@@ -187,12 +185,11 @@ workflows:
           flutter clean
           flutter pub get
           
-          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "6833954712" || echo 0)
-          NEXT_BUILD=$((LATEST_BUILD + 1))
-          if [ "$FCI_BUILD_NUMBER" -ge "$NEXT_BUILD" ]; then
+          NEXT_BUILD=3
+          if [ "$FCI_BUILD_NUMBER" -ge 3 ]; then
             NEXT_BUILD=$FCI_BUILD_NUMBER
           fi
-          echo "Using Build Number: $NEXT_BUILD"
+          echo "Using Safe Build Number: $NEXT_BUILD"
 
           flutter build ipa --release \
             --build-name=1.0.0 \
