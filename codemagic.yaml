@@ -12,40 +12,25 @@ workflows:
       flutter: stable
       xcode: latest
     scripts:
-      - name: Clean project and get dependencies
+      - name: Set up code signing & Info.plist
+        working_directory: storyjob
+        script: |
+          set -e
+          xcode-project use-profiles
+          /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" ios/Runner/Info.plist || \
+          /usr/libexec/PlistBuddy -c "Set :ITSAppUsesNonExemptEncryption false" ios/Runner/Info.plist
+      - name: Build and Sign iOS App (IPA)
         working_directory: storyjob
         script: |
           set -e
           flutter clean
           flutter pub get
-      - name: Build and Sign iOS App (IPA)
-        working_directory: storyjob
-        script: |
-          set -e
-          flutter build ipa --release --no-codesign --build-name=1.0.2 --build-number=13
-          cat <<EOF > ExportOptions.plist
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>method</key>
-              <string>app-store</string>
-              <key>teamID</key>
-              <string>L8CP87ZD83</string>
-              <key>signingStyle</key>
-              <string>manual</string>
-              <key>provisioningProfiles</key>
-              <dict>
-                  <key>de.storyjob.app</key>
-                  <string>StoryJob</string>
-              </dict>
-          </dict>
-          </plist>
-          EOF
-          xcodebuild -exportArchive \
-            -archivePath build/ios/archive/Runner.xcarchive \
-            -exportOptionsPlist ExportOptions.plist \
-            -exportPath build/ios/ipa
+          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "6833954712" || echo 0)
+          NEXT_BUILD=$((LATEST_BUILD + 1))
+          flutter build ipa --release \
+            --build-name=1.0.2 \
+            --build-number=$NEXT_BUILD \
+            --export-options-plist=/Users/builder/export_options.plist
       - name: Verify generated IPA
         working_directory: storyjob
         script: |
