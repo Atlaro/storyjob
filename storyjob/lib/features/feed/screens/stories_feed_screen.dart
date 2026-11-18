@@ -21,6 +21,7 @@ import 'package:storyjob/features/match/services/matching_service.dart';
 import 'package:storyjob/features/navigation/widgets/story_app_bar.dart';
 import 'package:storyjob/features/profile/screens/profile_detail_screen.dart';
 import 'package:storyjob/features/record/screens/story_recording_screen.dart';
+import 'package:storyjob/features/teams/screens/company_public_profile_screen.dart'; // NEU: Alpha-Tier Schaufenster
 
 class StoriesFeedScreen extends StatefulWidget {
   final String? userId;
@@ -170,8 +171,6 @@ class _StoriesFeedScreenState extends State<StoriesFeedScreen>
     _matchService.logInteraction(
       eventType: 'filter_selected',
       targetId: category,
-      
-      
       details: {'category': category},
     );
   }
@@ -868,8 +867,6 @@ class _StoryResonanceCardItemState extends State<StoryResonanceCardItem> {
       _matchService.logInteraction(
         eventType: eventType,
         targetId: widget.story.userId,
-        
-        
         details: {
           'storyId': widget.story.id,
           'category': widget.story.category,
@@ -923,8 +920,6 @@ class _StoryResonanceCardItemState extends State<StoryResonanceCardItem> {
       _matchService.logInteraction(
         eventType: 'resonance_spark_triggered',
         targetId: widget.story.userId,
-        
-        
         details: {
           'storyId': widget.story.id,
           'category': widget.story.category,
@@ -960,8 +955,6 @@ class _StoryResonanceCardItemState extends State<StoryResonanceCardItem> {
     _matchService.logInteraction(
       eventType: 'dialog_intent_triggered',
       targetId: widget.story.userId,
-      
-      
       details: {
         'storyId': widget.story.id,
         'category': widget.story.category,
@@ -978,6 +971,23 @@ class _StoryResonanceCardItemState extends State<StoryResonanceCardItem> {
 
     if (!mounted) return;
 
+    // Wenn es ein Unternehmensbeitrag ist, öffnen wir das Alpha-Tier-Schaufenster direkt!
+    if (widget.story.organizationName != null && widget.story.organizationName!.isNotEmpty) {
+      final currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
+      
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => CompanyPublicProfileScreen(
+            companyId: widget.story.userId, // Nutzt die ID als Firmen-ID oder verknüpfte ID
+            teamId: widget.story.id,
+            talentUid: currentUserId,
+          ),
+        ),
+      );
+      return;
+    }
+
+    // Standard-Ablauf für reguläre Profile
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ProfileDetailScreen(
@@ -1389,8 +1399,6 @@ class _DailyAudioSparkWidgetState extends State<DailyAudioSparkWidget> {
                 _matchService.logInteraction(
                   eventType: 'daily_spark_tapped',
                   targetId: 'daily_prompt_reflection',
-                  
-                  
                   details: {'hasAnswered': _hasAnsweredToday},
                 );
 

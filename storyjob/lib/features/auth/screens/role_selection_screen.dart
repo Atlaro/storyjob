@@ -35,11 +35,11 @@ class RoleSelectionScreen extends StatelessWidget {
           SafeArea(
             child: Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 460),
+                constraints: const BoxConstraints(maxWidth: 480),
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 24,
-                    vertical: 28,
+                    vertical: 16,
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -48,41 +48,41 @@ class RoleSelectionScreen extends StatelessWidget {
                       Center(
                         child: Image.asset(
                           'assets/images/splash/Branding.png',
-                          width: 230,
+                          width: 280, // Hier von 210 auf 280 vergrößert
                           fit: BoxFit.contain,
                         ),
                       ),
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 18),
 
                       const Text(
-                        'Wähle deinen Weg',
+                        'Nutze dein Potenzial!',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 30,
+                          fontSize: 28,
                           fontWeight: FontWeight.w900,
                           color: StoryJobTheme.textPrimary,
-                          letterSpacing: -0.8,
+                          letterSpacing: -0.6,
                         ),
                       ),
 
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 6),
 
                       const Text(
-                        'Entdecke dein Potenzial – als Talent oder gemeinsam im Team.',
+                        'Finde, was zu dir passt.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 13.5,
                           color: StoryJobTheme.textSecondary,
-                          height: 1.5,
+                          height: 1.4,
                         ),
                       ),
 
-                      const SizedBox(height: 34),
+                      const SizedBox(height: 24),
 
                       _RoleCard(
-                        title: 'StoryJob DNA',
-                        subtitle: 'Deine Geschichte, deine Werte und deine Chancen.',
+                        title: 'StoryJob™ DNA',
+                        subtitle: 'Zeig dein Potenzial. Entdecke, was dich ausmacht.',
                         assetPath: 'assets/images/Auth/DNA.png',
                         accentColor: StoryJobTheme.cyanAccent,
                         roleKey: 'talent',
@@ -91,8 +91,8 @@ class RoleSelectionScreen extends StatelessWidget {
                       const SizedBox(height: 16),
 
                       _RoleCard(
-                        title: 'StoryJob Teams',
-                        subtitle: 'Gemeinsame Werte, Projekte und Kultur entdecken.',
+                        title: 'StoryJob™ Teams',
+                        subtitle: 'Zeigt, was euch als Unternehmen ausmacht. Präsentiert Kultur, Werte und Benefits.',
                         assetPath: 'assets/images/Auth/Team.png',
                         accentColor: StoryJobTheme.primaryViolet,
                         roleKey: 'team',
@@ -156,12 +156,12 @@ class _RoleCard extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 60,
-                    height: 60,
-                    padding: const EdgeInsets.all(5),
+                    width: 72,
+                    height: 72,
+                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       color: accentColor.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(17),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: Image.asset(
                       assetPath,

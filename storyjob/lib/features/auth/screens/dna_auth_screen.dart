@@ -326,10 +326,12 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
                     children: [
                       Center(
                         child: Hero(
-                          tag: 'storyjob_splash_logo_text',
+                          tag: 'storyjob_role_logo',
                           child: Image.asset(
-                            'assets/images/splash/Branding.png',
-                            height: 75,
+                            _isTeam 
+                                ? 'assets/images/Auth/Team.png' 
+                                : 'assets/images/Auth/DNA.png',
+                            height: 72,
                             fit: BoxFit.contain,
                           ),
                         ),
@@ -652,7 +654,6 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
                       const SizedBox(height: 18),
                       Row(
                         children: [
-                          // Offizieller nativer Apple Button für 100% App-Store-Konformität
                           Expanded(
                             child: SizedBox(
                               height: 50,
@@ -665,7 +666,6 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          // Google Button mit echtem SVG-Logo
                           Expanded(
                             child: _buildCustomSocialButton(
                               text: 'Google',

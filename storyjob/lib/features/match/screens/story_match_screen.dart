@@ -1,8 +1,10 @@
 // lib/features/match/screens/story_match_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:storyjob/core/theme/storyjob_theme.dart';
 import 'package:storyjob/features/match/screens/match_screen.dart';
+import 'package:storyjob/features/teams/screens/company_public_profile_screen.dart';
 
 typedef MatchItem = Map<String, dynamic>;
 
@@ -34,6 +36,8 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
   final List<MatchItem> _initialMatches = [
     {
       'id': 'match_bright_minds',
+      'companyId': 'alpha_tech_01', // Verknüpft mit unserem Firestore Alpha-Tier Schaufenster
+      'teamId': 'team_bright_01',
       'team': 'Bright Minds Team',
       'role': 'Projekt- & Teamkoordination (m/w/d)',
       'location': 'München & Hybrid',
@@ -50,6 +54,8 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
     },
     {
       'id': 'match_innovatech',
+      'companyId': 'alpha_tech_01',
+      'teamId': 'team_innovatech_01',
       'team': 'Innovatech Gemeinschaft',
       'role': 'Initiativen- & Transformationsleitung',
       'location': 'Hamburg / Remote',
@@ -66,6 +72,8 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
     },
     {
       'id': 'match_future_systems',
+      'companyId': 'alpha_tech_01',
+      'teamId': 'team_future_01',
       'team': 'Future Systems Handwerk & Tech',
       'role': 'Macher für regenerative Systeme',
       'location': 'München',
@@ -100,9 +108,22 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
 
   void _openDetail(MatchItem match) {
     HapticFeedback.lightImpact();
+    
+    // Aktuelle User-ID des angemeldeten Talents abrufen
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    
+    // Dynamische IDs aus dem Match-Item holen (mit Fallbacks)
+    final String companyId = match['companyId'] as String? ?? 'alpha_tech_01';
+    final String teamId = match['teamId'] as String? ?? 'team_xyz_01';
+
+    // Direkt zum Alpha-Tier-Schaufenster navigieren
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => StoryMatchDetailScreen(matchData: match),
+        builder: (_) => CompanyPublicProfileScreen(
+          companyId: companyId,
+          teamId: teamId,
+          talentUid: currentUserId,
+        ),
       ),
     );
   }

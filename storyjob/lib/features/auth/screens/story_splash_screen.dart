@@ -151,7 +151,6 @@ class _StorySplashScreenState extends State<StorySplashScreen>
             ),
           ),
 
-          // Leichte Abdunklung an den Rändern für mehr Tiefe.
           const DecoratedBox(
             decoration: BoxDecoration(
               gradient: RadialGradient(
@@ -187,25 +186,7 @@ class _StorySplashScreenState extends State<StorySplashScreen>
                             position: _logoPosition,
                             child: Transform.scale(
                               scale: _logoScale.value * breathingScale,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: StoryJobTheme.cyanAccent
-                                          .withValues(alpha: 0.12 + pulse * 0.08),
-                                      blurRadius: 26 + pulse * 12,
-                                      spreadRadius: 2 + pulse * 3,
-                                    ),
-                                    BoxShadow(
-                                      color: StoryJobTheme.primaryViolet
-                                          .withValues(alpha: 0.10 + pulse * 0.07),
-                                      blurRadius: 34 + pulse * 12,
-                                      spreadRadius: 1 + pulse * 2,
-                                    ),
-                                  ],
-                                ),
-                                child: child,
-                              ),
+                              child: child,
                             ),
                           ),
                         );
@@ -256,20 +237,6 @@ class _StorySplashScreenState extends State<StorySplashScreen>
                             fontWeight: FontWeight.w600,
                             letterSpacing: 0.1,
                           ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 38),
-
-                    FadeTransition(
-                      opacity: _hookOpacity,
-                      child: SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 1.8,
-                          color: StoryJobTheme.cyanAccent.withValues(alpha: 0.75),
                         ),
                       ),
                     ),
