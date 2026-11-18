@@ -28,5 +28,11 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	
+	<!-- Hinzugefügte Berechtigungen für Story-Aufnahmen -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>StoryJob benötigt Zugriff auf das Mikrofon, damit du deine Voice-Stories direkt einsprechen kannst.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>StoryJob benötigt Zugriff auf die Kamera, damit du Video-Stories aufnehmen und deine Persönlichkeit zeigen kannst.</string>
 </dict>
 </plist>

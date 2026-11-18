@@ -23,9 +23,9 @@ class TalentNavigationScreen extends StatefulWidget {
 }
 
 class _TalentNavigationScreenState extends State<TalentNavigationScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   int _currentIndex = 0;
-  final int _matchBadgeCount = 3;
+  int _matchBadgeCount = 3; // <-- Hier geändert von final auf veränderbar, damit sich das Badge beim Drücken aktualisiert
   late final AnimationController _pulseController;
   late final Animation<double> _pulseAnimation;
   late final List<Widget> _pages;
@@ -33,6 +33,7 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     _pulseController = AnimationController(
       vsync: this,
@@ -62,7 +63,20 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (_currentIndex == 0 && !_pulseController.isAnimating) {
+        _pulseController.repeat(reverse: true);
+      }
+    } else {
+      _pulseController.stop();
+    }
+    super.didChangeAppLifecycleState(state);
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _pulseController.dispose();
     super.dispose();
   }
@@ -71,7 +85,18 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
     HapticFeedback.selectionClick();
     setState(() {
       _currentIndex = index;
+      
+      // Sobald der Nutzer unten auf den Match-Tab (Index 1) drückt, springt das Badge auf 0
+      if (index == 1) {
+        _matchBadgeCount = 0;
+      }
     });
+
+    if (index == 0) {
+      if (!_pulseController.isAnimating) _pulseController.repeat(reverse: true);
+    } else {
+      _pulseController.stop();
+    }
   }
 
   void _openStoryCreationHub() {
@@ -525,7 +550,7 @@ class _NotchedNavBorderPainter extends CustomPainter {
 }
 
 // ============================================================================
-// STORIES HOME TAB (Mit app_icon_dark.png + 24h Pulse-Status-Leiste)
+// STORIES HOME TAB
 // ============================================================================
 class _TalentStoriesTab extends StatelessWidget {
   final VoidCallback onOpenCreationHub;
@@ -543,17 +568,20 @@ class _TalentStoriesTab extends StatelessWidget {
         ? user.displayName!.split(' ').first
         : 'Mitglied';
 
+    final double screenHeight = MediaQuery.of(context).size.height;
+    final bool isSmallScreen = screenHeight < 700;
+    final double bottomPadding = isSmallScreen ? 130.0 : 110.0;
+
     return Scaffold(
       backgroundColor: StoryJobTheme.backgroundBase,
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 110),
+          padding: EdgeInsets.fromLTRB(20, 12, 20, bottomPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // TOP-LEISTE MIT OFFIZIELLEM APP-ICON (app_icon_dark.png)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -595,51 +623,55 @@ class _TalentStoriesTab extends StatelessWidget {
                       ),
                     ],
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const StoryDialogScreen(
-                            chatId: 'general_dialogs',
-                            targetName: 'Nachrichten',
-                            roleContext: 'Aktive Gespräche & Dialoge',
-                            matchScore: 'StoryJob',
-                          ),
-                        ),
-                      );
-                    },
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: StoryJobTheme.cardSurfaceElevated,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: StoryJobTheme.cardBorder),
-                          ),
-                          child: const Icon(
-                            Icons.notifications_none_rounded,
-                            color: StoryJobTheme.textPrimary,
-                            size: 20,
-                          ),
-                        ),
-                        Positioned(
-                          right: 2,
-                          top: 2,
-                          child: Container(
-                            width: 9,
-                            height: 9,
-                            decoration: const BoxDecoration(
-                              color: StoryJobTheme.cyanAccent,
-                              shape: BoxShape.circle,
+                  Semantics(
+                    label: 'Benachrichtigungen und aktive Gespräche öffnen',
+                    button: true,
+                    child: GestureDetector(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const StoryDialogScreen(
+                              chatId: 'general_dialogs',
+                              targetName: 'Nachrichten',
+                              roleContext: 'Aktive Gespräche & Dialoge',
+                              matchScore: 'StoryJob',
                             ),
                           ),
-                        ),
-                      ],
+                        );
+                      },
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: StoryJobTheme.cardSurfaceElevated,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: StoryJobTheme.cardBorder),
+                            ),
+                            child: const Icon(
+                              Icons.notifications_none_rounded,
+                              color: StoryJobTheme.textPrimary,
+                              size: 20,
+                            ),
+                          ),
+                          Positioned(
+                            right: 2,
+                            top: 2,
+                            child: Container(
+                              width: 9,
+                              height: 9,
+                              decoration: const BoxDecoration(
+                                color: StoryJobTheme.cyanAccent,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -647,7 +679,6 @@ class _TalentStoriesTab extends StatelessWidget {
 
               const SizedBox(height: 18),
 
-              // 24H PULSE STATUS-LEISTE (Talente & Team-Einblicke)
               StoryPulseStatusBar(
                 isteam: false,
                 currentUserName: firstName,
@@ -655,7 +686,6 @@ class _TalentStoriesTab extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              // Begrüßung
               Text(
                 'Guten Morgen,\n$firstName 👋',
                 textAlign: TextAlign.center,
@@ -683,26 +713,29 @@ class _TalentStoriesTab extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // Prominenter Haupt-Button
-              SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton.icon(
-                  onPressed: onOpenCreationHub,
-                  icon: const Icon(Icons.add_circle_outline_rounded, size: 22, color: Color(0xFF0A0B10)),
-                  label: const Text(
-                    'Neue Story aufnehmen',
-                    style: TextStyle(
-                      fontSize: 15.5,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF0A0B10),
+              Semantics(
+                label: 'Neue Story aufnehmen',
+                button: true,
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: ElevatedButton.icon(
+                    onPressed: onOpenCreationHub,
+                    icon: const Icon(Icons.add_circle_outline_rounded, size: 22, color: Color(0xFF0A0B10)),
+                    label: const Text(
+                      'Neue Story aufnehmen',
+                      style: TextStyle(
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF0A0B10),
+                      ),
                     ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: StoryJobTheme.cyanAccent,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(28),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: StoryJobTheme.cyanAccent,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(28),
+                      ),
                     ),
                   ),
                 ),
@@ -710,27 +743,29 @@ class _TalentStoriesTab extends StatelessWidget {
 
               const SizedBox(height: 30),
 
-              // Sektions-Überschrift
-              GestureDetector(
-                onTap: () => onNavigateToTab(1),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Text(
-                      'In deiner Wellenlänge',
-                      style: TextStyle(
-                        color: StoryJobTheme.textPrimary,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
+              Semantics(
+                label: 'In deiner Wellenlänge. Tippen zum Öffnen der Matches.',
+                button: true,
+                child: GestureDetector(
+                  onTap: () => onNavigateToTab(1),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Text(
+                        'In deiner Wellenlänge',
+                        style: TextStyle(
+                          color: StoryJobTheme.textPrimary,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ),
-                    Icon(Icons.chevron_right_rounded, color: StoryJobTheme.textSecondary),
-                  ],
+                      Icon(Icons.chevron_right_rounded, color: StoryJobTheme.textSecondary),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
 
-              // Karte 1: Matches
               GlassCard(
                 borderRadius: 20,
                 padding: const EdgeInsets.all(18),
@@ -756,15 +791,19 @@ class _TalentStoriesTab extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 14),
-                    OutlinedButton(
-                      onPressed: () => onNavigateToTab(1),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: StoryJobTheme.textPrimary,
-                        side: BorderSide(color: Colors.white.withValues(alpha: 0.25)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                    Semantics(
+                      label: 'Matches ansehen',
+                      button: true,
+                      child: OutlinedButton(
+                        onPressed: () => onNavigateToTab(1),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: StoryJobTheme.textPrimary,
+                          side: BorderSide(color: Colors.white.withValues(alpha: 0.25)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                        ),
+                        child: const Text('Matches ansehen', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                       ),
-                      child: const Text('Matches ansehen', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                     ),
                   ],
                 ),
@@ -772,7 +811,6 @@ class _TalentStoriesTab extends StatelessWidget {
 
               const SizedBox(height: 14),
 
-              // Karte 2: DNA & Daily Spark
               GlassCard(
                 borderRadius: 20,
                 borderGradient: StoryJobTheme.dnaCardBorder,
@@ -831,34 +869,42 @@ class _TalentStoriesTab extends StatelessWidget {
                           const SizedBox(height: 12),
                           Row(
                             children: [
-                              OutlinedButton(
-                                onPressed: () => onNavigateToTab(2),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: StoryJobTheme.textPrimary,
-                                  side: BorderSide(color: Colors.white.withValues(alpha: 0.25)),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              Semantics(
+                                label: 'DNA öffnen',
+                                button: true,
+                                child: OutlinedButton(
+                                  onPressed: () => onNavigateToTab(2),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: StoryJobTheme.textPrimary,
+                                    side: BorderSide(color: Colors.white.withValues(alpha: 0.25)),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  ),
+                                  child: const Text('DNA öffnen', style: TextStyle(fontSize: 12.5)),
                                 ),
-                                child: const Text('DNA öffnen', style: TextStyle(fontSize: 12.5)),
                               ),
                               const SizedBox(width: 8),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => const VoiceStoryRecorderScreen(),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: StoryJobTheme.primaryViolet,
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              Semantics(
+                                label: 'DNA Antwort einsprechen',
+                                button: true,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => const VoiceStoryRecorderScreen(),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: StoryJobTheme.primaryViolet,
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  ),
+                                  child: const Text('Einsprechen', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
                                 ),
-                                child: const Text('Einsprechen', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
                               ),
                             ],
                           ),

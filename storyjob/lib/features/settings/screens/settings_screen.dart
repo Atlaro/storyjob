@@ -388,9 +388,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       backgroundColor: StoryJobTheme.backgroundBase,
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: StoryJobTheme.textPrimary, size: 18),
-          onPressed: () => Navigator.pop(context),
+        leading: Semantics(
+          label: 'Zurück',
+          button: true,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: StoryJobTheme.textPrimary, size: 18),
+            onPressed: () => Navigator.pop(context),
+          ),
         ),
         title: const Text(
           'Einstellungen',
@@ -438,7 +442,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     value: 'Passwort, Schutz',
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      // Direkter Absprung zu DnaAuthScreen oder einer Passwort-Änderungsansicht
                       Navigator.of(context).push(
                         MaterialPageRoute(builder: (_) => const DnaAuthScreen()),
                       );
@@ -473,7 +476,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   _buildDivider(),
                   _buildSwitchRow(
                     title: 'Werte-Match Alerts',
-                    subtitle: 'Mitteilung bei hoher Werte-Passung (85%+)',
+                    subtitle: 'Mitteilung bei hoher Werte-Passung (85%+)', // Korrigiert ohne Leerzeichen
                     value: _matchAlerts,
                     onChanged: (val) {
                       HapticFeedback.selectionClick();

@@ -225,21 +225,25 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: StoryJobTheme.cardSurfaceElevated.withValues(alpha: 0.85),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: StoryJobTheme.cardBorder),
-                    ),
-                    child: IconButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () {
-                        HapticFeedback.lightImpact();
-                        Navigator.of(context).pop();
-                      },
-                      icon: const Icon(Icons.close_rounded, color: StoryJobTheme.textPrimary, size: 20),
+                  Semantics(
+                    label: 'Schließen',
+                    button: true,
+                    child: Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: StoryJobTheme.cardSurfaceElevated.withValues(alpha: 0.85),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: StoryJobTheme.cardBorder),
+                      ),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          Navigator.of(context).pop();
+                        },
+                        icon: const Icon(Icons.close_rounded, color: StoryJobTheme.textPrimary, size: 20),
+                      ),
                     ),
                   ),
 
@@ -291,21 +295,25 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
                   ),
 
                   // Kamera wechseln
-                  Container(
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: StoryJobTheme.cardSurfaceElevated.withValues(alpha: 0.85),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: StoryJobTheme.cardBorder),
-                    ),
-                    child: IconButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: _isRecording ? null : _switchCamera,
-                      icon: Icon(
-                        Icons.flip_camera_ios_rounded,
-                        color: _isRecording ? StoryJobTheme.textMuted : StoryJobTheme.textPrimary,
-                        size: 19,
+                  Semantics(
+                    label: 'Kamera umschalten',
+                    button: true,
+                    child: Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: StoryJobTheme.cardSurfaceElevated.withValues(alpha: 0.85),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: StoryJobTheme.cardBorder),
+                      ),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: _isRecording ? null : _switchCamera,
+                        icon: Icon(
+                          Icons.flip_camera_ios_rounded,
+                          color: _isRecording ? StoryJobTheme.textMuted : StoryJobTheme.textPrimary,
+                          size: 19,
+                        ),
                       ),
                     ),
                   ),
@@ -323,41 +331,45 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    GestureDetector(
-                      onTap: _toggleRecording,
-                      child: Container(
-                        width: 84,
-                        height: 84,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: StoryJobTheme.cardSurfaceElevated.withValues(alpha: 0.70),
-                          border: Border.all(
-                            color: _isRecording
-                                ? const Color(0xFFEF4444).withValues(alpha: 0.70)
-                                : StoryJobTheme.primaryViolet.withValues(alpha: 0.60),
-                            width: 2.0,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: (_isRecording
-                                      ? const Color(0xFFEF4444)
-                                      : StoryJobTheme.primaryViolet)
-                                  .withValues(alpha: 0.28),
-                              blurRadius: 18,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: _isRecording ? 30 : 64,
-                            height: _isRecording ? 30 : 64,
-                            decoration: BoxDecoration(
+                    Semantics(
+                      label: _isRecording ? 'Videoaufnahme stoppen' : 'Videoaufnahme starten',
+                      button: true,
+                      child: GestureDetector(
+                        onTap: _toggleRecording,
+                        child: Container(
+                          width: 84,
+                          height: 84,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: StoryJobTheme.cardSurfaceElevated.withValues(alpha: 0.70),
+                            border: Border.all(
                               color: _isRecording
-                                  ? const Color(0xFFEF4444)
-                                  : StoryJobTheme.primaryViolet,
-                              borderRadius: BorderRadius.circular(_isRecording ? 8 : 32),
+                                  ? const Color(0xFFEF4444).withValues(alpha: 0.70)
+                                  : StoryJobTheme.primaryViolet.withValues(alpha: 0.60),
+                              width: 2.0,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: (_isRecording
+                                        ? const Color(0xFFEF4444)
+                                        : StoryJobTheme.primaryViolet)
+                                    .withValues(alpha: 0.28),
+                                blurRadius: 18,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Center(
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              width: _isRecording ? 30 : 64,
+                              height: _isRecording ? 30 : 64,
+                              decoration: BoxDecoration(
+                                color: _isRecording
+                                    ? const Color(0xFFEF4444)
+                                    : StoryJobTheme.primaryViolet,
+                                borderRadius: BorderRadius.circular(_isRecording ? 8 : 32),
+                              ),
                             ),
                           ),
                         ),

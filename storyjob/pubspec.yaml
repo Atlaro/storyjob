@@ -82,10 +82,13 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  # Hier wurden die Unterordner explizit ergänzt, damit Flutter die Bilder findet:
   assets:
     - assets/branding/
     - assets/icons/
     - assets/images/
+    - assets/images/splash/
+    - assets/images/Auth/
     - assets/icons/refresh_icon.png
 
   fonts:

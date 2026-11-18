@@ -1,4 +1,5 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:storyjob/core/theme/storyjob_theme.dart';
@@ -17,23 +18,43 @@ class RoleSelectionScreen extends StatelessWidget {
           const Positioned(
             top: -60,
             right: -40,
-            child: GlowOrb(color: StoryJobTheme.cyanAccent, size: 260),
+            child: GlowOrb(
+              color: StoryJobTheme.cyanAccent,
+              size: 260,
+            ),
           ),
           const Positioned(
             bottom: -60,
             left: -40,
-            child: GlowOrb(color: StoryJobTheme.primaryViolet, size: 260),
+            child: GlowOrb(
+              color: StoryJobTheme.primaryViolet,
+              size: 260,
+            ),
           ),
+
           SafeArea(
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 460),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 28,
+                  ),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      Center(
+                        child: Image.asset(
+                          'assets/images/splash/Branding.png',
+                          width: 230,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+
+                      const SizedBox(height: 32),
+
                       const Text(
                         'Wähle deinen Weg',
                         textAlign: TextAlign.center,
@@ -44,34 +65,34 @@ class RoleSelectionScreen extends StatelessWidget {
                           letterSpacing: -0.8,
                         ),
                       ),
+
                       const SizedBox(height: 10),
+
                       const Text(
-                        'Bist du als Talent auf der Suche nach echten Chancen oder repräsentierst du ein Team / Unternehmen?',
+                        'Entdecke dein Potenzial – als Talent oder gemeinsam im Team.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 14,
                           color: StoryJobTheme.textSecondary,
-                          height: 1.4,
+                          height: 1.5,
                         ),
                       ),
-                      const SizedBox(height: 40),
-                      
-                      // Talent-Button Card
-                      _buildRoleCard(
-                        context,
-                        title: 'Talent / Member',
-                        subtitle: 'Deine StoryDNA, Werte & persönliche Chancen.',
+
+                      const SizedBox(height: 34),
+
+                      _RoleCard(
+                        title: 'StoryJob DNA',
+                        subtitle: 'Deine Geschichte, deine Werte und deine Chancen.',
                         assetPath: 'assets/images/Auth/DNA.png',
                         accentColor: StoryJobTheme.cyanAccent,
                         roleKey: 'talent',
                       ),
-                      const SizedBox(height: 20),
 
-                      // Team-Button Card
-                      _buildRoleCard(
-                        context,
-                        title: 'StoryTeam / Business',
-                        subtitle: 'Gemeinsame Werte, Projekte & Unternehmenskultur.',
+                      const SizedBox(height: 16),
+
+                      _RoleCard(
+                        title: 'StoryJob Teams',
+                        subtitle: 'Gemeinsame Werte, Projekte und Kultur entdecken.',
                         assetPath: 'assets/images/Auth/Team.png',
                         accentColor: StoryJobTheme.primaryViolet,
                         roleKey: 'team',
@@ -86,78 +107,104 @@ class RoleSelectionScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildRoleCard(
-    BuildContext context, {
-    required String title,
-    required String subtitle,
-    required String assetPath,
-    required Color accentColor,
-    required String roleKey,
-  }) {
-    return InkWell(
-      onTap: () {
-        HapticFeedback.mediumImpact();
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => DnaAuthScreen(selectedRole: roleKey),
-          ),
-        );
-      },
-      borderRadius: BorderRadius.circular(28),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-          child: Container(
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              color: StoryJobTheme.cardSurfaceElevated.withValues(alpha: 0.72),
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(
-                color: accentColor.withValues(alpha: 0.4),
-                width: 1.2,
-              ),
+class _RoleCard extends StatelessWidget {
+  const _RoleCard({
+    required this.title,
+    required this.subtitle,
+    required this.assetPath,
+    required this.accentColor,
+    required this.roleKey,
+  });
+
+  final String title;
+  final String subtitle;
+  final String assetPath;
+  final Color accentColor;
+  final String roleKey;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.mediumImpact();
+
+          Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => DnaAuthScreen(selectedRole: roleKey),
             ),
-            child: Row(
-              children: [
-                Image.asset(
-                  assetPath,
-                  width: 54,
-                  height: 54,
-                  fit: BoxFit.contain,
+          );
+        },
+        borderRadius: BorderRadius.circular(24),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: StoryJobTheme.cardSurfaceElevated.withValues(alpha: 0.72),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: accentColor.withValues(alpha: 0.38),
+                  width: 1,
                 ),
-                const SizedBox(width: 18),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          color: StoryJobTheme.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: const TextStyle(
-                          fontSize: 12.5,
-                          color: StoryJobTheme.textSecondary,
-                          height: 1.3,
-                        ),
-                      ),
-                    ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: accentColor.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(17),
+                    ),
+                    child: Image.asset(
+                      assetPath,
+                      fit: BoxFit.contain,
+                    ),
                   ),
-                ),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: accentColor,
-                  size: 18,
-                ),
-              ],
+
+                  const SizedBox(width: 16),
+
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: StoryJobTheme.textPrimary,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          subtitle,
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            color: StoryJobTheme.textSecondary,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(width: 10),
+
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: accentColor,
+                    size: 17,
+                  ),
+                ],
+              ),
             ),
           ),
         ),

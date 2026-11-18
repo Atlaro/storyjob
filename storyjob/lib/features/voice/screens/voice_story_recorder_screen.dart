@@ -1,5 +1,6 @@
 // lib/features/voice/screens/voice_story_recorder_screen.dart
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:storyjob/core/theme/storyjob_theme.dart';
@@ -32,6 +33,7 @@ class _VoiceStoryRecorderScreenState extends State<VoiceStoryRecorderScreen>
   late AnimationController _recordDurationController;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+  late AnimationController _waveAnimController; // Animation für aktive Aufnahme-Wellen
 
   bool _isPlayingReview = false;
   late AnimationController _playbackController;
@@ -58,6 +60,12 @@ class _VoiceStoryRecorderScreenState extends State<VoiceStoryRecorderScreen>
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOutSine),
     );
 
+    // Controller für die aktive Aufnahme-Wellen-Animation
+    _waveAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
     _playbackController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 30),
@@ -75,6 +83,7 @@ class _VoiceStoryRecorderScreenState extends State<VoiceStoryRecorderScreen>
     _countdownTimer?.cancel();
     _recordDurationController.dispose();
     _pulseController.dispose();
+    _waveAnimController.dispose();
     _playbackController.dispose();
     super.dispose();
   }
@@ -112,12 +121,14 @@ class _VoiceStoryRecorderScreenState extends State<VoiceStoryRecorderScreen>
       _currentState = VoiceRecordState.recording;
     });
     _pulseController.repeat(reverse: true);
+    _waveAnimController.repeat(reverse: true); // Wellen-Animation starten
     _recordDurationController.forward(from: 0.0);
   }
 
   void _stopRecording() {
     HapticFeedback.mediumImpact();
     _pulseController.stop();
+    _waveAnimController.stop();
     _pulseController.animateTo(0.0, duration: const Duration(milliseconds: 300));
 
     _playbackController.duration =
@@ -177,12 +188,16 @@ class _VoiceStoryRecorderScreenState extends State<VoiceStoryRecorderScreen>
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            Navigator.pop(context);
-          },
+        leading: Semantics(
+          label: 'Zurück',
+          button: true,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 20),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              Navigator.pop(context);
+            },
+          ),
         ),
         centerTitle: true,
         title: const Text(
@@ -232,14 +247,18 @@ class _VoiceStoryRecorderScreenState extends State<VoiceStoryRecorderScreen>
                               ),
                             ],
                           ),
-                          GestureDetector(
-                            onTap: (isRecording || isCountdown) ? null : _shuffleImpulse,
-                            child: Icon(
-                              Icons.sync_rounded,
-                              color: (isRecording || isCountdown)
-                                  ? Colors.transparent
-                                  : StoryJobTheme.textSecondary,
-                              size: 20,
+                          Semantics(
+                            label: 'Neuen Impuls laden',
+                            button: true,
+                            child: GestureDetector(
+                              onTap: (isRecording || isCountdown) ? null : _shuffleImpulse,
+                              child: Icon(
+                                Icons.sync_rounded,
+                                color: (isRecording || isCountdown)
+                                    ? Colors.transparent
+                                    : StoryJobTheme.textSecondary,
+                                size: 20,
+                              ),
                             ),
                           ),
                         ],
@@ -268,35 +287,27 @@ class _VoiceStoryRecorderScreenState extends State<VoiceStoryRecorderScreen>
             const Spacer(),
 
             // ===============================================================
-            // 2. SCHWEBENDE AUDIO-BUBBLE MIT WERTEN
+            // 2. SCHWEBENDE AUDIO-BUBBLE MIT SAUBER PLATZIERTEN TAGS
             // ===============================================================
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Stack(
-                alignment: Alignment.center,
-                clipBehavior: Clip.none,
+              child: Column(
                 children: [
-                  Positioned(
-                    top: -24,
-                    right: 28,
-                    child: _buildGlowTag('Offene Kultur', StoryJobTheme.cyanAccent),
+                  // Oben platzierter Tag mit ausreichend Abstand zur Bubble
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      _buildGlowTag('Offene Kultur', StoryJobTheme.cyanAccent),
+                    ],
                   ),
-                  Positioned(
-                    bottom: -24,
-                    left: 20,
-                    child: _buildGlowTag('Teamgeist', StoryJobTheme.pinkMagenta),
-                  ),
-                  Positioned(
-                    bottom: -24,
-                    right: 14,
-                    child: _buildGlowTag('Offenes Engagement', StoryJobTheme.amberEnergy),
-                  ),
+                  const SizedBox(height: 10),
 
+                  // Die zentrale Audio-Bubble
                   GlassCard(
                     borderRadius: 28,
                     borderGradient: StoryJobTheme.dnaCardBorder,
                     hasNeonGlow: true,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                     child: Row(
                       children: [
                         Container(
@@ -320,42 +331,62 @@ class _VoiceStoryRecorderScreenState extends State<VoiceStoryRecorderScreen>
                         ),
                         const SizedBox(width: 10),
 
-                        GestureDetector(
-                          onTap: isReview ? _togglePlayback : null,
-                          child: Container(
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white.withValues(alpha: 0.12),
-                            ),
-                            child: Icon(
-                              _isPlayingReview ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                              color: Colors.white,
-                              size: 20,
+                        Semantics(
+                          label: _isPlayingReview ? 'Wiedergabe pausieren' : 'Wiedergabe starten',
+                          button: true,
+                          child: GestureDetector(
+                            onTap: isReview ? _togglePlayback : null,
+                            child: Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white.withValues(alpha: 0.12),
+                              ),
+                              child: Icon(
+                                _isPlayingReview ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                                color: Colors.white,
+                                size: 20,
+                              ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 10),
 
+                        // ANIMIERTE WELLENFORM WÄHREND DER AUFNAHME
                         Expanded(
                           child: ShaderMask(
-                            shaderCallback: (bounds) => const LinearGradient(
-                              colors: [Color(0xFFFB923C), Color(0xFFC084FC), Color(0xFF38BDF8)],
+                            shaderCallback: (bounds) => LinearGradient(
+                              colors: isRecording
+                                  ? [const Color(0xFFEF4444), StoryJobTheme.pinkMagenta, StoryJobTheme.cyanAccent]
+                                  : [const Color(0xFFFB923C), const Color(0xFFC084FC), const Color(0xFF38BDF8)],
                             ).createShader(bounds),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: List.generate(24, (i) {
-                                final heights = [8, 14, 22, 16, 28, 20, 12, 24, 30, 18, 12, 22, 16, 24, 18, 12, 20, 14, 8, 16, 12, 18, 10, 6];
-                                return Container(
-                                  width: 2.5,
-                                  height: heights[i % heights.length].toDouble(),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
+                            child: AnimatedBuilder(
+                              animation: _waveAnimController,
+                              builder: (context, child) {
+                                return Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: List.generate(22, (i) {
+                                    final baseHeights = [8, 14, 22, 16, 28, 20, 12, 24, 30, 18, 12, 22, 16, 24, 18, 12, 20, 14, 8, 16, 12, 18];
+                                    double h = baseHeights[i % baseHeights.length].toDouble();
+                                    
+                                    // Wenn Aufnahme aktiv läuft -> Wellen dynamisch animieren!
+                                    if (isRecording) {
+                                      final waveFactor = math.sin((_waveAnimController.value * 2 * math.pi) + (i * 0.4));
+                                      h = (h + waveFactor * 8).clamp(6.0, 36.0);
+                                    }
+
+                                    return Container(
+                                      width: 2.5,
+                                      height: h,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
+                                    );
+                                  }),
                                 );
-                              }),
+                              },
                             ),
                           ),
                         ),
@@ -371,6 +402,16 @@ class _VoiceStoryRecorderScreenState extends State<VoiceStoryRecorderScreen>
                         ),
                       ],
                     ),
+                  ),
+                  const SizedBox(height: 10),
+
+                  // Unten platzierte Tags mit ausreichend Abstand
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildGlowTag('Teamgeist', StoryJobTheme.pinkMagenta),
+                      _buildGlowTag('Offenes Engagement', StoryJobTheme.amberEnergy),
+                    ],
                   ),
                 ],
               ),
@@ -408,17 +449,21 @@ class _VoiceStoryRecorderScreenState extends State<VoiceStoryRecorderScreen>
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       if (isReview)
-                        GestureDetector(
-                          onTap: _retake,
-                          child: Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: StoryJobTheme.cardSurface,
-                              border: Border.all(color: StoryJobTheme.cardBorder),
+                        Semantics(
+                          label: 'Aufnahme verwerfen und neu aufnehmen',
+                          button: true,
+                          child: GestureDetector(
+                            onTap: _retake,
+                            child: Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: StoryJobTheme.cardSurface,
+                                border: Border.all(color: StoryJobTheme.cardBorder),
+                              ),
+                              child: const Icon(Icons.delete_outline_rounded, color: StoryJobTheme.textSecondary, size: 20),
                             ),
-                            child: const Icon(Icons.delete_outline_rounded, color: StoryJobTheme.textSecondary, size: 20),
                           ),
                         )
                       else
@@ -432,41 +477,45 @@ class _VoiceStoryRecorderScreenState extends State<VoiceStoryRecorderScreen>
                         builder: (context, child) {
                           return Transform.scale(
                             scale: isRecording ? _pulseAnimation.value : 1.0,
-                            child: GestureDetector(
-                              onTap: () {
-                                if (_currentState == VoiceRecordState.idle) {
-                                  _startCountdown();
-                                } else if (isRecording) {
-                                  _stopRecording();
-                                } else if (isReview) {
-                                  _togglePlayback();
-                                }
-                              },
-                              child: Container(
-                                width: 62,
-                                height: 62,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: isRecording
-                                      ? const LinearGradient(colors: [Color(0xFFEF4444), Color(0xFFDC2626)])
-                                      : StoryJobTheme.brandGradient,
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.6),
-                                    width: 1.5,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: (isRecording ? const Color(0xFFEF4444) : StoryJobTheme.cyanAccent)
-                                          .withValues(alpha: 0.35),
-                                      blurRadius: 18,
-                                      offset: const Offset(0, 4),
+                            child: Semantics(
+                              label: isRecording ? 'Aufnahme stoppen' : 'Aufnahme starten',
+                              button: true,
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (_currentState == VoiceRecordState.idle) {
+                                    _startCountdown();
+                                  } else if (isRecording) {
+                                    _stopRecording();
+                                  } else if (isReview) {
+                                    _togglePlayback();
+                                  }
+                                },
+                                child: Container(
+                                  width: 62,
+                                  height: 62,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: isRecording
+                                        ? const LinearGradient(colors: [Color(0xFFEF4444), Color(0xFFDC2626)])
+                                        : StoryJobTheme.brandGradient,
+                                    border: Border.all(
+                                      color: Colors.white.withValues(alpha: 0.6),
+                                      width: 1.5,
                                     ),
-                                  ],
-                                ),
-                                child: Center(
-                                  child: AnimatedSwitcher(
-                                    duration: const Duration(milliseconds: 200),
-                                    child: _buildCenterIcon(),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: (isRecording ? const Color(0xFFEF4444) : StoryJobTheme.cyanAccent)
+                                            .withValues(alpha: 0.35),
+                                        blurRadius: 18,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Center(
+                                    child: AnimatedSwitcher(
+                                      duration: const Duration(milliseconds: 200),
+                                      child: _buildCenterIcon(),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -476,20 +525,24 @@ class _VoiceStoryRecorderScreenState extends State<VoiceStoryRecorderScreen>
                       ),
 
                       if (isReview)
-                        GestureDetector(
-                          onTap: () {
-                            HapticFeedback.heavyImpact();
-                            Navigator.pop(context);
-                          },
-                          child: Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: StoryJobTheme.mintSuccess.withValues(alpha: 0.2),
-                              border: Border.all(color: StoryJobTheme.mintSuccess),
+                        Semantics(
+                          label: 'Aufnahme bestätigen und speichern',
+                          button: true,
+                          child: GestureDetector(
+                            onTap: () {
+                              HapticFeedback.heavyImpact();
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: StoryJobTheme.mintSuccess.withValues(alpha: 0.2),
+                                border: Border.all(color: StoryJobTheme.mintSuccess),
+                              ),
+                              child: const Icon(Icons.check_rounded, color: StoryJobTheme.mintSuccess, size: 22),
                             ),
-                            child: const Icon(Icons.check_rounded, color: StoryJobTheme.mintSuccess, size: 22),
                           ),
                         )
                       else

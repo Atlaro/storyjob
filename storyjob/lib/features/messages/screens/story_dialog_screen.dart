@@ -331,15 +331,19 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
         children: [
           Row(
             children: [
-              IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: StoryJobTheme.textSecondary,
-                  size: 18,
+              Semantics(
+                label: 'Zurück',
+                button: true,
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  icon: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: StoryJobTheme.textSecondary,
+                    size: 18,
+                  ),
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
-                onPressed: () => Navigator.of(context).pop(),
               ),
               const SizedBox(width: 10),
 
@@ -450,15 +454,19 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
                 ),
               ),
 
-              IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                icon: const Icon(
-                  Icons.more_horiz_rounded,
-                  color: StoryJobTheme.textSecondary,
-                  size: 20,
+              Semantics(
+                label: 'Optionen',
+                button: true,
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  icon: const Icon(
+                    Icons.more_horiz_rounded,
+                    color: StoryJobTheme.textSecondary,
+                    size: 20,
+                  ),
+                  onPressed: () {},
                 ),
-                onPressed: () {},
               ),
             ],
           ),
@@ -687,20 +695,24 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
             ? Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  GestureDetector(
-                    onTap: () => _playAudio(message.audioUrl),
-                    child: Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: StoryJobTheme.cyanAccent.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        _currentlyPlayingAudioUrl == message.audioUrl
-                            ? Icons.pause_rounded
-                            : Icons.play_arrow_rounded,
-                        color: StoryJobTheme.cyanAccent,
-                        size: 20,
+                  Semantics(
+                    label: _currentlyPlayingAudioUrl == message.audioUrl ? 'Sprachnachricht pausieren' : 'Sprachnachricht abspielen',
+                    button: true,
+                    child: GestureDetector(
+                      onTap: () => _playAudio(message.audioUrl),
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: StoryJobTheme.cyanAccent.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          _currentlyPlayingAudioUrl == message.audioUrl
+                              ? Icons.pause_rounded
+                              : Icons.play_arrow_rounded,
+                          color: StoryJobTheme.cyanAccent,
+                          size: 20,
+                        ),
                       ),
                     ),
                   ),
@@ -757,26 +769,30 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
       ),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: _toggleVoiceRecording,
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _isRecording
-                    ? const Color(0xFFEF4444).withValues(alpha: 0.2)
-                    : StoryJobTheme.cardSurfaceElevated,
-                border: Border.all(
+          Semantics(
+            label: _isRecording ? 'Sprachaufnahme stoppen' : 'Sprachaufnahme starten',
+            button: true,
+            child: GestureDetector(
+              onTap: _toggleVoiceRecording,
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
                   color: _isRecording
-                      ? const Color(0xFFEF4444)
-                      : StoryJobTheme.cyanAccent.withValues(alpha: 0.35),
+                      ? const Color(0xFFEF4444).withValues(alpha: 0.2)
+                      : StoryJobTheme.cardSurfaceElevated,
+                  border: Border.all(
+                    color: _isRecording
+                        ? const Color(0xFFEF4444)
+                        : StoryJobTheme.cyanAccent.withValues(alpha: 0.35),
+                  ),
                 ),
-              ),
-              child: Icon(
-                _isRecording ? Icons.stop_rounded : Icons.mic_none_rounded,
-                color: _isRecording ? const Color(0xFFEF4444) : StoryJobTheme.cyanAccent,
-                size: 20,
+                child: Icon(
+                  _isRecording ? Icons.stop_rounded : Icons.mic_none_rounded,
+                  color: _isRecording ? const Color(0xFFEF4444) : StoryJobTheme.cyanAccent,
+                  size: 20,
+                ),
               ),
             ),
           ),
@@ -848,11 +864,15 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
                             onSubmitted: (_) => _sendTextMessage(),
                           ),
                         ),
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                          icon: const Icon(Icons.arrow_upward_rounded, color: StoryJobTheme.cyanAccent, size: 20),
-                          onPressed: () => _sendTextMessage(),
+                        Semantics(
+                          label: 'Nachricht senden',
+                          button: true,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            icon: const Icon(Icons.arrow_upward_rounded, color: StoryJobTheme.cyanAccent, size: 20),
+                            onPressed: () => _sendTextMessage(),
+                          ),
                         ),
                       ],
                     ),

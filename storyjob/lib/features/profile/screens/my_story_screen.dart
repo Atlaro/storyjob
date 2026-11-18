@@ -64,12 +64,13 @@ class _MyStoryScreenState extends State<MyStoryScreen> {
     return Scaffold(
       backgroundColor: StoryJobTheme.backgroundBase,
       body: SafeArea(
-        child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+        child: StreamBuilder<DocumentSnapshot>(
           stream: uid != null
               ? FirebaseFirestore.instance.collection('users').doc(uid).snapshots()
               : null,
           builder: (context, snapshot) {
-            final data = snapshot.data?.data() ?? {};
+            final Map<String, dynamic> data =
+    (snapshot.data?.data() as Map<String, dynamic>?) ?? {};
 
             final name = data['displayName'] ?? data['name'] ?? _currentUser?.displayName ?? 'Alex Mustermann';
             final handle = data['handle'] ?? '@peteralt';
@@ -127,26 +128,30 @@ class _MyStoryScreenState extends State<MyStoryScreen> {
                           ],
                         ),
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          HapticFeedback.selectionClick();
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(9),
-                          decoration: BoxDecoration(
-                            color: StoryJobTheme.cardSurfaceElevated,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: StoryJobTheme.cardBorder,
+                      Semantics(
+                        label: 'Einstellungen öffnen',
+                        button: true,
+                        child: GestureDetector(
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(9),
+                            decoration: BoxDecoration(
+                              color: StoryJobTheme.cardSurfaceElevated,
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: StoryJobTheme.cardBorder,
+                              ),
                             ),
-                          ),
-                          child: const Icon(
-                            Icons.settings_outlined,
-                            color: StoryJobTheme.textSecondary,
-                            size: 19,
+                            child: const Icon(
+                              Icons.settings_outlined,
+                              color: StoryJobTheme.textSecondary,
+                              size: 19,
+                            ),
                           ),
                         ),
                       ),
@@ -155,7 +160,7 @@ class _MyStoryScreenState extends State<MyStoryScreen> {
                 ),
 
                 // =============================================================
-                // 2. TITELBEREICH (Exakt wie auf dem Mockup)
+                // 2. TITELBEREICH
                 // =============================================================
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 12.0),
@@ -269,18 +274,22 @@ class _MyStoryScreenState extends State<MyStoryScreen> {
                                       ],
                                     ),
                                   ),
-                                  IconButton(
-                                    icon: const Icon(
-                                      Icons.edit_outlined,
-                                      color: StoryJobTheme.textSecondary,
-                                      size: 20,
+                                  Semantics(
+                                    label: 'Persönliche Daten und Profil bearbeiten',
+                                    button: true,
+                                    child: IconButton(
+                                      icon: const Icon(
+                                        Icons.edit_outlined,
+                                        color: StoryJobTheme.textSecondary,
+                                        size: 20,
+                                      ),
+                                      onPressed: () {
+                                        HapticFeedback.selectionClick();
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (_) => const PersonalDataScreen()),
+                                        );
+                                      },
                                     ),
-                                    onPressed: () {
-                                      HapticFeedback.selectionClick();
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (_) => const PersonalDataScreen()),
-                                      );
-                                    },
                                   ),
                                 ],
                               ),
@@ -372,7 +381,6 @@ class _MyStoryScreenState extends State<MyStoryScreen> {
                                 ],
                               ),
                               const SizedBox(height: 18),
-                              // Erste Wellenlinie (Violett / Pink)
                               _buildNeonWaveform(
                                 colors: [
                                   StoryJobTheme.primaryViolet,
@@ -381,7 +389,6 @@ class _MyStoryScreenState extends State<MyStoryScreen> {
                                 heights: [6, 12, 18, 28, 38, 26, 16, 12, 10, 16, 24, 12],
                               ),
                               const SizedBox(height: 12),
-                              // Zweite Wellenlinie (Pink / Cyan)
                               _buildNeonWaveform(
                                 colors: [
                                   StoryJobTheme.pinkMagenta,
@@ -395,7 +402,7 @@ class _MyStoryScreenState extends State<MyStoryScreen> {
 
                         const SizedBox(height: 16),
 
-                        // FIT-INDIKATOREN (Team-Fit & Werte-Match)
+                        // FIT-INDIKATOREN
                         GlassCard(
                           borderRadius: 22,
                           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
@@ -481,7 +488,7 @@ class _MyStoryScreenState extends State<MyStoryScreen> {
                           ),
                         ),
 
-                        // ENGAGEMENT & GEMEINSCHAFTEN (Falls vorhanden)
+                        // GEMEINSCHAFTEN & PRAXIS
                         if (communities.isNotEmpty) ...[
                           const SizedBox(height: 16),
                           GlassCard(
@@ -595,27 +602,31 @@ class _MyStoryScreenState extends State<MyStoryScreen> {
 
                         const SizedBox(height: 20),
 
-                        // ACTION BUTTON (Aufnahme starten)
-                        SizedBox(
-                          height: 50,
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              HapticFeedback.mediumImpact();
-                              Navigator.of(context).push(
-                                MaterialPageRoute(builder: (_) => const StoryRecordingScreen()),
-                              );
-                            },
-                            icon: const Icon(Icons.mic_rounded, size: 20),
-                            label: const Text(
-                              'Neue Audio-Story aufnehmen ✨',
-                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: StoryJobTheme.primaryViolet,
-                              foregroundColor: Colors.white,
-                              elevation: 0,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25),
+                        // ACTION BUTTON
+                        Semantics(
+                          label: 'Neue Audio-Story aufnehmen',
+                          button: true,
+                          child: SizedBox(
+                            height: 50,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                HapticFeedback.mediumImpact();
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => const StoryRecordingScreen()),
+                                );
+                              },
+                              icon: const Icon(Icons.mic_rounded, size: 20),
+                              label: const Text(
+                                'Neue Audio-Story aufnehmen ✨',
+                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: StoryJobTheme.primaryViolet,
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
                               ),
                             ),
                           ),
@@ -631,10 +642,6 @@ class _MyStoryScreenState extends State<MyStoryScreen> {
       ),
     );
   }
-
-  // ===========================================================================
-  // HILFS-WIDGETS
-  // ===========================================================================
 
   static Widget _buildFitIndicator({
     required String title,

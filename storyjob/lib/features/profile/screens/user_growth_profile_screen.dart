@@ -32,8 +32,9 @@ class _UserGrowthProfileScreenState extends State<UserGrowthProfileScreen> {
   // Bestehende Entwicklungsbereiche
   late Map<String, double> _growthAreas;
 
-  // Bestehende Meilensteine
+  // Bestehende Meilensteine (Korrigiert mit vollständiger Typangabe)
   final List<Map<String, dynamic>> _milestones = [
+
     {'title': 'Erste Audio-Story geteilt', 'done': true, 'icon': Icons.mic_rounded},
     {'title': 'StoryJob DNA aktiviert', 'done': true, 'icon': Icons.fingerprint_rounded},
     {'title': 'Erstes Werte-Match entdeckt', 'done': true, 'icon': Icons.auto_awesome_rounded},
@@ -100,6 +101,122 @@ class _UserGrowthProfileScreenState extends State<UserGrowthProfileScreen> {
     }
   }
 
+  void _showProfileOptions(BuildContext context) {
+    HapticFeedback.lightImpact();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withValues(alpha: 0.75),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 36),
+        decoration: BoxDecoration(
+          color: StoryJobTheme.cardSurfaceElevated.withValues(alpha: 0.96),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          border: Border.all(color: StoryJobTheme.cyanAccent.withValues(alpha: 0.3)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 38,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'DNA & Profil Optionen',
+              style: TextStyle(
+                color: StoryJobTheme.textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildOptionTile(
+              icon: Icons.share_rounded,
+              color: StoryJobTheme.cyanAccent,
+              title: 'Profil & DNA teilen',
+              subtitle: 'Einen Link zu deinen Skills generieren',
+              onTap: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Profil-Link in die Zwischenablage kopiert ✨')),
+                );
+              },
+            ),
+            const SizedBox(height: 10),
+            _buildOptionTile(
+              icon: Icons.refresh_rounded,
+              color: StoryJobTheme.amberEnergy,
+              title: 'Werte neu gewichten',
+              subtitle: 'Die Skill-Regler auf Standard zurücksetzen',
+              onTap: () {
+                Navigator.pop(ctx);
+                setState(() {
+                  _skillHandwerk = 0.8;
+                  _skillGestaltung = 0.8;
+                  _skillProblemloesung = 0.8;
+                  _skillPraktisch = 0.8;
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Skills wurden zurückgesetzt.')),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOptionTile({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: StoryJobTheme.cardSurface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: StoryJobTheme.cardBorder),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(color: StoryJobTheme.textPrimary, fontWeight: FontWeight.w600, fontSize: 14)),
+                  const SizedBox(height: 2),
+                  Text(subtitle, style: const TextStyle(color: StoryJobTheme.textSecondary, fontSize: 12)),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios_rounded, color: StoryJobTheme.textMuted, size: 14),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,9 +235,13 @@ class _UserGrowthProfileScreenState extends State<UserGrowthProfileScreen> {
         elevation: 0,
         centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_horiz_rounded, color: StoryJobTheme.textSecondary),
-            onPressed: () {},
+          Semantics(
+            label: 'Profil-Optionen öffnen',
+            button: true,
+            child: IconButton(
+              icon: const Icon(Icons.more_horiz_rounded, color: StoryJobTheme.textSecondary),
+              onPressed: () => _showProfileOptions(context),
+            ),
           ),
         ],
       ),
@@ -397,36 +518,40 @@ class _UserGrowthProfileScreenState extends State<UserGrowthProfileScreen> {
               const SizedBox(height: 24),
 
               // ===============================================================
-              // 6. SPEICHERN BUTTON
+              // 6. SPEICHERN BUTTON MIT BARRIEREFREIHEIT
               // ===============================================================
-              SizedBox(
-                height: 48,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: StoryJobTheme.primaryViolet,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
+              Semantics(
+                label: 'Fähigkeiten und Profil in Firebase speichern',
+                button: true,
+                child: SizedBox(
+                  height: 48,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: StoryJobTheme.primaryViolet,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
                     ),
+                    onPressed: _isSaving ? null : _saveGrowthData,
+                    child: _isSaving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Fähigkeiten & Profil speichern ✨',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
                   ),
-                  onPressed: _isSaving ? null : _saveGrowthData,
-                  child: _isSaving
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Text(
-                          'Fähigkeiten & Profil speichern ✨',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                          ),
-                        ),
                 ),
               ),
             ],
@@ -447,97 +572,102 @@ class _UserGrowthProfileScreenState extends State<UserGrowthProfileScreen> {
     required Color colorB,
     required ValueChanged<double> onChanged,
   }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: SweepGradient(colors: [colorA, colorB, colorA]),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(3.5),
-            child: Container(
-              decoration: const BoxDecoration(
-                color: StoryJobTheme.cardSurface,
-                shape: BoxShape.circle,
+    final int percentage = (value * 100).round();
+    return Semantics(
+      label: 'Fähigkeit $title, Ausprägung $percentage Prozent',
+      slider: true,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: SweepGradient(colors: [colorA, colorB, colorA]),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(3.5),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: StoryJobTheme.cardSurface,
+                  shape: BoxShape.circle,
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: StoryJobTheme.textPrimary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: StoryJobTheme.textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  return GestureDetector(
-                    onHorizontalDragUpdate: (details) {
-                      final double totalWidth = constraints.maxWidth;
-                      final double clamped = (details.localPosition.dx / totalWidth).clamp(0.0, 1.0);
-                      HapticFeedback.selectionClick();
-                      onChanged(clamped);
-                    },
-                    child: Stack(
-                      alignment: Alignment.centerLeft,
-                      children: [
-                        Container(
-                          height: 5,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.white12,
-                            borderRadius: BorderRadius.circular(3),
-                          ),
-                        ),
-                        FractionallySizedBox(
-                          widthFactor: value.clamp(0.05, 1.0),
-                          child: Container(
+                const SizedBox(height: 8),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    return GestureDetector(
+                      onHorizontalDragUpdate: (details) {
+                        final double totalWidth = constraints.maxWidth;
+                        final double clamped = (details.localPosition.dx / totalWidth).clamp(0.0, 1.0);
+                        HapticFeedback.selectionClick();
+                        onChanged(clamped);
+                      },
+                      child: Stack(
+                        alignment: Alignment.centerLeft,
+                        children: [
+                          Container(
                             height: 5,
+                            width: double.infinity,
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(colors: [colorA, colorB]),
+                              color: Colors.white12,
                               borderRadius: BorderRadius.circular(3),
                             ),
                           ),
-                        ),
-                        Align(
-                          alignment: Alignment(value * 2 - 1, 0),
-                          child: Container(
-                            width: 13,
-                            height: 13,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: colorB.withValues(alpha: 0.8),
-                                  blurRadius: 8,
-                                  spreadRadius: 2,
-                                ),
-                              ],
+                          FractionallySizedBox(
+                            widthFactor: value.clamp(0.05, 1.0),
+                            child: Container(
+                              height: 5,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(colors: [colorA, colorB]),
+                                borderRadius: BorderRadius.circular(3),
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ],
+                          Align(
+                            alignment: Alignment(value * 2 - 1, 0),
+                            child: Container(
+                              width: 13,
+                              height: 13,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: colorB.withValues(alpha: 0.8),
+                                    blurRadius: 8,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

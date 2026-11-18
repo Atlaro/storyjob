@@ -1,8 +1,13 @@
+import 'dart:convert';
+import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:storyjob/core/theme/storyjob_theme.dart';
 import 'package:storyjob/core/widgets/glow_orb.dart';
@@ -68,7 +73,6 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
       }, SetOptions(merge: true));
     } else {
       await userRef.set({
-        'role': widget.selectedRole,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
     }
@@ -100,16 +104,17 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
 
     try {
       UserCredential credential;
+      final password = _passwordController.text; 
 
       if (_isLogin) {
         credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
+          password: password,
         );
       } else {
         credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
+          password: password,
         );
 
         final user = credential.user;
@@ -155,22 +160,77 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
     }
   }
 
+  String _createNonce([int length = 32]) {
+    const chars =
+        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
+
+    final random = Random.secure();
+
+    return List.generate(
+      length,
+      (_) => chars[random.nextInt(chars.length)],
+    ).join();
+  }
+
+  String _sha256OfString(String input) {
+    final bytes = utf8.encode(input);
+    return sha256.convert(bytes).toString();
+  }
+
   Future<void> _signInWithApple() async {
+    if (_isLoading) return;
+
     setState(() => _isLoading = true);
     HapticFeedback.mediumImpact();
+
     try {
-      final appleProvider = AppleAuthProvider()
-        ..addScope('email')
-        ..addScope('name');
+      final rawNonce = _createNonce();
 
-      final credential =
-          await FirebaseAuth.instance.signInWithProvider(appleProvider);
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: const [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        nonce: _sha256OfString(rawNonce),
+      );
 
-      if (credential.user != null) {
-        await _navigateByRole(credential.user!);
+      final idToken = appleCredential.identityToken;
+      if (idToken == null) {
+        throw FirebaseAuthException(
+          code: 'apple-missing-id-token',
+          message: 'Apple hat kein gültiges Anmelde-Token zurückgegeben.',
+        );
+      }
+
+      final oauthCredential = OAuthProvider('apple.com').credential(
+        idToken: idToken,
+        rawNonce: rawNonce,
+      );
+
+      final userCredential =
+          await FirebaseAuth.instance.signInWithCredential(oauthCredential);
+
+      final user = userCredential.user;
+      if (user == null) return;
+
+      final givenName = appleCredential.givenName?.trim() ?? '';
+      final familyName = appleCredential.familyName?.trim() ?? '';
+      final appleName = '$givenName $familyName'.trim();
+
+      if (appleName.isNotEmpty && (user.displayName?.trim().isEmpty ?? true)) {
+        await user.updateDisplayName(appleName);
+        await user.reload();
+      }
+
+      await _navigateByRole(FirebaseAuth.instance.currentUser ?? user);
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code != AuthorizationErrorCode.canceled) {
+        _showErrorSnackBar('Die Anmeldung mit Apple ist fehlgeschlagen.');
       }
     } on FirebaseAuthException catch (e) {
       _showErrorSnackBar(_mapFirebaseError(e.code, e.message));
+    } catch (_) {
+      _showErrorSnackBar('Die Anmeldung mit Apple ist fehlgeschlagen.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -592,20 +652,25 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
                       const SizedBox(height: 18),
                       Row(
                         children: [
+                          // Offizieller nativer Apple Button für 100% App-Store-Konformität
                           Expanded(
-                            child: _buildSocialButton(
-                              text: 'Apple',
-                              icon: Icons.apple_rounded,
-                              onTap: _isLoading ? () {} : _signInWithApple,
+                            child: SizedBox(
+                              height: 50,
+                              child: SignInWithAppleButton(
+                                text: 'Apple',
+                                onPressed: _isLoading ? () {} : _signInWithApple,
+                                style: SignInWithAppleButtonStyle.white,
+                                borderRadius: const BorderRadius.all(Radius.circular(16)),
+                              ),
                             ),
                           ),
                           const SizedBox(width: 12),
+                          // Google Button mit echtem SVG-Logo
                           Expanded(
-                            child: _buildSocialButton(
+                            child: _buildCustomSocialButton(
                               text: 'Google',
-                              icon: Icons.g_mobiledata_rounded,
+                              assetPath: 'assets/icons/google-color.svg',
                               onTap: _isLoading ? () {} : _signInWithGoogle,
-                              iconSize: 28,
                             ),
                           ),
                         ],
@@ -676,11 +741,10 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
     );
   }
 
-  Widget _buildSocialButton({
+  Widget _buildCustomSocialButton({
     required String text,
-    required IconData icon,
+    required String assetPath,
     required VoidCallback onTap,
-    double iconSize = 22,
   }) {
     return InkWell(
       onTap: onTap,
@@ -695,8 +759,15 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: StoryJobTheme.textPrimary, size: iconSize),
-            const SizedBox(width: 8),
+            SizedBox(
+              width: 22,
+              height: 22,
+              child: SvgPicture.asset(
+                assetPath,
+                fit: BoxFit.contain,
+              ),
+            ),
+            const SizedBox(width: 10),
             Text(
               text,
               style: const TextStyle(
