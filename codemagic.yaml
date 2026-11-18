@@ -12,19 +12,47 @@ workflows:
       flutter: stable
       xcode: latest
     scripts:
-      - name: Clean project and get dependencies
+      - name: Set up code signing & Info.plist
         working_directory: storyjob
         script: |
           set -e
-          flutter clean
-          flutter pub get
+          xcode-project use-profiles
+          /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" ios/Runner/Info.plist || \
+          /usr/libexec/PlistBuddy -c "Set :ITSAppUsesNonExemptEncryption false" ios/Runner/Info.plist
       - name: Build and Sign iOS App (IPA)
         working_directory: storyjob
         script: |
           set -e
-          # Feste, sichere Build-Nummer, um Konflikte zu vermeiden
-          NEXT_BUILD=50
-          echo "Using forced build number: $NEXT_BUILD"
+          # Caches bereinigen, um Build-Fehler zu vermeiden
+          rm -rf ~/Library/Caches/org.swift.swiftpm
+          rm -rf ~/Library/Developer/Xcode/DerivedData
+          
+          flutter clean
+          flutter pub get
+          
+          NEXT_BUILD=55
+          echo "Using Forced/Safe Build Number: $NEXT_BUILD"
+
+          # ExportOptions.plist direkt vor dem Build dynamisch erstellen
+          cat <<EOF > ExportOptions.plist
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store</string>
+              <key>teamID</key>
+              <string>L8CP87ZD83</string>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>de.storyjob.app</key>
+                  <string>StoryJob</string>
+              </dict>
+          </dict>
+          </plist>
+          EOF
 
           flutter build ipa --release \
             --build-name=1.0.2 \
