@@ -22,10 +22,9 @@ workflows:
         working_directory: storyjob
         script: |
           set -e
-          # Holt automatisch die letzte TestFlight-Build-Nummer und zählt 1 hoch (Fallback auf 20, falls Abfrage leer)
-          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "6833954712" || echo 20)
-          NEXT_BUILD=$((LATEST_BUILD + 1))
-          echo "Using next build number: $NEXT_BUILD"
+          # Feste, sichere Build-Nummer, um Konflikte zu vermeiden
+          NEXT_BUILD=50
+          echo "Using forced build number: $NEXT_BUILD"
 
           flutter build ipa --release \
             --build-name=1.0.2 \
