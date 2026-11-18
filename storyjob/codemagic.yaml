@@ -22,7 +22,7 @@ workflows:
         working_directory: storyjob
         script: |
           set -e
-          flutter build ipa --release --no-codesign --build-name=1.0.2 --build-number=13
+          flutter build ipa --release --no-codesign --build-name=1.0.2 --build-number=20
           cat <<EOF > ExportOptions.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
