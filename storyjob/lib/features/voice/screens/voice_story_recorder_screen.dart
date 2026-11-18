@@ -1,7 +1,5 @@
 // lib/features/voice/screens/voice_story_recorder_screen.dart
 import 'dart:async';
-import 'dart:math' as math;
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:storyjob/core/theme/storyjob_theme.dart';
@@ -301,7 +299,6 @@ class _VoiceStoryRecorderScreenState extends State<VoiceStoryRecorderScreen>
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     child: Row(
                       children: [
-                        // Avatar-Ersatz statt fehlendem Asset
                         Container(
                           width: 46,
                           height: 46,

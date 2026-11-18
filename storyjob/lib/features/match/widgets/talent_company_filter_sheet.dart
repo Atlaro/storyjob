@@ -1,21 +1,21 @@
-// lib/features/match/widgets/talent_company_filter_sheet.dart
+// lib/features/match/widgets/talent_team_filter_sheet.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:storyjob/core/theme/storyjob_theme.dart';
 
-class TalentCompanyFilterSheet extends StatefulWidget {
+class TalentteamFilterSheet extends StatefulWidget {
   final Function(List<String> selectedBenefits) onApplyFilters;
 
-  const TalentCompanyFilterSheet({
+  const TalentteamFilterSheet({
     super.key,
     required this.onApplyFilters,
   });
 
   @override
-  State<TalentCompanyFilterSheet> createState() => _TalentCompanyFilterSheetState();
+  State<TalentteamFilterSheet> createState() => _TalentteamFilterSheetState();
 }
 
-class _TalentCompanyFilterSheetState extends State<TalentCompanyFilterSheet> {
+class _TalentteamFilterSheetState extends State<TalentteamFilterSheet> {
   final List<String> _availableBenefits = [
     'bKV (Gesundheitsvorsorge & Budget)',
     'bAV (Zukunft & Altersvorsorge)',

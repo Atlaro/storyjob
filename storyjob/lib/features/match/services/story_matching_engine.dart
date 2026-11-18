@@ -39,8 +39,8 @@ class StoryResonanceEngine {
     List<String>? targetValues,
     List<String>? targetInterests,
     List<String>? targetCommunities,
-    List<String>? companyValues,
-    List<String>? companyFocusAreas,
+    List<String>? teamValues,
+    List<String>? teamFocusAreas,
     List<String>? candidateSkills,
     List<String>? requiredSkills,
     bool hasActiveAudioStory = true,
@@ -51,12 +51,12 @@ class StoryResonanceEngine {
     final target = targetIdentity;
 
     final List<String> valList = targetValues ??
-        companyValues ??
+        teamValues ??
         target?.values ??
         [];
 
     final List<String> intList = targetInterests ??
-        companyFocusAreas ??
+        teamFocusAreas ??
         target?.interests ??
         [];
 
@@ -149,13 +149,13 @@ class StoryResonanceEngine {
     );
   }
 
-  /// Kompatibilitäts-Alias für Company-spezifische Aufrufe
-  static ResonanceResult calculateCompanyResonance({
+  /// Kompatibilitäts-Alias für team-spezifische Aufrufe
+  static ResonanceResult calculateteamResonance({
     StoryIdentity? userIdentity,
     StoryIdentity? sourceIdentity,
     StoryIdentity? targetIdentity,
-    List<String>? companyValues,
-    List<String>? companyFocusAreas,
+    List<String>? teamValues,
+    List<String>? teamFocusAreas,
     List<String>? targetValues,
     List<String>? targetInterests,
     List<String>? targetCommunities,
@@ -168,8 +168,8 @@ class StoryResonanceEngine {
       userIdentity: userIdentity,
       sourceIdentity: sourceIdentity,
       targetIdentity: targetIdentity,
-      targetValues: companyValues ?? targetValues,
-      targetInterests: companyFocusAreas ?? targetInterests,
+      targetValues: teamValues ?? targetValues,
+      targetInterests: teamFocusAreas ?? targetInterests,
       targetCommunities: targetCommunities,
       candidateSkills: candidateSkills,
       requiredSkills: requiredSkills,
@@ -180,4 +180,4 @@ class StoryResonanceEngine {
 }
 
 // Typ-Aliase für bestehende Importe
-typedef CompanyResonanceEngine = StoryResonanceEngine;
+typedef teamResonanceEngine = StoryResonanceEngine;

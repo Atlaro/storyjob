@@ -129,10 +129,10 @@ class NotificationService {
     };
   }
 
-  static Map<String, String> createMatchNotification({required String companyName}) {
+  static Map<String, String> createMatchNotification({required String teamName}) {
     return {
       'title': '🤝 Neuer Werte-Match',
-      'body': '$companyName passt zu deinen Werten. Eine neue Chance wartet auf dich.',
+      'body': '$teamName passt zu deinen Werten. Eine neue Chance wartet auf dich.',
     };
   }
 }

@@ -1,14 +1,7 @@
-// lib/features/auth/screens/story_splash_screen.dart
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:storyjob/core/theme/storyjob_theme.dart';
-import 'package:storyjob/core/widgets/glow_orb.dart'; // Nutzt deinen GlowOrb
-import 'package:storyjob/features/auth/screens/story_auth_screen.dart';
-import 'package:storyjob/features/recruiter/screens/recruiter_dashboard_screen.dart';
-import 'package:storyjob/features/talent/screens/talent_navigation_screen.dart';
+import 'package:storyjob/core/widgets/glow_orb.dart';
+import 'package:storyjob/features/auth/screens/role_selection_screen.dart';
 
 class StorySplashScreen extends StatefulWidget {
   const StorySplashScreen({super.key});
@@ -19,136 +12,76 @@ class StorySplashScreen extends StatefulWidget {
 
 class _StorySplashScreenState extends State<StorySplashScreen>
     with SingleTickerProviderStateMixin {
-  late AnimationController _animController;
-  late Animation<double> _fadeAnim;
-  late Animation<double> _scaleAnim;
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-
-    _animController = AnimationController(
+    _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1400),
+      duration: const Duration(seconds: 2),
     );
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
 
-    _fadeAnim = CurvedAnimation(
-      parent: _animController,
-      curve: Curves.easeOut,
-    );
+    _controller.forward();
 
-    _scaleAnim = Tween<double>(begin: 0.92, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animController,
-        curve: Curves.easeOutBack,
-      ),
-    );
-
-    _animController.forward();
-    _handleRouting();
+    // Nach 3 Sekunden automatisch zur Rollenauswahl weiterleiten
+    Future.delayed(const Duration(seconds: 3), () {
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
+      );
+    });
   }
 
   @override
   void dispose() {
-    _animController.dispose();
+    _controller.dispose();
     super.dispose();
-  }
-
-  Future<void> _handleRouting() async {
-    // Ruhige Verweildauer von 2.6 Sekunden für den perfekten visuellen Ersteindruck
-    await Future.delayed(const Duration(milliseconds: 2600));
-
-    if (!mounted) return;
-
-    final currentUser = FirebaseAuth.instance.currentUser;
-
-    if (currentUser == null) {
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 600),
-          pageBuilder: (_, __, ___) => const StoryAuthScreen(),
-          transitionsBuilder: (_, animation, __, child) =>
-              FadeTransition(opacity: animation, child: child),
-        ),
-      );
-      return;
-    }
-
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(currentUser.uid)
-          .get();
-
-      final role = doc.data()?['role'] as String? ?? 'talent';
-
-      if (!mounted) return;
-
-      Widget targetScreen = (role == 'recruiter' || role == 'company')
-          ? const RecruiterDashboardScreen()
-          : const TalentNavigationScreen();
-
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          transitionDuration: const Duration(milliseconds: 600),
-          pageBuilder: (_, __, ___) => targetScreen,
-          transitionsBuilder: (_, animation, __, child) =>
-              FadeTransition(opacity: animation, child: child),
-        ),
-      );
-    } catch (_) {
-      if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const StoryAuthScreen()),
-      );
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // True Black für perfekten OLED-Kontrast
+      backgroundColor: StoryJobTheme.backgroundBase,
       body: Stack(
         children: [
-          // Ambient Glow-Effekt mit deinem GlowOrb (ersetzt starre Container)
           const Positioned(
-            top: -40,
-            left: -40,
-            child: GlowOrb(
-              color: StoryJobTheme.primaryViolet,
-              size: 280,
-            ),
+            top: -100,
+            left: -100,
+            child: GlowOrb(color: StoryJobTheme.cyanAccent, size: 320),
           ),
           const Positioned(
-            bottom: -40,
-            right: -40,
-            child: GlowOrb(
-              color: StoryJobTheme.cyanAccent,
-              size: 260,
-            ),
+            bottom: -100,
+            right: -100,
+            child: GlowOrb(color: StoryJobTheme.primaryViolet, size: 320),
           ),
-
-          // Logo / Banner im Zentrum mit butterweicher Animation
           Center(
             child: FadeTransition(
-              opacity: _fadeAnim,
-              child: ScaleTransition(
-                scale: _scaleAnim,
-                child: Image.asset(
-                  'assets/images/storyjob_banner.jpg',
-                  width: 280,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => Image.asset(
-                    'assets/images/storyjob_banner.png',
-                    width: 280,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) => Image.asset(
-                      'assets/images/branding_onboarding.png',
-                      width: 280,
+              opacity: _fadeAnimation,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Hero(
+                    tag: 'storyjob_splash_logo_text',
+                    child: Image.asset(
+                      'assets/images/splash/Branding.png',
+                      width: 260,
                       fit: BoxFit.contain,
                     ),
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Human Opportunity Network',
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      color: StoryJobTheme.textSecondary,
+                      letterSpacing: 1.5,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

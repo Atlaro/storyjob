@@ -92,14 +92,14 @@ class MatchingService {
 
   /// Abwärtskompatibilitäts-Methode für bestehende Aufrufe
   Future<bool> registerTalentInterest({
-    required String targetCompanyId,
+    required String targetteamId,
     required String jobStoryId,
     required String matchScore,
     List<String> sharedValues = const [],
     String resonanceReason = 'Gemeinsame Werte und Haltung.',
   }) async {
     return registerResonanceInterest(
-      targetEntityId: targetCompanyId,
+      targetEntityId: targetteamId,
       storyId: jobStoryId,
       resonanceLevel: matchScore,
       sharedValues: sharedValues,

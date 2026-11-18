@@ -86,7 +86,6 @@ flutter:
     - assets/branding/
     - assets/icons/
     - assets/images/
-    - assets/onboarding/
     - assets/icons/refresh_icon.png
 
   fonts:

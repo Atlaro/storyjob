@@ -18,7 +18,7 @@ class StoryDialogScreen extends StatefulWidget {
   final String chatId;
   final String? targetName;
   final String? partnerName;
-  final String? companyName;
+  final String? teamName;
   final String roleContext;
   final String? roleTitle;
   final String matchScore;
@@ -31,7 +31,7 @@ class StoryDialogScreen extends StatefulWidget {
     required this.chatId,
     this.targetName,
     this.partnerName,
-    this.companyName,
+    this.teamName,
     this.roleContext = '',
     this.roleTitle,
     this.matchScore = '94% Team-Fit ✨',
@@ -40,7 +40,7 @@ class StoryDialogScreen extends StatefulWidget {
     this.isProfileUnlocked = true,
   });
 
-  String get effectiveName => targetName ?? partnerName ?? companyName ?? 'Partner';
+  String get effectiveName => targetName ?? partnerName ?? teamName ?? 'Partner';
   String get effectiveRole => roleTitle ?? (roleContext.isNotEmpty ? roleContext : 'Chance auf Augenhöhe');
 
   @override

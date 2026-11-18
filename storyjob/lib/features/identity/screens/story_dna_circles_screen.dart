@@ -14,12 +14,12 @@ import 'package:storyjob/features/record/screens/story_recording_screen.dart';
 
 class StoryDnaCirclesScreen extends StatefulWidget {
   final VoidCallback? onOpenMatches;
-  final bool isRecruiter;
+  final bool isteam;
 
   const StoryDnaCirclesScreen({
     super.key,
     this.onOpenMatches,
-    this.isRecruiter = false,
+    this.isteam = false,
   });
 
   @override
@@ -35,8 +35,8 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
   late StoryIdentity _identity;
 
   late final AnimationController _pulseController;
-  late final Animation<double> _pulseScale;
   late final AnimationController _radarController;
+  late final Animation<double> _pulseScale;
 
   final StoryIdentity _fallbackIdentity = const StoryIdentity(
     interests: ['Ehrenamt & Hilfsorganisation', 'Handwerk & Bauen', 'Coding & Systeme'],
@@ -285,7 +285,7 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
                   onPressed: () {
                     final text = controller.text.trim();
                     if (text.isNotEmpty) {
-                      _toggleTagInList(_identity.values, text, (vals) {
+                      _toggleTagInList(_identity.values, text, (List<String> vals) {
                         setState(() => _identity = _identity.copyWith(values: vals));
                       });
                       Navigator.pop(ctx);
@@ -316,12 +316,11 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
 
     final completeness = _identity.completenessPercent;
 
-    // Rollen-Texte
-    final radarTitle = widget.isRecruiter ? 'Kultur-Radar' : 'Werte-Radar';
-    final chip1 = widget.isRecruiter ? 'Präzision' : 'Verlässlichkeit';
-    final chip2 = widget.isRecruiter ? 'Hands-on' : 'Teamgeist';
-    final toggleLabelLeft = widget.isRecruiter ? 'Team-Stories' : 'Audio-Stories';
-    final toggleLabelRight = widget.isRecruiter ? 'Talent-Passung' : 'DNA-Entfaltung';
+    final radarTitle = widget.isteam ? 'Kultur-Radar' : 'Werte-Radar';
+    final chip1 = widget.isteam ? 'Präzision' : 'Verlässlichkeit';
+    final chip2 = widget.isteam ? 'Hands-on' : 'Teamgeist';
+    final toggleLabelLeft = widget.isteam ? 'Team-Stories' : 'Audio-Stories';
+    final toggleLabelRight = widget.isteam ? 'Talent-Passung' : 'DNA-Entfaltung';
 
     return Scaffold(
       backgroundColor: StoryJobTheme.backgroundBase,
@@ -330,7 +329,6 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.fromLTRB(18.0, 14.0, 18.0, 110.0),
           children: [
-            // 1. Header mit StoryJob DNA Badge & Teilen
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -399,9 +397,6 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
             ),
             const SizedBox(height: 18),
 
-            // ===============================================================
-            // 2. RADAR-HERO AUS DEM STORE-MOCKUP
-            // ===============================================================
             Center(
               child: SizedBox(
                 width: 310,
@@ -409,7 +404,6 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    // Subtiler Glow im Hintergrund
                     Container(
                       width: 260,
                       height: 260,
@@ -430,7 +424,6 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
                       ),
                     ),
 
-                    // Konzentrische animierte Ringe
                     AnimatedBuilder(
                       animation: _radarController,
                       builder: (context, child) {
@@ -443,21 +436,18 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
                       },
                     ),
 
-                    // Floating Chip 1
                     Positioned(
                       top: 130,
                       right: 30,
                       child: _buildRadarTag(chip1, StoryJobTheme.cyanAccent),
                     ),
 
-                    // Floating Chip 2
                     Positioned(
                       bottom: 90,
                       left: 24,
                       child: _buildRadarTag(chip2, StoryJobTheme.pinkMagenta),
                     ),
 
-                    // Floating Frequenz-Box
                     Positioned(
                       bottom: 55,
                       right: 40,
@@ -496,9 +486,6 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
             ),
             const SizedBox(height: 12),
 
-            // ===============================================================
-            // 3. AUDIO-PROFIL LEISTE MIT SOUNDWELLE
-            // ===============================================================
             GlassCard(
               borderRadius: 22,
               borderGradient: StoryJobTheme.dnaCardBorder,
@@ -510,7 +497,7 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        widget.isRecruiter ? 'Team-Impuls' : 'Audio-Profile',
+                        widget.isteam ? 'Team-Impuls' : 'Audio-Profile',
                         style: const TextStyle(
                           color: StoryJobTheme.textPrimary,
                           fontSize: 13,
@@ -533,7 +520,6 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
                   ),
                   const SizedBox(height: 10),
 
-                  // Soundwave
                   ShaderMask(
                     shaderCallback: (bounds) => StoryJobTheme.soundWaveGradient.createShader(bounds),
                     child: Row(
@@ -553,26 +539,33 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
                   ),
                   const SizedBox(height: 12),
 
-                  // Controls
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text('30 s', style: TextStyle(color: StoryJobTheme.textSecondary, fontSize: 11)),
                       GestureDetector(
                         onTap: _toggleAudioDna,
-                        child: Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: StoryJobTheme.cyanAccent.withValues(alpha: 0.16),
-                            border: Border.all(color: StoryJobTheme.cyanAccent.withValues(alpha: 0.5)),
-                          ),
-                          child: Icon(
-                            _isPlayingAudioDna ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                            color: StoryJobTheme.cyanAccent,
-                            size: 22,
-                          ),
+                        child: AnimatedBuilder(
+                          animation: _pulseScale,
+                          builder: (context, child) {
+                            return Transform.scale(
+                              scale: _isPlayingAudioDna ? _pulseScale.value : 1.0,
+                              child: Container(
+                                width: 38,
+                                height: 38,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: StoryJobTheme.cyanAccent.withValues(alpha: 0.16),
+                                  border: Border.all(color: StoryJobTheme.cyanAccent.withValues(alpha: 0.5)),
+                                ),
+                                child: Icon(
+                                  _isPlayingAudioDna ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                                  color: StoryJobTheme.cyanAccent,
+                                  size: 22,
+                                ),
+                              ),
+                            );
+                          }
                         ),
                       ),
                       const Text('30 s', style: TextStyle(color: StoryJobTheme.textSecondary, fontSize: 11)),
@@ -583,9 +576,6 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
             ),
             const SizedBox(height: 16),
 
-            // ===============================================================
-            // 4. UMSCHALTER UNTEN (Stories <-> DNA-Entfaltung)
-            // ===============================================================
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -606,7 +596,7 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
                 const SizedBox(width: 12),
                 Switch.adaptive(
                   value: _showDnaDetails,
-                  activeColor: StoryJobTheme.pinkMagenta,
+                  activeThumbColor: StoryJobTheme.pinkMagenta,
                   activeTrackColor: StoryJobTheme.pinkMagenta.withValues(alpha: 0.35),
                   inactiveThumbColor: StoryJobTheme.cyanAccent,
                   inactiveTrackColor: StoryJobTheme.cyanAccent.withValues(alpha: 0.25),
@@ -628,9 +618,6 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
             ),
             const SizedBox(height: 20),
 
-            // ===============================================================
-            // 5. DETAIL-BEREICH (Einklappbar über den Switch)
-            // ===============================================================
             if (_showDnaDetails) ...[
               StoryLevelTrackerWidget(
                 dnaCompleteness: completeness,
@@ -640,7 +627,6 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
               ),
               const SizedBox(height: 18),
 
-              // Werte & menschliche Haltung
               _buildInteractivePillSection(
                 title: 'Werte & menschliche Haltung',
                 subtitle: 'Das Fundament: Wonach entscheidest und handelst du?',
@@ -663,7 +649,6 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
               ),
               const SizedBox(height: 18),
 
-              // Echte Leidenschaften & Machen
               _buildInteractivePillSection(
                 title: 'Echte Leidenschaften & Machen',
                 subtitle: 'Wo brennt dein Feuer abseits von Zertifikaten?',
@@ -685,7 +670,6 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
               ),
               const SizedBox(height: 18),
 
-              // Wirkungsmodus & Arbeitsstil
               _buildInteractivePillSection(
                 title: 'Wirkungsmodus & Arbeitsstil',
                 subtitle: 'In welchem Umfeld entfaltest du deine volle Energie?',
@@ -705,7 +689,6 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
               ),
               const SizedBox(height: 22),
 
-              // Werte-Passung-Kreise
               _buildSectionLabel('Werte-Passung-Kreise'),
               const SizedBox(height: 10),
               Container(
@@ -963,9 +946,6 @@ class _StoryDnaCirclesScreenState extends State<StoryDnaCirclesScreen>
   }
 }
 
-// ============================================================================
-// CUSTOM PAINTER: KONZENTRISCHE NEON-KREISE
-// ============================================================================
 class _RadarCirclesPainter extends CustomPainter {
   final double rotationAngle;
 

@@ -5,19 +5,19 @@ import 'package:storyjob/core/theme/storyjob_theme.dart';
 
 class StoryResonanceMatchBridge extends StatelessWidget {
   final String userName;
-  final String companyName;
+  final String teamName;
   final String matchScore;
   final Color userColor;
-  final Color companyColor;
+  final Color teamColor;
   final VoidCallback? onBridgeTap;
 
   const StoryResonanceMatchBridge({
     super.key,
     this.userName = 'Du',
-    required this.companyName,
+    required this.teamName,
     this.matchScore = 'Hohe Werte-Passung ✨',
     this.userColor = StoryJobTheme.cyanAccent,
-    this.companyColor = StoryJobTheme.primaryViolet,
+    this.teamColor = StoryJobTheme.primaryViolet,
     this.onBridgeTap,
   });
 
@@ -192,7 +192,7 @@ class StoryResonanceMatchBridge extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        companyName,
+                        teamName,
                         style: const TextStyle(
                           color: StoryJobTheme.textPrimary,
                           fontSize: 13,
@@ -220,17 +220,17 @@ class StoryResonanceMatchBridge extends StatelessWidget {
                   height: 44,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: companyColor.withValues(alpha: 0.18),
-                    border: Border.all(color: companyColor, width: 1.6),
+                    color: teamColor.withValues(alpha: 0.18),
+                    border: Border.all(color: teamColor, width: 1.6),
                     boxShadow: [
                       BoxShadow(
-                        color: companyColor.withValues(alpha: 0.25),
+                        color: teamColor.withValues(alpha: 0.25),
                         blurRadius: 10,
                       ),
                     ],
                   ),
                   child: Center(
-                    child: Icon(Icons.groups_rounded, color: companyColor, size: 21),
+                    child: Icon(Icons.groups_rounded, color: teamColor, size: 21),
                   ),
                 ),
               ],

@@ -53,8 +53,6 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
     _pulseAnimation = Tween<double>(begin: 0.95, end: 1.15).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOutSine),
     );
-    
-    // TODO später: Kamera initialisieren (camera Controller)
   }
 
   @override
@@ -94,8 +92,6 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
     });
     _pulseController.repeat(reverse: true);
     _recordDurationController.forward(from: 0.0);
-    
-    // TODO später: cameraController.startVideoRecording()
   }
 
   void _stopRecording() {
@@ -107,8 +103,6 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
     setState(() {
       _currentState = VideoRecordState.review;
     });
-    
-    // TODO später: cameraController.stopVideoRecording()
   }
 
   void _retake() {
@@ -117,13 +111,10 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
     setState(() {
       _currentState = VideoRecordState.idle;
     });
-    
-    // TODO später: Aufgenommenes File verwerfen, VideoPlayer ausblenden
   }
 
   void _toggleCameraFrontBack() {
     HapticFeedback.lightImpact();
-    // TODO später: Zwischen Front- und Backkamera switchen
   }
 
   // --- HELPER ---
@@ -144,19 +135,19 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
     final currentDuration = _recordDurationController.duration! * _recordDurationController.value;
 
     return Scaffold(
-      backgroundColor: Colors.black, // Tiefer Kamerahintergrund
+      backgroundColor: Colors.black,
       body: Stack(
         fit: StackFit.expand,
         children: [
           // 1. Kamera Preview / Video Player Layer
           Container(
-            color: const Color(0xFF111116), // Dummy Hintergrund bis Camera aktiv ist
+            color: const Color(0xFF111116),
             child: const Center(
               child: Icon(Icons.videocam_off_rounded, color: StoryJobTheme.cardBorder, size: 48),
             ),
           ),
 
-          // 2. Cinematic Gradient Overlay (von unten und oben)
+          // 2. Cinematic Gradient Overlay
           DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -183,7 +174,6 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Close Button
                       GestureDetector(
                         onTap: () {
                           HapticFeedback.lightImpact();
@@ -201,7 +191,6 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
                         ),
                       ),
                       
-                      // Timer Indicator
                       AnimatedOpacity(
                         opacity: (isRecording || isReview) ? 1.0 : 0.0,
                         duration: const Duration(milliseconds: 300),
@@ -245,7 +234,6 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
                         ),
                       ),
 
-                      // Camera Switch Button (versteckt im Review-Modus)
                       AnimatedOpacity(
                         opacity: isReview ? 0.0 : 1.0,
                         duration: const Duration(milliseconds: 300),
@@ -269,11 +257,11 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
 
                 const SizedBox(height: 16),
 
-                // Schwebende Impuls-Karte (Glas-Effekt)
+                // Schwebende Impuls-Karte
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: AnimatedSlide(
-                    offset: isReview ? const Offset(0, -0.5) : Offset.zero, // Fährt sanft hoch
+                    offset: isReview ? const Offset(0, -0.5) : Offset.zero,
                     duration: const Duration(milliseconds: 500),
                     curve: Curves.easeOutCubic,
                     child: AnimatedOpacity(
@@ -341,7 +329,6 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      // Retake Button (Mülleimer) - Fährt nach links aus
                       AnimatedPositioned(
                         duration: const Duration(milliseconds: 400),
                         curve: Curves.easeOutBack,
@@ -365,11 +352,13 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
                         ),
                       ),
 
-                      // Zentraler Button & Progress-Ring
                       GestureDetector(
                         onTap: () {
-                          if (_currentState == VideoRecordState.idle) _startCountdown();
-                          else if (isRecording) _stopRecording();
+                          if (_currentState == VideoRecordState.idle) {
+                            _startCountdown();
+                          } else if (isRecording) {
+                            _stopRecording();
+                          }
                         },
                         child: SizedBox(
                           width: 88,
@@ -377,7 +366,6 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
-                              // Pulsierende Aura hinten (nur bei Aufnahme)
                               AnimatedBuilder(
                                 animation: _pulseAnimation,
                                 builder: (context, child) {
@@ -399,7 +387,6 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
                                 },
                               ),
 
-                              // Progress Ring (60s)
                               if (isRecording || isReview)
                                 AnimatedBuilder(
                                   animation: _recordDurationController,
@@ -419,16 +406,14 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
                                     );
                                   },
                                 ),
-                                // Dünner Platzhalter-Ring, wenn noch nicht aufgenommen wird
-                                if (!isRecording && !isReview)
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(color: StoryJobTheme.primaryViolet.withValues(alpha: 0.6), width: 3),
-                                    ),
+                              if (!isRecording && !isReview)
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: StoryJobTheme.primaryViolet.withValues(alpha: 0.6), width: 3),
                                   ),
+                                ),
                               
-                              // Der Button Core
                               Padding(
                                 padding: const EdgeInsets.all(10.0),
                                 child: AnimatedContainer(
@@ -437,7 +422,7 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
                                     color: isRecording 
                                         ? const Color(0xFFEF4444) 
                                         : (isReview ? StoryJobTheme.primaryViolet : StoryJobTheme.primaryViolet.withValues(alpha: 0.9)),
-                                    borderRadius: BorderRadius.circular(isRecording ? 16 : 40), // Wird quadratischer bei Aufnahme
+                                    borderRadius: BorderRadius.circular(isRecording ? 16 : 40),
                                     boxShadow: [
                                       if (!isRecording)
                                         BoxShadow(
@@ -460,7 +445,6 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
                         ),
                       ),
                       
-                      // "Sichern" Button (Play-Icon im Review-Modus, rutscht nach rechts)
                       AnimatedPositioned(
                         duration: const Duration(milliseconds: 400),
                         curve: Curves.easeOutBack,
@@ -471,7 +455,6 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
                           child: GestureDetector(
                             onTap: isReview ? () {
                               HapticFeedback.mediumImpact();
-                              // TODO später: Video speichern und Playback starten oder Screen schließen
                               Navigator.pop(context);
                             } : null,
                             child: Container(
@@ -499,7 +482,6 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
 
                 const SizedBox(height: 12),
 
-                // Instruktionstext unten
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
                   child: Text(
@@ -531,12 +513,11 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
           style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w800),
         );
       case VideoRecordState.recording:
-        return const SizedBox(key: ValueKey('recording')); // Icon verschwindet, Button wird zum roten Quadrat
+        return const SizedBox(key: ValueKey('recording'));
       case VideoRecordState.review:
         return const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 36, key: ValueKey('play'));
       case VideoRecordState.idle:
-      default:
-        return const SizedBox(key: ValueKey('idle')); // Nur der lila Button ohne Icon
+        return const SizedBox(key: ValueKey('idle'));
     }
   }
 
@@ -549,7 +530,6 @@ class _VideoRecordingScreenState extends State<VideoRecordingScreen>
       case VideoRecordState.review:
         return 'Video prüfen oder verwerfen';
       case VideoRecordState.idle:
-      default:
         return 'Tippe zum Starten';
     }
   }

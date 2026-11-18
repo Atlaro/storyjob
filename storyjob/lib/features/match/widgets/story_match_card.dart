@@ -8,7 +8,7 @@ import 'package:storyjob/core/theme/storyjob_theme.dart';
 enum MatchAura { culture, workstyle, vision }
 
 class ResonanceMatchCard extends StatefulWidget {
-  final String companyName;
+  final String teamName;
   final String matchPercentage;
   final MatchAura auraType;
   final String voiceImpulseTitle;
@@ -24,7 +24,7 @@ class ResonanceMatchCard extends StatefulWidget {
 
   const ResonanceMatchCard({
     super.key,
-    required this.companyName,
+    required this.teamName,
     required this.matchPercentage,
     required this.auraType,
     required this.voiceImpulseTitle,
@@ -235,7 +235,7 @@ class _ResonanceMatchCardState extends State<ResonanceMatchCard> with TickerProv
 
                         // Unternehmensname & Voice-Impuls Titel
                         Text(
-                          widget.companyName,
+                          widget.teamName,
                           style: const TextStyle(
                             color: StoryJobTheme.textPrimary,
                             fontSize: 24,

@@ -1,5 +1,4 @@
 // lib/core/widgets/story_pulse_status_bar.dart
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:storyjob/core/theme/storyjob_theme.dart';
@@ -28,12 +27,12 @@ class PulseStatusItem {
 }
 
 class StoryPulseStatusBar extends StatefulWidget {
-  final bool isRecruiter;
+  final bool isteam;
   final String currentUserName;
 
   const StoryPulseStatusBar({
     super.key,
-    required this.isRecruiter,
+    required this.isteam,
     required this.currentUserName,
   });
 
@@ -48,7 +47,7 @@ class _StoryPulseStatusBarState extends State<StoryPulseStatusBar> {
   @override
   void initState() {
     super.initState();
-    _items = widget.isRecruiter ? _recruiterFeedItems() : _talentFeedItems();
+    _items = widget.isteam ? _teamFeedItems() : _talentFeedItems();
   }
 
   // Für Talente: Einblicke von Betrieben, Vereinen & Teams
@@ -85,8 +84,8 @@ class _StoryPulseStatusBarState extends State<StoryPulseStatusBar> {
         ),
       ];
 
-  // Für Recruiter & Teams: Aktive Talente & DNA-Impulse
-  List<PulseStatusItem> _recruiterFeedItems() => [
+  // Für team & Teams: Aktive Talente & DNA-Impulse
+  List<PulseStatusItem> _teamFeedItems() => [
         PulseStatusItem(
           id: 'talent_lukas',
           name: 'Lukas M.',
@@ -125,7 +124,7 @@ class _StoryPulseStatusBarState extends State<StoryPulseStatusBar> {
       text: _ownStatus?.message ?? '',
     );
 
-    final List<String> quickTemplates = widget.isRecruiter
+    final List<String> quickTemplates = widget.isteam
         ? [
             'Einblick aus unserem Team-Alltag heute 👋',
             'Wir suchen Verstärkung mit Herz & Haltung ✨',
@@ -171,7 +170,7 @@ class _StoryPulseStatusBarState extends State<StoryPulseStatusBar> {
               ),
               const SizedBox(height: 18),
               Text(
-                widget.isRecruiter ? '24h Team-Status teilen' : '24h Vibe-Status teilen',
+                widget.isteam ? '24h Team-Status teilen' : '24h Vibe-Status teilen',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: StoryJobTheme.textPrimary,
@@ -181,7 +180,7 @@ class _StoryPulseStatusBarState extends State<StoryPulseStatusBar> {
               ),
               const SizedBox(height: 4),
               Text(
-                widget.isRecruiter
+                widget.isteam
                     ? 'Zeigt Talenten, was euer Team gerade bewegt.'
                     : 'Zeige Betrieben & Teams deinen aktuellen Fokus.',
                 textAlign: TextAlign.center,
@@ -256,10 +255,10 @@ class _StoryPulseStatusBarState extends State<StoryPulseStatusBar> {
                       _ownStatus = PulseStatusItem(
                         id: 'own_status',
                         name: widget.currentUserName,
-                        roleOrTag: widget.isRecruiter ? 'Euer Team • Live' : 'Dein Status • Live',
+                        roleOrTag: widget.isteam ? 'Euer Team • Live' : 'Dein Status • Live',
                         timeAgo: 'Gerade eben',
                         message: text,
-                        ecosystemBadge: widget.isRecruiter ? 'StoryJob Teams' : 'StoryJob DNA',
+                        ecosystemBadge: widget.isteam ? 'StoryJob Teams' : 'StoryJob DNA',
                         accentColor: StoryJobTheme.cyanAccent,
                         isSeen: false,
                       );
@@ -298,7 +297,7 @@ class _StoryPulseStatusBarState extends State<StoryPulseStatusBar> {
         pageBuilder: (_, __, ___) => _PulseStatusViewerOverlay(
           item: item,
           isOwn: isOwn,
-          isRecruiterViewer: widget.isRecruiter,
+          isteamViewer: widget.isteam,
           onEditOwn: () {
             Navigator.pop(context);
             _openComposer();
@@ -321,7 +320,7 @@ class _StoryPulseStatusBarState extends State<StoryPulseStatusBar> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                widget.isRecruiter ? 'Aktive Talente & Impulse' : 'Live aus Teams & Kultur',
+                widget.isteam ? 'Aktive Talente & Impulse' : 'Live aus Teams & Kultur',
                 style: const TextStyle(
                   color: StoryJobTheme.textSecondary,
                   fontSize: 12.5,
@@ -346,10 +345,8 @@ class _StoryPulseStatusBarState extends State<StoryPulseStatusBar> {
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
             children: [
-              // 1. Eigener Status-Kreis
               _buildOwnCircle(),
               const SizedBox(width: 14),
-              // 2. Feed-Status-Kreise
               ..._items.map((item) => Padding(
                     padding: const EdgeInsets.only(right: 14),
                     child: _buildFeedCircle(item),
@@ -407,7 +404,7 @@ class _StoryPulseStatusBarState extends State<StoryPulseStatusBar> {
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      widget.isRecruiter ? Icons.groups_rounded : Icons.person_rounded,
+                      widget.isteam ? Icons.groups_rounded : Icons.person_rounded,
                       color: StoryJobTheme.textPrimary,
                       size: 26,
                     ),
@@ -434,7 +431,7 @@ class _StoryPulseStatusBarState extends State<StoryPulseStatusBar> {
             ),
             const SizedBox(height: 6),
             Text(
-              widget.isRecruiter ? 'Team-Status' : 'Dein Status',
+              widget.isteam ? 'Team-Status' : 'Dein Status',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
@@ -513,19 +510,16 @@ class _StoryPulseStatusBarState extends State<StoryPulseStatusBar> {
   }
 }
 
-// ============================================================================
-// VOLLBILD STATUS-VIEWER MIT FORTSCHRITTSBALKEN & DIREKT-REAKTION
-// ============================================================================
 class _PulseStatusViewerOverlay extends StatefulWidget {
   final PulseStatusItem item;
   final bool isOwn;
-  final bool isRecruiterViewer;
+  final bool isteamViewer;
   final VoidCallback onEditOwn;
 
   const _PulseStatusViewerOverlay({
     required this.item,
     required this.isOwn,
-    required this.isRecruiterViewer,
+    required this.isteamViewer,
     required this.onEditOwn,
   });
 
@@ -575,7 +569,7 @@ class _PulseStatusViewerOverlayState extends State<_PulseStatusViewerOverlay>
 
   @override
   Widget build(BuildContext context) {
-    final quickReplies = widget.isRecruiterViewer
+    final quickReplies = widget.isteamViewer
         ? [
             'Starker Impuls! Lust auf Kennenlernen? 👋',
             'Passt super zu unserer Team-DNA ✨',
@@ -593,7 +587,6 @@ class _PulseStatusViewerOverlayState extends State<_PulseStatusViewerOverlay>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Fortschrittsbalken oben
               AnimatedBuilder(
                 animation: _progressController,
                 builder: (_, __) => ClipRRect(
@@ -607,8 +600,6 @@ class _PulseStatusViewerOverlayState extends State<_PulseStatusViewerOverlay>
                 ),
               ),
               const SizedBox(height: 14),
-
-              // Header mit Absender & Schließen
               Row(
                 children: [
                   CircleAvatar(
@@ -663,10 +654,7 @@ class _PulseStatusViewerOverlayState extends State<_PulseStatusViewerOverlay>
                   ),
                 ],
               ),
-
               const Spacer(),
-
-              // Zentrale Status-Karte
               Container(
                 padding: const EdgeInsets.all(26),
                 decoration: BoxDecoration(
@@ -714,10 +702,7 @@ class _PulseStatusViewerOverlayState extends State<_PulseStatusViewerOverlay>
                   ],
                 ),
               ),
-
               const Spacer(),
-
-              // Interaktion unten
               if (widget.isOwn)
                 SizedBox(
                   height: 48,

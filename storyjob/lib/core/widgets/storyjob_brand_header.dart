@@ -4,14 +4,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:storyjob/core/theme/storyjob_theme.dart';
 
 class StoryJobBrandHeader extends StatelessWidget {
-  final bool isRecruiter;
+  final bool isteam;
   final String? customTitle;
   final String? customSubtitle;
   final Widget? trailing;
 
   const StoryJobBrandHeader({
     super.key,
-    this.isRecruiter = false,
+    this.isteam = false,
     this.customTitle,
     this.customSubtitle,
     this.trailing,
@@ -19,7 +19,7 @@ class StoryJobBrandHeader extends StatelessWidget {
 
   String _getUserGreeting() {
     final user = FirebaseAuth.instance.currentUser;
-    String userName = isRecruiter ? 'Unternehmen' : 'Talent';
+    String userName = isteam ? 'Unternehmen' : 'Talent';
     if (user?.displayName != null && user!.displayName!.trim().isNotEmpty) {
       userName = user.displayName!.trim().split(' ').first;
     }
@@ -37,15 +37,15 @@ class StoryJobBrandHeader extends StatelessWidget {
   String _getDefaultSubtitle() {
     final hour = DateTime.now().hour;
     if (hour >= 5 && hour < 12) {
-      return isRecruiter
+      return isteam
           ? 'Bereit, heute echte Macher zu entdecken?'
           : 'Starte mit StoryJob™ in deinen Tag.';
     } else if (hour >= 12 && hour < 18) {
-      return isRecruiter
+      return isteam
           ? 'Finde heute die perfekten Werte-Matches für dein Team.'
           : 'Zeig der Arbeitswelt, was wirklich in dir steckt.';
     } else {
-      return isRecruiter
+      return isteam
           ? 'Lass den Tag mit neuen Werte-Passung-Pitches ausklingen.'
           : 'Entdecke neue Chancen auf Augenhöhe für morgen.';
     }

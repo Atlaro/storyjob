@@ -2,9 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:storyjob/core/theme/storyjob_theme.dart';
 import 'package:storyjob/core/widgets/mystic_scaffold.dart';
-import 'package:storyjob/core/widgets/optimized_glass_card.dart';
 import 'package:storyjob/core/widgets/glass_button.dart';
-import 'package:storyjob/features/auth/screens/register_screen.dart';
+import 'package:storyjob/features/auth/screens/dna_auth_screen.dart'; // <--- Neuer Import
 import 'package:storyjob/features/talent/screens/talent_navigation_screen.dart';
 
 class GuestUpgradeScreen extends StatelessWidget {
@@ -81,10 +80,11 @@ class GuestUpgradeScreen extends StatelessWidget {
                   borderRadius: 16,
                   icon: Icons.person_add_rounded,
                   onPressed: () {
+                    // Verlinkung auf den neuen DnaAuthScreen (Standardmäßig Talent oder mit Rolle)
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const RegisterScreen(),
+                        builder: (context) => const DnaAuthScreen(selectedRole: 'talent'),
                       ),
                     );
                   },

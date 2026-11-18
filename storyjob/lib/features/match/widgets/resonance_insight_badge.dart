@@ -6,14 +6,14 @@ import 'package:storyjob/core/theme/storyjob_theme.dart';
 class ResonanceInsightBadge extends StatelessWidget {
   final String matchPercentage;
   final Map<String, dynamic> storyJobDnaData; // Greift auf die StoryJob DNA zu
-  final bool isForRecruiter;
+  final bool isForteam;
   final bool showArcGraphic; // Neu: Schaltet den großen Leucht-Bogen aus den Mockups ein
 
   const ResonanceInsightBadge({
     super.key,
     required this.matchPercentage,
     required this.storyJobDnaData,
-    this.isForRecruiter = false,
+    this.isForteam = false,
     this.showArcGraphic = true,
   });
 
@@ -25,7 +25,7 @@ class ResonanceInsightBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accentColor = isForRecruiter ? StoryJobTheme.primaryViolet : StoryJobTheme.cyanAccent;
+    final accentColor = isForteam ? StoryJobTheme.primaryViolet : StoryJobTheme.cyanAccent;
     final double numericPercentage = _parsePercentage(matchPercentage);
 
     // Werte-Passung-Begründung

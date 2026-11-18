@@ -44,7 +44,7 @@ class _StoryMatchDetailScreenState extends State<StoryMatchDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final company = widget.matchData['company'] as String? ?? 'Team / Initiative';
+    final team = widget.matchData['team'] as String? ?? 'Team / Initiative';
     final role = widget.matchData['role'] as String? ?? 'Wirkungsfeld';
     final resonanceLevel = widget.matchData['matchScore'] != null
         ? 'Hohe Werte-Match ✨'
@@ -73,7 +73,7 @@ class _StoryMatchDetailScreenState extends State<StoryMatchDetailScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          company,
+          team,
           style: const TextStyle(
             color: StoryJobTheme.textPrimary,
             fontSize: 17,
@@ -165,7 +165,7 @@ class _StoryMatchDetailScreenState extends State<StoryMatchDetailScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '$company  •  $location',
+                      '$team  •  $location',
                       style: const TextStyle(
                         fontSize: 13,
                         color: StoryJobTheme.textSecondary,
@@ -423,13 +423,13 @@ class _StoryMatchDetailScreenState extends State<StoryMatchDetailScreen> {
                   onPressed: () {
                     HapticFeedback.mediumImpact();
                     final cleanChatId =
-                        'chat_${company.toLowerCase().replaceAll(RegExp(r'[^a-z0-9_]'), '_')}';
+                        'chat_${team.toLowerCase().replaceAll(RegExp(r'[^a-z0-9_]'), '_')}';
 
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => StoryDialogScreen(
                           chatId: cleanChatId,
-                          targetName: company,
+                          targetName: team,
                           roleContext: role,
                           matchScore: '92%',
                         ),

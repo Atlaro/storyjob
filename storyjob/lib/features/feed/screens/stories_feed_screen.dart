@@ -24,13 +24,13 @@ import 'package:storyjob/features/record/screens/story_recording_screen.dart';
 
 class StoriesFeedScreen extends StatefulWidget {
   final String? userId;
-  final bool isRecruiter;
+  final bool isteam;
   final Function(int targetIndex)? onNavigateToTab;
 
   const StoriesFeedScreen({
     super.key,
     this.userId,
-    this.isRecruiter = false,
+    this.isteam = false,
     this.onNavigateToTab,
   });
 
@@ -51,7 +51,7 @@ class _StoriesFeedScreenState extends State<StoriesFeedScreen>
     if (user?.displayName != null && user!.displayName!.isNotEmpty) {
       return user.displayName!.split(' ').first;
     }
-    return widget.isRecruiter ? 'Gestalter' : 'Macher';
+    return widget.isteam ? 'Gestalter' : 'Macher';
   }
 
   final int _unreadMessagesCount = 1;
@@ -86,7 +86,7 @@ class _StoriesFeedScreenState extends State<StoriesFeedScreen>
   bool _autoPlayEnabled = true;
   static const double _refreshTriggerThreshold = 75.0;
 
-  String get _pullSlogan => widget.isRecruiter
+  String get _pullSlogan => widget.isteam
       ? 'Ziehen für neue Mitstreiter...'
       : 'Ziehen für neue Chancen...';
 
@@ -142,7 +142,7 @@ class _StoriesFeedScreenState extends State<StoriesFeedScreen>
 
   String _getRoleAndContextSubtitle() {
     final hour = DateTime.now().hour;
-    if (widget.isRecruiter) {
+    if (widget.isteam) {
       if (hour >= 5 && hour < 12) {
         return 'Finde heute Menschen, die für eure Kultur brennen.';
       } else if (hour >= 12 && hour < 18) {
@@ -589,7 +589,7 @@ class _StoriesFeedScreenState extends State<StoriesFeedScreen>
                     Row(
                       children: [
                         Text(
-                          widget.isRecruiter
+                          widget.isteam
                               ? 'Macher auf eurer Wellenlänge'
                               : 'Menschen auf deiner Wellenlänge',
                           style: const TextStyle(
@@ -971,7 +971,7 @@ class _StoryResonanceCardItemState extends State<StoryResonanceCardItem> {
     );
 
     await _matchingService.registerTalentInterest(
-      targetCompanyId: widget.story.userId,
+      targetteamId: widget.story.userId,
       jobStoryId: widget.story.id,
       matchScore: '${(widget.resonance.totalScore * 100).toInt()}%',
     );

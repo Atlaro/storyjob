@@ -1,7 +1,6 @@
 // lib/core/widgets/optimized_glass_card.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:storyjob/core/theme/storyjob_theme.dart';
 
 class OptimizedGlassCard extends StatelessWidget {
   final Widget child;

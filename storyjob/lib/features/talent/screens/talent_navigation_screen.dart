@@ -649,7 +649,7 @@ class _TalentStoriesTab extends StatelessWidget {
 
               // 24H PULSE STATUS-LEISTE (Talente & Team-Einblicke)
               StoryPulseStatusBar(
-                isRecruiter: false,
+                isteam: false,
                 currentUserName: firstName,
               ),
 

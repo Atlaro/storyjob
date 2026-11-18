@@ -23,7 +23,7 @@ class ResonanceDimension {
 
 class StoryResonanceMirrorCard extends StatelessWidget {
   final String partnerName;
-  final String roleOrCompany;
+  final String roleOrteam;
   final String overallMatchScore; // z. B. "Hohe Werte-Passung ✨" oder "94%"
   final String coreReasonQuote;
   final List<ResonanceDimension> dimensions;
@@ -33,7 +33,7 @@ class StoryResonanceMirrorCard extends StatelessWidget {
   const StoryResonanceMirrorCard({
     super.key,
     required this.partnerName,
-    required this.roleOrCompany,
+    required this.roleOrteam,
     required this.overallMatchScore,
     required this.coreReasonQuote,
     required this.dimensions,
@@ -77,7 +77,7 @@ class StoryResonanceMirrorCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      roleOrCompany,
+                      roleOrteam,
                       style: TextStyle(
                         color: StoryJobTheme.cyanAccent.withValues(alpha: 0.95),
                         fontSize: 11.5,

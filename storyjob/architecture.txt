@@ -88,7 +88,7 @@ C:\USERS\FAM-A\STORYJOB-APP\STORYJOB\LIB
 |   |   |       story_match_screen.dart
 |   |   |       
 |   |   +---services
-|   |   |       company_resonance_engine.dart
+|   |   |       team_resonance_engine.dart
 |   |   |       matching_service.dart
 |   |   |       match_intelligence_service.dart
 |   |   |       story_matching_engine.dart
@@ -99,7 +99,7 @@ C:\USERS\FAM-A\STORYJOB-APP\STORYJOB\LIB
 |   |           story_fit_card.dart
 |   |           story_match_card.dart
 |   |           story_resonance_match_bridge.dart
-|   |           talent_company_filter_sheet.dart
+|   |           talent_team_filter_sheet.dart
 |   |           
 |   +---messages
 |   |   +---models
@@ -151,21 +151,21 @@ C:\USERS\FAM-A\STORYJOB-APP\STORYJOB\LIB
 |   |           ripple_painter.dart
 |   |           story_format_modal.dart
 |   |           
-|   +---recruiter
+|   +---team
 |   |   +---models
-|   |   |       company_dna.dart
+|   |   |       team_dna.dart
 |   |   |       job_story.dart
 |   |   |       
 |   |   +---screens
-|   |   |       company_dna_screen.dart
-|   |   |       recruiter_dashboard_screen.dart
-|   |   |       recruiter_navigation_screen.dart
-|   |   |       recruiter_talent_pool_screen.dart
+|   |   |       team_dna_screen.dart
+|   |   |       team_dashboard_screen.dart
+|   |   |       team_navigation_screen.dart
+|   |   |       team_talent_pool_screen.dart
 |   |   |       
 |   |   \---widgets
-|   |           company_benefit_pitch_card.dart
+|   |           team_benefit_pitch_card.dart
 |   |           early_access_talent_card.dart
-|   |           recruiter_upgrade_modal.dart
+|   |           team_upgrade_modal.dart
 |   |           
 |   +---settings
 |   |   \---screens

@@ -7,9 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:storyjob/core/theme/storyjob_theme.dart';
-import 'package:storyjob/features/auth/screens/login_screen.dart';
+import 'package:storyjob/features/auth/screens/dna_auth_screen.dart';
 import 'package:storyjob/features/profile/screens/personal_data_screen.dart';
-import 'package:storyjob/features/settings/screens/login_security_screen.dart';
 import 'package:storyjob/features/settings/screens/widgets/feedback_dialog.dart';
 import 'package:storyjob/features/settings/screens/widgets/legal_licenses_modal.dart';
 
@@ -119,7 +118,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             await FirebaseAuth.instance.signOut();
                             if (!mounted) return;
                             Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(builder: (_) => const LoginScreen()),
+                              MaterialPageRoute(builder: (_) => const DnaAuthScreen()),
                               (route) => false,
                             );
                           },
@@ -223,7 +222,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               }
                               if (!mounted) return;
                               Navigator.of(context).pushAndRemoveUntil(
-                                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                                MaterialPageRoute(builder: (_) => const DnaAuthScreen()),
                                 (route) => false,
                               );
                             } catch (e) {
@@ -439,8 +438,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     value: 'Passwort, Schutz',
                     onTap: () {
                       HapticFeedback.lightImpact();
+                      // Direkter Absprung zu DnaAuthScreen oder einer Passwort-Änderungsansicht
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const LoginSecurityScreen()),
+                        MaterialPageRoute(builder: (_) => const DnaAuthScreen()),
                       );
                     },
                   ),
@@ -544,7 +544,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 24),
 
-            // 5. Account-Aktionen (Abmelden & Konto löschen nach Apple Guideline 5.1.1(v))
+            // 5. Account-Aktionen
             _buildSectionLabel('KONTO-VERWALTUNG'),
             const SizedBox(height: 8),
             Container(

@@ -9,13 +9,13 @@ import 'package:storyjob/features/match/screens/match_screen.dart';
 
 class StoryMatchScreen extends StatefulWidget {
   final int initialFilterIndex;
-  final bool isRecruiter;
+  final bool isteam;
   final VoidCallback? onOpenDna;
 
   const StoryMatchScreen({
     super.key,
     this.initialFilterIndex = 0,
-    this.isRecruiter = false,
+    this.isteam = false,
     this.onOpenDna,
   });
 
@@ -26,7 +26,7 @@ class StoryMatchScreen extends StatefulWidget {
 class _StoryMatchScreenState extends State<StoryMatchScreen> {
   late int _selectedFilterIndex;
 
-  List<String> get _filters => widget.isRecruiter
+  List<String> get _filters => widget.isteam
       ? [
           'Alle Begegnungen',
           'Hohe Werte-Passung ✨',
@@ -43,7 +43,7 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
   final List<Map<String, dynamic>> _talentMatches = [
     {
       'id': 'match_bright_minds',
-      'company': 'Bright Minds Team',
+      'team': 'Bright Minds Team',
       'role': 'Marketing & Community Lead (m/w/d)',
       'matchScore': '94%',
       'scoreValue': 94,
@@ -61,7 +61,7 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
     },
     {
       'id': 'match_innovatech',
-      'company': 'Innovatech Gemeinschaft',
+      'team': 'Innovatech Gemeinschaft',
       'role': 'Projektmanager Transformation (m/w/d)',
       'matchScore': '89%',
       'scoreValue': 89,
@@ -79,7 +79,7 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
     },
     {
       'id': 'match_future_systems',
-      'company': 'Future Systems',
+      'team': 'Future Systems',
       'role': 'Product Owner GreenTech (m/w/d)',
       'matchScore': '84%',
       'scoreValue': 84,
@@ -218,7 +218,7 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    widget.isRecruiter
+                    widget.isteam
                         ? 'Menschen, deren Haltung exakt zu euch passt'
                         : 'Teams und Chancen auf deiner Wellenlänge',
                     style: const TextStyle(
@@ -333,7 +333,7 @@ class _MatchCardItemState extends State<_MatchCardItem> {
   @override
   Widget build(BuildContext context) {
     final title = widget.matchData['role'] as String;
-    final company = widget.matchData['company'] as String;
+    final team = widget.matchData['team'] as String;
     final matchScoreStr = widget.matchData['matchScore'] as String;
     final resonanceReason = widget.matchData['resonanceReason'] as String;
     final resonancePillars = widget.matchData['resonancePillars'] as List<String>? ?? [];
@@ -380,7 +380,7 @@ class _MatchCardItemState extends State<_MatchCardItem> {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '$company  •  $location',
+                      '$team  •  $location',
                       style: const TextStyle(
                         fontSize: 12.5,
                         color: StoryJobTheme.textSecondary,
@@ -567,16 +567,16 @@ class _MatchCardItemState extends State<_MatchCardItem> {
                 child: ElevatedButton.icon(
                   onPressed: () {
                     HapticFeedback.mediumImpact();
-                    final company = widget.matchData['company'] as String;
+                    final team = widget.matchData['team'] as String;
                     final role = widget.matchData['role'] as String;
                     final matchScore = widget.matchData['matchScore'] as String;
-                    final cleanChatId = 'chat_${company.toLowerCase().replaceAll(RegExp(r'[^a-z0-9_]'), '_')}';
+                    final cleanChatId = 'chat_${team.toLowerCase().replaceAll(RegExp(r'[^a-z0-9_]'), '_')}';
 
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => StoryDialogScreen(
                           chatId: cleanChatId,
-                          targetName: company,
+                          targetName: team,
                           roleContext: role,
                           matchScore: matchScore,
                         ),

@@ -7,13 +7,13 @@ typedef MatchItem = Map<String, dynamic>;
 
 class StoryMatchScreen extends StatefulWidget {
   final int initialFilterIndex;
-  final bool isRecruiter;
+  final bool isteam;
   final VoidCallback? onOpenDna;
 
   const StoryMatchScreen({
     super.key,
     this.initialFilterIndex = 0,
-    this.isRecruiter = false,
+    this.isteam = false,
     this.onOpenDna,
   });
 
@@ -24,7 +24,7 @@ class StoryMatchScreen extends StatefulWidget {
 class _StoryMatchScreenState extends State<StoryMatchScreen> {
   late int _selectedFilterIndex;
 
-  List<String> get _filters => widget.isRecruiter
+  List<String> get _filters => widget.isteam
       ? ['Für euch', 'Top-Match ✨', 'Ehrenamt', 'Region']
       : ['Für dich', 'Top-Match ✨', 'Kultur', 'Flexibel'];
 
@@ -33,7 +33,7 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
   final List<MatchItem> _initialMatches = [
     {
       'id': 'match_bright_minds',
-      'company': 'Bright Minds Team',
+      'team': 'Bright Minds Team',
       'role': 'Projekt- & Teamkoordination (m/w/d)',
       'location': 'München & Hybrid',
       'timeAgo': 'Neu heute',
@@ -45,7 +45,7 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
     },
     {
       'id': 'match_innovatech',
-      'company': 'Innovatech Gemeinschaft',
+      'team': 'Innovatech Gemeinschaft',
       'role': 'Initiativen- & Transformationsleitung',
       'location': 'Hamburg / Remote',
       'timeAgo': 'Vor 1d',
@@ -57,7 +57,7 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
     },
     {
       'id': 'match_future_systems',
-      'company': 'Future Systems Handwerk & Tech',
+      'team': 'Future Systems Handwerk & Tech',
       'role': 'Macher für regenerative Systeme',
       'location': 'München',
       'timeAgo': 'Vor 2d',
@@ -85,7 +85,7 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
     return _visibleMatches;
   }
 
-  void _handleMatch(String id, String company) {
+  void _handleMatch(String id, String team) {
     HapticFeedback.mediumImpact();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -95,7 +95,7 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Dialog mit $company gestartet ✨',
+                'Dialog mit $team gestartet ✨',
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
               ),
             ),
@@ -344,7 +344,7 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                                     ),
                                     const SizedBox(height: 3),
                                     Text(
-                                      match['company'] as String,
+                                      match['team'] as String,
                                       style: const TextStyle(
                                         color: StoryJobTheme.primaryViolet,
                                         fontSize: 13,
@@ -388,7 +388,7 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                                       child: ElevatedButton.icon(
                                         onPressed: () => _handleMatch(
                                           match['id'] as String,
-                                          match['company'] as String,
+                                          match['team'] as String,
                                         ),
                                         icon: const Icon(Icons.chat_bubble_outline_rounded, size: 15),
                                         label: const Text(

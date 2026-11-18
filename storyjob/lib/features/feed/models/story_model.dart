@@ -149,7 +149,7 @@ class StoryModel {
       values: (data['values'] is List)
           ? List<String>.from(data['values'])
           : const [],
-      organizationName: (data['organizationName'] ?? data['companyName']) as String?,
+      organizationName: (data['organizationName'] ?? data['teamName']) as String?,
       promptQuestion: data['promptQuestion'] as String?,
       type: StoryTypeExtension.fromKey(data['type'] as String?),
     );
