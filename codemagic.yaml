@@ -31,14 +31,14 @@ workflows:
           flutter clean
           flutter pub get
 
-          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "de.storyjob.app" 2>/dev/null || echo 55)
+          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "de.storyjob.app" 2>/dev/null || echo 56)
           case "$LATEST_BUILD" in
-            ''|*[!0-9]*) LATEST_BUILD=55 ;;
+            ''|*[!0-9]*) LATEST_BUILD=56 ;;
           esac
-          NEXT_BUILD=$((LATEST_BUILD + 1))
-          if [ "$NEXT_BUILD" -le 55 ]; then
-            NEXT_BUILD=56
+          if [ "$LATEST_BUILD" -lt 56 ]; then
+            LATEST_BUILD=56
           fi
+          NEXT_BUILD=$((LATEST_BUILD + 1))
           echo "Using Automatic Build Number: $NEXT_BUILD (previous: $LATEST_BUILD)"
 
           if [ -f /Users/builder/export_options.plist ]; then
