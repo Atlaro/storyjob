@@ -26,12 +26,19 @@ workflows:
           # Caches bereinigen, um Build-Fehler zu vermeiden
           rm -rf ~/Library/Caches/org.swift.swiftpm
           rm -rf ~/Library/Developer/Xcode/DerivedData
-          
+
           flutter clean
           flutter pub get
-          
-          NEXT_BUILD=55
-          echo "Using Forced/Safe Build Number: $NEXT_BUILD"
+
+          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "de.storyjob.app" 2>/dev/null || echo 55)
+          case "$LATEST_BUILD" in
+            ''|*[!0-9]*) LATEST_BUILD=55 ;;
+          esac
+          NEXT_BUILD=$((LATEST_BUILD + 1))
+          if [ "$NEXT_BUILD" -le 55 ]; then
+            NEXT_BUILD=56
+          fi
+          echo "Using Dynamic Build Number: $NEXT_BUILD (previous: $LATEST_BUILD)"
 
           # ExportOptions.plist direkt vor dem Build dynamisch erstellen
           cat <<EOF > ExportOptions.plist
