@@ -49,7 +49,14 @@ workflows:
               <key>teamID</key>
               <string>L8CP87ZD83</string>
               <key>signingStyle</key>
-              <string>automatic</string>
+              <string>manual</string>
+              <key>signingCertificate</key>
+              <string>Apple Distribution</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>de.storyjob.app</key>
+                  <string>StoryJob</string>
+              </dict>
           </dict>
           </plist>
           EOF
@@ -174,7 +181,14 @@ workflows:
               <key>teamID</key>
               <string>L8CP87ZD83</string>
               <key>signingStyle</key>
-              <string>automatic</string>
+              <string>manual</string>
+              <key>signingCertificate</key>
+              <string>Apple Distribution</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>de.storyjob.dna</key>
+                  <string>StoryJob DNA</string>
+              </dict>
           </dict>
           </plist>
           EOF
@@ -241,7 +255,14 @@ workflows:
               <key>teamID</key>
               <string>L8CP87ZD83</string>
               <key>signingStyle</key>
-              <string>automatic</string>
+              <string>manual</string>
+              <key>signingCertificate</key>
+              <string>Apple Distribution</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>de.storyjob.teams</key>
+                  <string>StoryJob Teams</string>
+              </dict>
           </dict>
           </plist>
           EOF
