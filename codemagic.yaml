@@ -17,6 +17,8 @@ workflows:
         script: |
           set -e
           xcode-project use-profiles
+          security find-identity -v -p codesigning || true
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ || true
           /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" ios/Runner/Info.plist || \
           /usr/libexec/PlistBuddy -c "Set :ITSAppUsesNonExemptEncryption false" ios/Runner/Info.plist
       - name: Build and Sign iOS App (IPA)
@@ -39,32 +41,19 @@ workflows:
           fi
           echo "Using Automatic Build Number: $NEXT_BUILD (previous: $LATEST_BUILD)"
 
-          cat <<EOF > ExportOptions.plist
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>method</key>
-              <string>app-store</string>
-              <key>teamID</key>
-              <string>L8CP87ZD83</string>
-              <key>signingStyle</key>
-              <string>manual</string>
-              <key>signingCertificate</key>
-              <string>Apple Distribution</string>
-              <key>provisioningProfiles</key>
-              <dict>
-                  <key>de.storyjob.app</key>
-                  <string>StoryJob</string>
-              </dict>
-          </dict>
-          </plist>
-          EOF
-
-          flutter build ipa --release \
-            --build-name=1.0.2 \
-            --build-number=$NEXT_BUILD \
-            --export-options-plist=ExportOptions.plist
+          if [ -f /Users/builder/export_options.plist ]; then
+            /usr/libexec/PlistBuddy -c "Set :method app-store" /Users/builder/export_options.plist || true
+            cat /Users/builder/export_options.plist
+            flutter build ipa --release \
+              --build-name=1.0.2 \
+              --build-number=$NEXT_BUILD \
+              --export-options-plist=/Users/builder/export_options.plist
+          else
+            flutter build ipa --release \
+              --build-name=1.0.2 \
+              --build-number=$NEXT_BUILD \
+              --export-method=app-store
+          fi
       - name: Verify generated IPA
         working_directory: storyjob
         script: |
@@ -171,32 +160,18 @@ workflows:
           NEXT_BUILD=$((LATEST_BUILD + 1))
           echo "Using Automatic Build Number for StoryJob DNA: $NEXT_BUILD (previous: $LATEST_BUILD)"
 
-          cat <<EOF > ExportOptions.plist
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>method</key>
-              <string>app-store</string>
-              <key>teamID</key>
-              <string>L8CP87ZD83</string>
-              <key>signingStyle</key>
-              <string>manual</string>
-              <key>signingCertificate</key>
-              <string>Apple Distribution</string>
-              <key>provisioningProfiles</key>
-              <dict>
-                  <key>de.storyjob.dna</key>
-                  <string>StoryJob DNA</string>
-              </dict>
-          </dict>
-          </plist>
-          EOF
-
-          flutter build ipa --release \
-            --build-name=1.0.0 \
-            --build-number=$NEXT_BUILD \
-            --export-options-plist=ExportOptions.plist
+          if [ -f /Users/builder/export_options.plist ]; then
+            /usr/libexec/PlistBuddy -c "Set :method app-store" /Users/builder/export_options.plist || true
+            flutter build ipa --release \
+              --build-name=1.0.0 \
+              --build-number=$NEXT_BUILD \
+              --export-options-plist=/Users/builder/export_options.plist
+          else
+            flutter build ipa --release \
+              --build-name=1.0.0 \
+              --build-number=$NEXT_BUILD \
+              --export-method=app-store
+          fi
       - name: Verify generated DNA IPA
         working_directory: storydna
         script: |
@@ -245,32 +220,18 @@ workflows:
           NEXT_BUILD=$((LATEST_BUILD + 1))
           echo "Using Automatic Build Number for StoryJob Teams: $NEXT_BUILD (previous: $LATEST_BUILD)"
 
-          cat <<EOF > ExportOptions.plist
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>method</key>
-              <string>app-store</string>
-              <key>teamID</key>
-              <string>L8CP87ZD83</string>
-              <key>signingStyle</key>
-              <string>manual</string>
-              <key>signingCertificate</key>
-              <string>Apple Distribution</string>
-              <key>provisioningProfiles</key>
-              <dict>
-                  <key>de.storyjob.teams</key>
-                  <string>StoryJob Teams</string>
-              </dict>
-          </dict>
-          </plist>
-          EOF
-
-          flutter build ipa --release \
-            --build-name=1.0.0 \
-            --build-number=$NEXT_BUILD \
-            --export-options-plist=ExportOptions.plist
+          if [ -f /Users/builder/export_options.plist ]; then
+            /usr/libexec/PlistBuddy -c "Set :method app-store" /Users/builder/export_options.plist || true
+            flutter build ipa --release \
+              --build-name=1.0.0 \
+              --build-number=$NEXT_BUILD \
+              --export-options-plist=/Users/builder/export_options.plist
+          else
+            flutter build ipa --release \
+              --build-name=1.0.0 \
+              --build-number=$NEXT_BUILD \
+              --export-method=app-store
+          fi
       - name: Verify generated Teams IPA
         working_directory: storyteams
         script: |
