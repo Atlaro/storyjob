@@ -16,6 +16,9 @@ class StoryFeedCard extends StatefulWidget {
   final String? avatarUrl;
   final int playsCount;
   final int likesCount;
+  final bool isTeamStory;
+  final bool isImpulsed;
+  final VoidCallback? onImpulseTap;
   final VoidCallback onResonanceTap;
 
   const StoryFeedCard({
@@ -29,6 +32,9 @@ class StoryFeedCard extends StatefulWidget {
     this.avatarUrl,
     this.playsCount = 0,
     this.likesCount = 0,
+    this.isTeamStory = false,
+    this.isImpulsed = false,
+    this.onImpulseTap,
     required this.onResonanceTap,
   });
 
@@ -81,6 +87,10 @@ class _StoryFeedCardState extends State<StoryFeedCard> {
 
   @override
   Widget build(BuildContext context) {
+    final badgeColor =
+        widget.isTeamStory ? StoryJobTheme.primaryViolet : StoryJobTheme.cyanAccent;
+    final badgeLabel = widget.isTeamStory ? 'TEAM' : 'Talent';
+
     return GlassCard(
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(18),
@@ -90,7 +100,7 @@ class _StoryFeedCardState extends State<StoryFeedCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Profil-Header: Avatar, Name & Rolle
+          // Profil-Header: Avatar, Name, Talent/TEAM-Badge & Impulse
           Row(
             children: [
               Container(
@@ -125,54 +135,104 @@ class _StoryFeedCardState extends State<StoryFeedCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      widget.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: StoryJobTheme.textPrimary,
-                        letterSpacing: -0.2,
-                      ),
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            widget.name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: StoryJobTheme.textPrimary,
+                              letterSpacing: -0.2,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: badgeColor.withValues(alpha: 0.14),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: badgeColor.withValues(alpha: 0.40),
+                            ),
+                          ),
+                          child: Text(
+                            badgeLabel,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: badgeColor,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 2),
                     Text(
                       widget.roleContext,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: StoryJobTheme.cyanAccent,
+                        color: badgeColor,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: StoryJobTheme.cyanAccent.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: StoryJobTheme.cyanAccent.withValues(alpha: 0.35),
+              const SizedBox(width: 6),
+              GestureDetector(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  widget.onImpulseTap?.call();
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: widget.isImpulsed
+                        ? StoryJobTheme.champagneGold.withValues(alpha: 0.18)
+                        : StoryJobTheme.cyanAccent.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: widget.isImpulsed
+                          ? StoryJobTheme.champagneGold.withValues(alpha: 0.55)
+                          : StoryJobTheme.cyanAccent.withValues(alpha: 0.35),
+                    ),
                   ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.auto_awesome_rounded,
-                      color: StoryJobTheme.cyanAccent,
-                      size: 12,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      widget.likesCount > 0 ? '${widget.likesCount} Impulse' : 'Werte-Fit',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: StoryJobTheme.cyanAccent,
-                        fontWeight: FontWeight.w700,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        widget.isImpulsed
+                            ? Icons.auto_awesome_rounded
+                            : Icons.auto_awesome_outlined,
+                        color: widget.isImpulsed
+                            ? StoryJobTheme.champagneGold
+                            : StoryJobTheme.cyanAccent,
+                        size: 13,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 4),
+                      Text(
+                        widget.likesCount > 0
+                            ? '${widget.likesCount} Impulse'
+                            : 'Impuls',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: widget.isImpulsed
+                              ? StoryJobTheme.champagneGold
+                              : StoryJobTheme.cyanAccent,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

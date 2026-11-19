@@ -5,7 +5,9 @@ import 'package:storyjob/core/theme/storyjob_theme.dart';
 
 class StoryResonanceMatchBridge extends StatelessWidget {
   final String userName;
+  final String userRoleLabel;
   final String teamName;
+  final String teamRoleLabel;
   final String matchScore;
   final Color userColor;
   final Color teamColor;
@@ -14,7 +16,9 @@ class StoryResonanceMatchBridge extends StatelessWidget {
   const StoryResonanceMatchBridge({
     super.key,
     this.userName = 'Du',
+    this.userRoleLabel = 'StoryJob DNA™',
     required this.teamName,
+    this.teamRoleLabel = 'Team & Kultur',
     this.matchScore = 'Hohe Werte-Passung ✨',
     this.userColor = StoryJobTheme.cyanAccent,
     this.teamColor = StoryJobTheme.primaryViolet,
@@ -23,9 +27,10 @@ class StoryResonanceMatchBridge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String displayScore = matchScore.contains('%') || matchScore.contains('✨')
-        ? matchScore
-        : '$matchScore Wellenlänge';
+    final String displayScore =
+        matchScore.contains('%') || matchScore.contains('✨')
+            ? matchScore
+            : '$matchScore Wellenlänge';
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -46,7 +51,7 @@ class StoryResonanceMatchBridge extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // 1. EIGENER POL (LINKS)
+          // 1. LINKER POL (TALENT / EIGENE DNA)
           Expanded(
             child: Row(
               children: [
@@ -73,7 +78,9 @@ class StoryResonanceMatchBridge extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      userName.isNotEmpty ? userName.substring(0, 1).toUpperCase() : 'D',
+                      userName.isNotEmpty
+                          ? userName.substring(0, 1).toUpperCase()
+                          : 'D',
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -98,13 +105,15 @@ class StoryResonanceMatchBridge extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const Text(
-                        'StoryJob DNA™',
-                        style: TextStyle(
+                      Text(
+                        userRoleLabel,
+                        style: const TextStyle(
                           color: StoryJobTheme.textSecondary,
                           fontSize: 10.5,
                           fontWeight: FontWeight.w500,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -113,7 +122,7 @@ class StoryResonanceMatchBridge extends StatelessWidget {
             ),
           ),
 
-          // 2. MITTLERE RESONANZ-BRÜCKE
+          // 2. MITTLERE VERBINDUNGS-BRÜCKE
           InkWell(
             borderRadius: BorderRadius.circular(16),
             onTap: () {
@@ -140,7 +149,8 @@ class StoryResonanceMatchBridge extends StatelessWidget {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: StoryJobTheme.primaryViolet.withValues(alpha: 0.25),
+                          color: StoryJobTheme.primaryViolet
+                              .withValues(alpha: 0.25),
                           blurRadius: 12,
                           spreadRadius: 1,
                         ),
@@ -158,12 +168,14 @@ class StoryResonanceMatchBridge extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
                       color: StoryJobTheme.primaryViolet.withValues(alpha: 0.22),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: StoryJobTheme.primaryViolet.withValues(alpha: 0.35),
+                        color: StoryJobTheme.primaryViolet
+                            .withValues(alpha: 0.35),
                       ),
                     ),
                     child: Text(
@@ -181,7 +193,7 @@ class StoryResonanceMatchBridge extends StatelessWidget {
             ),
           ),
 
-          // 3. TEAM- / PARTNER-POL (RECHTS)
+          // 3. RECHTER POL (TEAM / PARTNER)
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -202,13 +214,15 @@ class StoryResonanceMatchBridge extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.end,
                       ),
-                      const Text(
-                        'Team & Kultur',
-                        style: TextStyle(
+                      Text(
+                        teamRoleLabel,
+                        style: const TextStyle(
                           color: StoryJobTheme.textSecondary,
                           fontSize: 10.5,
                           fontWeight: FontWeight.w500,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.end,
                       ),
                     ],
@@ -230,7 +244,8 @@ class StoryResonanceMatchBridge extends StatelessWidget {
                     ],
                   ),
                   child: Center(
-                    child: Icon(Icons.groups_rounded, color: teamColor, size: 21),
+                    child:
+                        Icon(Icons.groups_rounded, color: teamColor, size: 21),
                   ),
                 ),
               ],

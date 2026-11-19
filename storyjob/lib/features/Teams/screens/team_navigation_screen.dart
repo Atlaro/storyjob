@@ -1,10 +1,12 @@
+// lib/features/Teams/screens/team_navigation_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:storyjob/core/theme/storyjob_theme.dart';
 import 'package:storyjob/features/Teams/screens/team_dashboard_screen.dart';
-import 'package:storyjob/features/Teams/screens/teams_dna_screen.dart';
 import 'package:storyjob/features/Teams/screens/team_talent_pool_screen.dart';
-import 'package:storyjob/features/messages/screens/story_dialog_screen.dart';
+import 'package:storyjob/features/Teams/screens/teams_dna_screen.dart';
+import 'package:storyjob/features/messages/screens/dialog_list_screen.dart';
 
 class TeamNavigationScreen extends StatefulWidget {
   const TeamNavigationScreen({super.key});
@@ -24,7 +26,6 @@ class _TeamNavigationScreenState extends State<TeamNavigationScreen> {
 
   void _onFabPressed() {
     HapticFeedback.mediumImpact();
-    // Aktion beim Klick auf das zentrale Plus-Symbol (z.B. Team-Impuls aufnehmen)
     showModalBottomSheet(
       context: context,
       backgroundColor: StoryJobTheme.cardSurfaceElevated,
@@ -46,7 +47,11 @@ class _TeamNavigationScreenState extends State<TeamNavigationScreen> {
                       color: StoryJobTheme.cyanAccent.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: const Icon(Icons.auto_awesome_rounded, color: StoryJobTheme.cyanAccent, size: 24),
+                    child: const Icon(
+                      Icons.auto_awesome_rounded,
+                      color: StoryJobTheme.cyanAccent,
+                      size: 24,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   const Expanded(
@@ -63,7 +68,7 @@ class _TeamNavigationScreenState extends State<TeamNavigationScreen> {
                         ),
                         SizedBox(height: 2),
                         Text(
-                          'Präsentiere eure Werte direkt im Feed.',
+                          'Zeigt eure Werte, Benefits & Quereinstiegs-Brücke.',
                           style: TextStyle(
                             color: StoryJobTheme.textSecondary,
                             fontSize: 12,
@@ -87,13 +92,11 @@ class _TeamNavigationScreenState extends State<TeamNavigationScreen> {
                 ),
                 onPressed: () {
                   Navigator.pop(ctx);
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const TeamsDnaScreen()),
-                  );
+                  setState(() => _currentIndex = 2);
                 },
                 icon: const Icon(Icons.videocam_rounded, size: 18),
                 label: const Text(
-                  'Kultur-Impuls aufnehmen ✨',
+                  'Kultur-Impuls & Team DNA öffnen ✨',
                   style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                 ),
               ),
@@ -113,9 +116,11 @@ class _TeamNavigationScreenState extends State<TeamNavigationScreen> {
         children: _screens,
       ),
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: StoryJobTheme.cardSurfaceElevated,
-          border: Border(top: BorderSide(color: StoryJobTheme.cardBorder, width: 0.5)),
+          border: Border(
+            top: BorderSide(color: StoryJobTheme.cardBorder, width: 0.5),
+          ),
         ),
         child: SafeArea(
           child: Padding(
@@ -125,7 +130,6 @@ class _TeamNavigationScreenState extends State<TeamNavigationScreen> {
               children: [
                 _buildNavItem(0, Icons.dashboard_rounded, 'Dashboard'),
                 _buildNavItem(1, Icons.people_rounded, 'Talent Pool'),
-                // Zentrales Plus-Symbol im gleichen Stil wie bei der Talentseite
                 GestureDetector(
                   onTap: _onFabPressed,
                   child: Container(
@@ -134,19 +138,27 @@ class _TeamNavigationScreenState extends State<TeamNavigationScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: const LinearGradient(
-                        colors: [StoryJobTheme.cyanAccent, StoryJobTheme.primaryViolet],
+                        colors: [
+                          StoryJobTheme.cyanAccent,
+                          StoryJobTheme.primaryViolet,
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: StoryJobTheme.primaryViolet.withValues(alpha: 0.4),
+                          color: StoryJobTheme.primaryViolet
+                              .withValues(alpha: 0.4),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
                       ],
                     ),
-                    child: const Icon(Icons.add_rounded, color: Colors.white, size: 28),
+                    child: const Icon(
+                      Icons.add_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
                   ),
                 ),
                 _buildNavItem(2, Icons.tune_rounded, 'Team DNA'),
@@ -165,14 +177,11 @@ class _TeamNavigationScreenState extends State<TeamNavigationScreen> {
       onTap: () {
         HapticFeedback.selectionClick();
         if (index == 3) {
-          // Öffnet direkt die Dialoge/Nachrichten
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (_) => const StoryDialogScreen(
-                chatId: 'team_dialogs',
-                targetName: 'Team-Dialoge',
-                roleContext: 'Aktive Gespräche mit Machern',
-                matchScore: 'StoryJob Teams',
+              builder: (_) => const DialogListScreen(
+                isTeamView: true,
+                initialTabIndex: 0,
               ),
             ),
           );
@@ -188,14 +197,18 @@ class _TeamNavigationScreenState extends State<TeamNavigationScreen> {
           children: [
             Icon(
               icon,
-              color: isSelected ? StoryJobTheme.cyanAccent : StoryJobTheme.textSecondary,
+              color: isSelected
+                  ? StoryJobTheme.cyanAccent
+                  : StoryJobTheme.textSecondary,
               size: 22,
             ),
             const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? StoryJobTheme.cyanAccent : StoryJobTheme.textSecondary,
+                color: isSelected
+                    ? StoryJobTheme.cyanAccent
+                    : StoryJobTheme.textSecondary,
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               ),

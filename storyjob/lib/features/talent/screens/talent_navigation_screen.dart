@@ -1,19 +1,20 @@
 // lib/features/talent/screens/talent_navigation_screen.dart
 import 'dart:ui';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:storyjob/core/theme/storyjob_theme.dart';
 import 'package:storyjob/core/widgets/glass_card.dart';
 import 'package:storyjob/core/widgets/story_pulse_status_bar.dart';
 import 'package:storyjob/features/identity/models/story_identity.dart';
 import 'package:storyjob/features/match/screens/story_match_screen.dart';
-import 'package:storyjob/features/profile/screens/user_growth_profile_screen.dart';
+import 'package:storyjob/features/messages/screens/dialog_list_screen.dart';
 import 'package:storyjob/features/profile/screens/my_story_screen.dart';
+import 'package:storyjob/features/profile/screens/user_growth_profile_screen.dart';
 import 'package:storyjob/features/record/screens/video_recording_screen.dart';
 import 'package:storyjob/features/voice/screens/voice_story_recorder_screen.dart';
-import 'package:storyjob/features/messages/screens/story_dialog_screen.dart';
 
 class TalentNavigationScreen extends StatefulWidget {
   const TalentNavigationScreen({super.key});
@@ -25,7 +26,7 @@ class TalentNavigationScreen extends StatefulWidget {
 class _TalentNavigationScreenState extends State<TalentNavigationScreen>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   int _currentIndex = 0;
-  int _matchBadgeCount = 3; // <-- Hier geändert von final auf veränderbar, damit sich das Badge beim Drücken aktualisiert
+  int _matchBadgeCount = 3;
   late final AnimationController _pulseController;
   late final Animation<double> _pulseAnimation;
   late final List<Widget> _pages;
@@ -85,8 +86,7 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
     HapticFeedback.selectionClick();
     setState(() {
       _currentIndex = index;
-      
-      // Sobald der Nutzer unten auf den Match-Tab (Index 1) drückt, springt das Badge auf 0
+
       if (index == 1) {
         _matchBadgeCount = 0;
       }
@@ -114,7 +114,8 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
             padding: const EdgeInsets.fromLTRB(20, 14, 20, 40),
             decoration: BoxDecoration(
               color: StoryJobTheme.cardSurfaceElevated.withValues(alpha: 0.96),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(32)),
               border: Border(
                 top: BorderSide(
                   color: StoryJobTheme.cyanAccent.withValues(alpha: 0.35),
@@ -153,7 +154,7 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
                 ),
                 const SizedBox(height: 6),
                 const Text(
-                  'Echte Persönlichkeit statt Lebenslauf auf Papier.',
+                  'Haltung & Stimme zählen mehr als starre Lebensläufe.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: StoryJobTheme.textSecondary,
@@ -255,11 +256,17 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: iconColor.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: iconColor.withValues(alpha: 0.35), width: 0.8),
+                        border: Border.all(
+                          color: iconColor.withValues(alpha: 0.35),
+                          width: 0.8,
+                        ),
                       ),
                       child: Text(
                         badgeText,
@@ -360,7 +367,8 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
             AnimatedBuilder(
               animation: _pulseAnimation,
               builder: (context, child) {
-                final double verticalOffset = -12 + (_pulseAnimation.value - 1.0) * 8;
+                final double verticalOffset =
+                    -12 + (_pulseAnimation.value - 1.0) * 8;
 
                 return Positioned(
                   top: verticalOffset,
@@ -377,12 +385,14 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: StoryJobTheme.cyanAccent.withValues(alpha: 0.30),
+                                color: StoryJobTheme.cyanAccent
+                                    .withValues(alpha: 0.30),
                                 blurRadius: 18,
                                 spreadRadius: 1,
                               ),
                               BoxShadow(
-                                color: StoryJobTheme.primaryViolet.withValues(alpha: 0.25),
+                                color: StoryJobTheme.primaryViolet
+                                    .withValues(alpha: 0.25),
                                 blurRadius: 20,
                                 spreadRadius: 1,
                               ),
@@ -464,13 +474,17 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
                     right: -8,
                     top: -4,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4.5, vertical: 1.5),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4.5,
+                        vertical: 1.5,
+                      ),
                       decoration: BoxDecoration(
                         color: StoryJobTheme.pinkMagenta,
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: [
                           BoxShadow(
-                            color: StoryJobTheme.pinkMagenta.withValues(alpha: 0.45),
+                            color: StoryJobTheme.pinkMagenta
+                                .withValues(alpha: 0.45),
                             blurRadius: 6,
                           ),
                         ],
@@ -491,7 +505,9 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
             Text(
               label,
               style: TextStyle(
-                color: isSelected ? StoryJobTheme.textPrimary : StoryJobTheme.textMuted,
+                color: isSelected
+                    ? StoryJobTheme.textPrimary
+                    : StoryJobTheme.textMuted,
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
@@ -503,9 +519,6 @@ class _TalentNavigationScreenState extends State<TalentNavigationScreen>
   }
 }
 
-// ============================================================================
-// GESCHWUNGENE CRADLE-NOTCH KONTUR
-// ============================================================================
 class _NotchedNavBorderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -527,8 +540,22 @@ class _NotchedNavBorderPainter extends CustomPainter {
     final path = Path();
     path.moveTo(0, 0);
     path.lineTo(center - notchRadius - shoulderWidth, 0);
-    path.cubicTo(center - notchRadius, 0, center - notchRadius + 5, notchDepth, center, notchDepth);
-    path.cubicTo(center + notchRadius - 5, notchDepth, center + notchRadius, 0, center + notchRadius + shoulderWidth, 0);
+    path.cubicTo(
+      center - notchRadius,
+      0,
+      center - notchRadius + 5,
+      notchDepth,
+      center,
+      notchDepth,
+    );
+    path.cubicTo(
+      center + notchRadius - 5,
+      notchDepth,
+      center + notchRadius,
+      0,
+      center + notchRadius + shoulderWidth,
+      0,
+    );
     path.lineTo(width, 0);
     path.lineTo(width, height);
     path.lineTo(0, height);
@@ -539,8 +566,22 @@ class _NotchedNavBorderPainter extends CustomPainter {
     final borderPath = Path();
     borderPath.moveTo(0, 0);
     borderPath.lineTo(center - notchRadius - shoulderWidth, 0);
-    borderPath.cubicTo(center - notchRadius, 0, center - notchRadius + 5, notchDepth, center, notchDepth);
-    borderPath.cubicTo(center + notchRadius - 5, notchDepth, center + notchRadius, 0, center + notchRadius + shoulderWidth, 0);
+    borderPath.cubicTo(
+      center - notchRadius,
+      0,
+      center - notchRadius + 5,
+      notchDepth,
+      center,
+      notchDepth,
+    );
+    borderPath.cubicTo(
+      center + notchRadius - 5,
+      notchDepth,
+      center + notchRadius,
+      0,
+      center + notchRadius + shoulderWidth,
+      0,
+    );
     borderPath.lineTo(width, 0);
     canvas.drawPath(borderPath, linePaint);
   }
@@ -549,9 +590,6 @@ class _NotchedNavBorderPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-// ============================================================================
-// STORIES HOME TAB
-// ============================================================================
 class _TalentStoriesTab extends StatelessWidget {
   final VoidCallback onOpenCreationHub;
   final Function(int) onNavigateToTab;
@@ -564,9 +602,10 @@ class _TalentStoriesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-    final firstName = (user?.displayName != null && user!.displayName!.isNotEmpty)
-        ? user.displayName!.split(' ').first
-        : 'Mitglied';
+    final firstName =
+        (user?.displayName != null && user!.displayName!.isNotEmpty)
+            ? user.displayName!.split(' ').first
+            : 'Mitglied';
 
     final double screenHeight = MediaQuery.of(context).size.height;
     final bool isSmallScreen = screenHeight < 700;
@@ -632,11 +671,9 @@ class _TalentStoriesTab extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const StoryDialogScreen(
-                              chatId: 'general_dialogs',
-                              targetName: 'Nachrichten',
-                              roleContext: 'Aktive Gespräche & Dialoge',
-                              matchScore: 'StoryJob',
+                            builder: (_) => const DialogListScreen(
+                              isTeamView: false,
+                              initialTabIndex: 1,
                             ),
                           ),
                         );
@@ -650,7 +687,8 @@ class _TalentStoriesTab extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: StoryJobTheme.cardSurfaceElevated,
                               shape: BoxShape.circle,
-                              border: Border.all(color: StoryJobTheme.cardBorder),
+                              border:
+                                  Border.all(color: StoryJobTheme.cardBorder),
                             ),
                             child: const Icon(
                               Icons.notifications_none_rounded,
@@ -676,16 +714,12 @@ class _TalentStoriesTab extends StatelessWidget {
                   ),
                 ],
               ),
-
               const SizedBox(height: 18),
-
               StoryPulseStatusBar(
                 isteam: false,
                 currentUserName: firstName,
               ),
-
               const SizedBox(height: 20),
-
               Text(
                 'Guten Morgen,\n$firstName 👋',
                 textAlign: TextAlign.center,
@@ -701,7 +735,7 @@ class _TalentStoriesTab extends StatelessWidget {
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  'Teile deine Werte und Stimme, um Teams zu finden, die wirklich zu dir passen.',
+                  'Teile deine Werte und Stimme – kostenlos und auf Augenhöhe, um Teams zu finden, die wirklich zu dir passen.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: StoryJobTheme.textSecondary,
@@ -710,9 +744,7 @@ class _TalentStoriesTab extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(height: 24),
-
               Semantics(
                 label: 'Neue Story aufnehmen',
                 button: true,
@@ -721,7 +753,11 @@ class _TalentStoriesTab extends StatelessWidget {
                   height: 54,
                   child: ElevatedButton.icon(
                     onPressed: onOpenCreationHub,
-                    icon: const Icon(Icons.add_circle_outline_rounded, size: 22, color: Color(0xFF0A0B10)),
+                    icon: const Icon(
+                      Icons.add_circle_outline_rounded,
+                      size: 22,
+                      color: Color(0xFF0A0B10),
+                    ),
                     label: const Text(
                       'Neue Story aufnehmen',
                       style: TextStyle(
@@ -740,9 +776,7 @@ class _TalentStoriesTab extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(height: 30),
-
               Semantics(
                 label: 'In deiner Wellenlänge. Tippen zum Öffnen der Matches.',
                 button: true,
@@ -759,13 +793,15 @@ class _TalentStoriesTab extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                      Icon(Icons.chevron_right_rounded, color: StoryJobTheme.textSecondary),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: StoryJobTheme.textSecondary,
+                      ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 12),
-
               GlassCard(
                 borderRadius: 20,
                 padding: const EdgeInsets.all(18),
@@ -783,7 +819,7 @@ class _TalentStoriesTab extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     const Text(
-                      'Teams aus deiner Region teilen deine Haltung zu Teamgeist & Eigenverantwortung.',
+                      'Teams aus deiner Region teilen deine Haltung zu Teamgeist, Eigenverantwortung und offenem Einstieg.',
                       style: TextStyle(
                         color: StoryJobTheme.textSecondary,
                         fontSize: 13,
@@ -798,19 +834,30 @@ class _TalentStoriesTab extends StatelessWidget {
                         onPressed: () => onNavigateToTab(1),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: StoryJobTheme.textPrimary,
-                          side: BorderSide(color: Colors.white.withValues(alpha: 0.25)),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                          side: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.25),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 10,
+                          ),
                         ),
-                        child: const Text('Matches ansehen', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                        child: const Text(
+                          'Matches ansehen',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-
               const SizedBox(height: 14),
-
               GlassCard(
                 borderRadius: 20,
                 borderGradient: StoryJobTheme.dnaCardBorder,
@@ -823,7 +870,10 @@ class _TalentStoriesTab extends StatelessWidget {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(14),
                         gradient: const LinearGradient(
-                          colors: [StoryJobTheme.primaryViolet, StoryJobTheme.pinkMagenta],
+                          colors: [
+                            StoryJobTheme.primaryViolet,
+                            StoryJobTheme.pinkMagenta,
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -831,7 +881,11 @@ class _TalentStoriesTab extends StatelessWidget {
                       child: const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.fingerprint_rounded, color: Colors.white, size: 28),
+                          Icon(
+                            Icons.fingerprint_rounded,
+                            color: Colors.white,
+                            size: 28,
+                          ),
                           SizedBox(height: 4),
                           Text(
                             'DNA',
@@ -859,7 +913,7 @@ class _TalentStoriesTab extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           const Text(
-                            'Beantworte die Frage des Tages in 30 Sekunden für bessere Treffer.',
+                            'Beantworte die Frage des Tages in 30 Sekunden für bessere Treffer – auch bei Neuorientierung.',
                             style: TextStyle(
                               color: StoryJobTheme.textSecondary,
                               fontSize: 12.5,
@@ -876,11 +930,21 @@ class _TalentStoriesTab extends StatelessWidget {
                                   onPressed: () => onNavigateToTab(2),
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: StoryJobTheme.textPrimary,
-                                    side: BorderSide(color: Colors.white.withValues(alpha: 0.25)),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                    side: BorderSide(
+                                      color: Colors.white.withValues(alpha: 0.25),
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 8,
+                                    ),
                                   ),
-                                  child: const Text('DNA öffnen', style: TextStyle(fontSize: 12.5)),
+                                  child: const Text(
+                                    'DNA öffnen',
+                                    style: TextStyle(fontSize: 12.5),
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -892,7 +956,8 @@ class _TalentStoriesTab extends StatelessWidget {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (_) => const VoiceStoryRecorderScreen(),
+                                        builder: (_) =>
+                                            const VoiceStoryRecorderScreen(),
                                       ),
                                     );
                                   },
@@ -900,10 +965,21 @@ class _TalentStoriesTab extends StatelessWidget {
                                     backgroundColor: StoryJobTheme.primaryViolet,
                                     foregroundColor: Colors.white,
                                     elevation: 0,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 8,
+                                    ),
                                   ),
-                                  child: const Text('Einsprechen', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
+                                  child: const Text(
+                                    'Einsprechen',
+                                    style: TextStyle(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],

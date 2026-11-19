@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:storyjob/core/theme/storyjob_theme.dart';
-import 'package:storyjob/features/match/screens/match_screen.dart';
 import 'package:storyjob/features/teams/screens/company_public_profile_screen.dart';
 
 typedef MatchItem = Map<String, dynamic>;
@@ -36,7 +35,7 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
   final List<MatchItem> _initialMatches = [
     {
       'id': 'match_bright_minds',
-      'companyId': 'alpha_tech_01', // Verknüpft mit unserem Firestore Alpha-Tier Schaufenster
+      'companyId': 'alpha_tech_01',
       'teamId': 'team_bright_01',
       'team': 'Bright Minds Team',
       'role': 'Projekt- & Teamkoordination (m/w/d)',
@@ -45,9 +44,18 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
       'score': 94,
       'matchScore': '94%',
       'tags': <String>['Vollzeit', 'Teamgeist', 'Sinnstiftend'],
-      'resonanceReason': 'Gleiche Haltung zu Eigenverantwortung und flachen Hierarchien.',
-      'resonancePillars': <String>['Transparenz', 'Eigenverantwortung', 'Miteinander'],
-      'benefits': <String>['Flexible Arbeitszeiten', 'Remote Option', 'Weiterbildungsbudget'],
+      'resonanceReason':
+          'Gleiche Haltung zu Eigenverantwortung und flachen Hierarchien.',
+      'resonancePillars': <String>[
+        'Transparenz',
+        'Eigenverantwortung',
+        'Miteinander'
+      ],
+      'benefits': <String>[
+        'Flexible Arbeitszeiten',
+        'Remote Option',
+        'Weiterbildungsbudget'
+      ],
       'category': 'kultur',
       'isRemote': true,
       'saved': false,
@@ -63,8 +71,13 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
       'score': 88,
       'matchScore': '88%',
       'tags': <String>['Führung', 'Gestaltung', 'Innovation'],
-      'resonanceReason': 'Dein Engagement passt genau zu den Zukunftsprojekten des Teams.',
-      'resonancePillars': <String>['Gestaltungsfreiraum', 'Agilität', 'Innovationskraft'],
+      'resonanceReason':
+          'Dein Engagement passt genau zu den Zukunftsprojekten des Teams.',
+      'resonancePillars': <String>[
+        'Gestaltungsfreiraum',
+        'Agilität',
+        'Innovationskraft'
+      ],
       'benefits': <String>['Home-Office-Pauschale', 'Modern Stack', 'Mentoring'],
       'category': 'workstyle',
       'isRemote': true,
@@ -81,8 +94,13 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
       'score': 82,
       'matchScore': '82%',
       'tags': <String>['Praxis', 'Nachhaltigkeit', 'Region'],
-      'resonanceReason': 'Gemeinsame Vision über zukunftsorientierte Lösungen in der Region.',
-      'resonancePillars': <String>['Nachhaltigkeit', 'Regionale Wirkung', 'Handwerk trifft Tech'],
+      'resonanceReason':
+          'Gemeinsame Vision über zukunftsorientierte Lösungen in der Region.',
+      'resonancePillars': <String>[
+        'Nachhaltigkeit',
+        'Regionale Wirkung',
+        'Handwerk trifft Tech'
+      ],
       'benefits': <String>['Fahrtkostenzuschuss', 'Kantine', 'Öko-Strom'],
       'category': 'vision',
       'isRemote': false,
@@ -108,15 +126,11 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
 
   void _openDetail(MatchItem match) {
     HapticFeedback.lightImpact();
-    
-    // Aktuelle User-ID des angemeldeten Talents abrufen
+
     final currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
-    
-    // Dynamische IDs aus dem Match-Item holen (mit Fallbacks)
     final String companyId = match['companyId'] as String? ?? 'alpha_tech_01';
     final String teamId = match['teamId'] as String? ?? 'team_xyz_01';
 
-    // Direkt zum Alpha-Tier-Schaufenster navigieren
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => CompanyPublicProfileScreen(
@@ -139,7 +153,6 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Kompakter Header
             Padding(
               padding: const EdgeInsets.fromLTRB(18, 12, 18, 6),
               child: Row(
@@ -163,15 +176,20 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                         widget.onOpenDna?.call();
                       },
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: StoryJobTheme.primaryViolet.withValues(alpha: 0.16),
+                          color: StoryJobTheme.primaryViolet
+                              .withValues(alpha: 0.16),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: StoryJobTheme.primaryViolet.withValues(alpha: 0.4)),
+                          border: Border.all(
+                              color: StoryJobTheme.primaryViolet
+                                  .withValues(alpha: 0.4)),
                         ),
                         child: const Row(
                           children: [
-                            Icon(Icons.fingerprint_rounded, color: StoryJobTheme.cyanAccent, size: 15),
+                            Icon(Icons.fingerprint_rounded,
+                                color: StoryJobTheme.cyanAccent, size: 15),
                             SizedBox(width: 6),
                             Text(
                               'DNA aktiv',
@@ -189,11 +207,11 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                 ],
               ),
             ),
-
-            // Tabs
             Container(
               decoration: const BoxDecoration(
-                border: Border(bottom: BorderSide(color: StoryJobTheme.cardBorder, width: 1)),
+                border: Border(
+                    bottom:
+                        BorderSide(color: StoryJobTheme.cardBorder, width: 1)),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Row(
@@ -211,11 +229,14 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                       },
                       behavior: HitTestBehavior.opaque,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 8),
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
-                              color: isSelected ? StoryJobTheme.cyanAccent : Colors.transparent,
+                              color: isSelected
+                                  ? StoryJobTheme.cyanAccent
+                                  : Colors.transparent,
                               width: 2.5,
                             ),
                           ),
@@ -223,9 +244,12 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                         child: Text(
                           _filters[index],
                           style: TextStyle(
-                            color: isSelected ? StoryJobTheme.cyanAccent : StoryJobTheme.textSecondary,
+                            color: isSelected
+                                ? StoryJobTheme.cyanAccent
+                                : StoryJobTheme.textSecondary,
                             fontSize: 13.5,
-                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                            fontWeight:
+                                isSelected ? FontWeight.w700 : FontWeight.w500,
                           ),
                         ),
                       ),
@@ -234,8 +258,6 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                 }),
               ),
             ),
-
-            // Match-Kartenliste
             Expanded(
               child: filteredMatches.isEmpty
                   ? _buildEmptyState()
@@ -259,22 +281,25 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                             decoration: BoxDecoration(
                               color: StoryJobTheme.cardSurface,
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: StoryJobTheme.cardBorder),
+                              border:
+                                  Border.all(color: StoryJobTheme.cardBorder),
                             ),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Linke Spalte: Score & Bookmark
                                 Column(
                                   children: [
                                     Container(
                                       width: 64,
-                                      padding: const EdgeInsets.symmetric(vertical: 8),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8),
                                       decoration: BoxDecoration(
-                                        color: StoryJobTheme.cyanAccent.withValues(alpha: 0.12),
+                                        color: StoryJobTheme.cyanAccent
+                                            .withValues(alpha: 0.12),
                                         borderRadius: BorderRadius.circular(14),
                                         border: Border.all(
-                                          color: StoryJobTheme.cyanAccent.withValues(alpha: 0.35),
+                                          color: StoryJobTheme.cyanAccent
+                                              .withValues(alpha: 0.35),
                                         ),
                                       ),
                                       child: Column(
@@ -305,7 +330,9 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                                     ),
                                     const SizedBox(height: 10),
                                     Semantics(
-                                      label: isSaved ? 'Aus Merkliste entfernen' : 'Merken',
+                                      label: isSaved
+                                          ? 'Aus Merkliste entfernen'
+                                          : 'Merken',
                                       button: true,
                                       child: IconButton(
                                         onPressed: () {
@@ -315,24 +342,27 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                                           });
                                         },
                                         icon: Icon(
-                                          isSaved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                                          color: isSaved ? StoryJobTheme.amberEnergy : StoryJobTheme.textMuted,
+                                          isSaved
+                                              ? Icons.bookmark_rounded
+                                              : Icons.bookmark_border_rounded,
+                                          color: isSaved
+                                              ? StoryJobTheme.amberEnergy
+                                              : StoryJobTheme.textMuted,
                                           size: 22,
                                         ),
                                       ),
                                     ),
                                   ],
                                 ),
-
                                 const SizedBox(width: 14),
-
-                                // Rechte Spalte: Details & Kennenlernen-Button
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
                                             match['location'] as String,
@@ -342,10 +372,13 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                                             ),
                                           ),
                                           Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 2),
                                             decoration: BoxDecoration(
-                                              color: StoryJobTheme.cardSurfaceElevated,
-                                              borderRadius: BorderRadius.circular(6),
+                                              color: StoryJobTheme
+                                                  .cardSurfaceElevated,
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
                                             ),
                                             child: Text(
                                               match['timeAgo'] as String,
@@ -382,15 +415,19 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                                         runSpacing: 4,
                                         children: tags.map((tag) {
                                           return Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 3),
                                             decoration: BoxDecoration(
-                                              color: StoryJobTheme.cardSurfaceElevated,
-                                              borderRadius: BorderRadius.circular(6),
+                                              color: StoryJobTheme
+                                                  .cardSurfaceElevated,
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
                                             ),
                                             child: Text(
                                               tag,
                                               style: const TextStyle(
-                                                color: StoryJobTheme.textSecondary,
+                                                color:
+                                                    StoryJobTheme.textSecondary,
                                                 fontSize: 11,
                                               ),
                                             ),
@@ -408,24 +445,32 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
                                       ),
                                       const SizedBox(height: 14),
                                       Semantics(
-                                        label: 'Kennenlernen und Details zu $teamName öffnen',
+                                        label:
+                                            'Kennenlernen und Details zu $teamName öffnen',
                                         button: true,
                                         child: SizedBox(
                                           width: double.infinity,
                                           height: 40,
                                           child: ElevatedButton.icon(
                                             onPressed: () => _openDetail(match),
-                                            icon: const Icon(Icons.chat_bubble_outline_rounded, size: 15),
+                                            icon: const Icon(
+                                                Icons.chat_bubble_outline_rounded,
+                                                size: 15),
                                             label: const Text(
                                               'Kennenlernen',
-                                              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 13.5),
                                             ),
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: StoryJobTheme.cyanAccent,
-                                              foregroundColor: const Color(0xFF0A0B10),
+                                              backgroundColor:
+                                                  StoryJobTheme.cyanAccent,
+                                              foregroundColor:
+                                                  const Color(0xFF0A0B10),
                                               elevation: 0,
                                               shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(20),
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
                                               ),
                                             ),
                                           ),
@@ -452,11 +497,15 @@ class _StoryMatchScreenState extends State<StoryMatchScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: const [
-          Icon(Icons.graphic_eq_rounded, size: 42, color: StoryJobTheme.cyanAccent),
+          Icon(Icons.graphic_eq_rounded,
+              size: 42, color: StoryJobTheme.cyanAccent),
           SizedBox(height: 14),
           Text(
             'Alle aktuellen Matches angesehen',
-            style: TextStyle(color: StoryJobTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.w700),
+            style: TextStyle(
+                color: StoryJobTheme.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w700),
           ),
           SizedBox(height: 4),
           Text(

@@ -1,12 +1,13 @@
 // lib/features/Teams/screens/teams_dna_screen.dart
-import 'dart:math';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:storyjob/core/theme/storyjob_theme.dart';
 import 'package:storyjob/core/widgets/glass_card.dart';
-import 'package:storyjob/features/Teams/models/team_dna.dart';
+import 'package:storyjob/features/Teams/models/teams_dna.dart';
+import 'package:storyjob/features/record/widgets/story_input_composer.dart';
 
 class TeamsDnaScreen extends StatefulWidget {
   final bool isInitialSetup;
@@ -24,11 +25,15 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
   final _nameController = TextEditingController();
   final _websiteController = TextEditingController();
   final _industryController = TextEditingController();
+  final _locationController = TextEditingController();
   final _missionController = TextEditingController();
+  final _teamSpiritController = TextEditingController();
   final _purposeController = TextEditingController();
+  final _careerBridgeController = TextEditingController();
 
   bool _isLoading = false;
   bool _isVerified = false;
+  bool _welcomesCareerChangers = true;
   final bool _publishAsPulseStatus = true;
   String? _videoUrl;
   String? _audioUrl;
@@ -41,11 +46,29 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
     'Handwerk & Praxis',
     'Tüftlergeist',
     'Gemeinwohl',
+    'Verlässlichkeit',
+    'Lernbereitschaft',
   ];
+
+  final List<String> _availableBenefits = [
+    'Einarbeitungs-Buddy',
+    'Flexible Arbeitszeiten',
+    '30 Tage Urlaub',
+    'Weiterbildungs-Budget',
+    'bKV Gesundheit',
+    'Hybrid / Remote',
+    'Sinn & Impact',
+  ];
+
   final Set<String> _selectedCultureValues = {
     'Teamgeist',
     'Eigenverantwortung',
     'Augenhöhe',
+  };
+
+  final Set<String> _selectedBenefits = {
+    'Einarbeitungs-Buddy',
+    'Flexible Arbeitszeiten',
   };
 
   @override
@@ -53,6 +76,8 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
     super.initState();
     _nameController.addListener(_onFieldChanged);
     _industryController.addListener(_onFieldChanged);
+    _locationController.addListener(_onFieldChanged);
+    _teamSpiritController.addListener(_onFieldChanged);
     _loadTeamData();
   }
 
@@ -64,11 +89,16 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
   void dispose() {
     _nameController.removeListener(_onFieldChanged);
     _industryController.removeListener(_onFieldChanged);
+    _locationController.removeListener(_onFieldChanged);
+    _teamSpiritController.removeListener(_onFieldChanged);
     _nameController.dispose();
     _websiteController.dispose();
     _industryController.dispose();
+    _locationController.dispose();
     _missionController.dispose();
+    _teamSpiritController.dispose();
     _purposeController.dispose();
+    _careerBridgeController.dispose();
     super.dispose();
   }
 
@@ -76,7 +106,10 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    final doc = await FirebaseFirestore.instance.collection('companies').doc(user.uid).get();
+    final doc = await FirebaseFirestore.instance
+        .collection('companies')
+        .doc(user.uid)
+        .get();
     if (doc.exists && doc.data() != null) {
       final data = doc.data()!;
       final dna = TeamDna.fromMap(data, doc.id);
@@ -85,20 +118,32 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
         _nameController.text = dna.name;
         _websiteController.text = dna.website;
         _industryController.text = dna.industry;
+        _locationController.text = dna.location;
         _missionController.text = dna.missionQuote;
+        _teamSpiritController.text = dna.teamSpiritQuote;
         _purposeController.text = dna.purposeVision;
+        _careerBridgeController.text = dna.careerChangerBridgeText;
+        _welcomesCareerChangers = dna.welcomesCareerChangers;
         _videoUrl = dna.videoStoryUrl;
         _audioUrl = dna.audioStoryUrl;
         _logoUrl = dna.logoUrl;
         _isVerified = dna.isVerified;
 
-        if (data['cultureTags'] is List) {
-          final tags = List<String>.from(data['cultureTags']);
-          if (tags.isNotEmpty) {
-            _selectedCultureValues
-              ..clear()
-              ..addAll(tags);
-          }
+        final loadedValues = dna.values.isNotEmpty
+            ? dna.values
+            : (data['cultureTags'] is List
+                ? List<String>.from(data['cultureTags'])
+                : <String>[]);
+        if (loadedValues.isNotEmpty) {
+          _selectedCultureValues
+            ..clear()
+            ..addAll(loadedValues);
+        }
+
+        if (dna.benefits.isNotEmpty) {
+          _selectedBenefits
+            ..clear()
+            ..addAll(dna.benefits);
         }
       });
     }
@@ -116,7 +161,10 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
 
     if (resolvedName.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Bitte einen gültigen Team- / Unternehmensnamen eingeben.')),
+        const SnackBar(
+          content: Text(
+              'Bitte einen gültigen Team- oder Unternehmensnamen eingeben.'),
+        ),
       );
       setState(() => _isLoading = false);
       return;
@@ -128,8 +176,14 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
         name: resolvedName,
         website: _websiteController.text.trim(),
         industry: resolvedIndustry,
+        location: _locationController.text.trim(),
         missionQuote: _missionController.text.trim(),
         purposeVision: _purposeController.text.trim(),
+        teamSpiritQuote: _teamSpiritController.text.trim(),
+        values: _selectedCultureValues.toList(),
+        benefits: _selectedBenefits.toList(),
+        welcomesCareerChangers: _welcomesCareerChangers,
+        careerChangerBridgeText: _careerBridgeController.text.trim(),
         logoUrl: _logoUrl,
         videoStoryUrl: _videoUrl,
         audioStoryUrl: _audioUrl,
@@ -151,9 +205,12 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
       if (_publishAsPulseStatus) {
         final statusText = _missionController.text.trim().isNotEmpty
             ? _missionController.text.trim()
-            : 'Wir haben unsere StoryJob DNA aktualisiert ✨';
+            : 'Wir haben unsere StoryJob™ Teams DNA aktualisiert ✨';
 
-        await FirebaseFirestore.instance.collection('pulse_statuses').doc(user.uid).set({
+        await FirebaseFirestore.instance
+            .collection('pulse_statuses')
+            .doc(user.uid)
+            .set({
           'authorId': user.uid,
           'authorRole': 'team',
           'name': resolvedName,
@@ -169,8 +226,11 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text(
-            'Firmen-DNA erfolgreich gespeichert ✨',
-            style: TextStyle(color: StoryJobTheme.textPrimary, fontWeight: FontWeight.w500),
+            'StoryJob™ Teams DNA erfolgreich gesichert ✨',
+            style: TextStyle(
+              color: StoryJobTheme.textPrimary,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           backgroundColor: StoryJobTheme.cardSurfaceElevated,
           behavior: SnackBarBehavior.floating,
@@ -212,13 +272,17 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
       child: TextFormField(
         controller: controller,
         maxLines: maxLines,
-        style: const TextStyle(color: StoryJobTheme.textPrimary, fontSize: 13.5),
+        style:
+            const TextStyle(color: StoryJobTheme.textPrimary, fontSize: 13.5),
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(color: StoryJobTheme.textMuted, fontSize: 13),
-          prefixIcon: Icon(prefixIcon, color: StoryJobTheme.cyanAccent, size: 19),
+          hintStyle:
+              const TextStyle(color: StoryJobTheme.textMuted, fontSize: 13),
+          prefixIcon:
+              Icon(prefixIcon, color: StoryJobTheme.cyanAccent, size: 19),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
       ),
     );
@@ -226,8 +290,15 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final teamName = _nameController.text.isNotEmpty ? _nameController.text : 'Team-Profil einrichten';
-    final industry = _industryController.text.isNotEmpty ? _industryController.text : 'Branche & Werte definieren';
+    final teamName = _nameController.text.isNotEmpty
+        ? _nameController.text
+        : 'Team-Profil einrichten';
+    final industry = _industryController.text.isNotEmpty
+        ? _industryController.text
+        : 'Branche & Kultur definieren';
+    final location = _locationController.text.trim();
+    final subtitleText =
+        location.isNotEmpty ? '$industry • $location' : industry;
     final bool canPop = Navigator.of(context).canPop();
 
     return Scaffold(
@@ -238,13 +309,21 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
         elevation: 0,
         leading: canPop
             ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, color: StoryJobTheme.textPrimary, size: 18),
+                icon: const Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: StoryJobTheme.textPrimary,
+                  size: 18,
+                ),
                 onPressed: () => Navigator.of(context).pop(),
               )
             : null,
         title: const Text(
-          'Firmen-DNA & Team-Kultur',
-          style: TextStyle(color: StoryJobTheme.textPrimary, fontSize: 17, fontWeight: FontWeight.w700),
+          'StoryJob™ Teams DNA',
+          style: TextStyle(
+            color: StoryJobTheme.textPrimary,
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+          ),
         ),
         centerTitle: true,
       ),
@@ -255,7 +334,7 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Text(
-              'SO SEHEN TALENTE EUER TEAM',
+              'SO ERLEBEN TALENTE EUER TEAM',
               style: TextStyle(
                 color: StoryJobTheme.cyanAccent,
                 fontSize: 11,
@@ -264,42 +343,78 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
               ),
             ),
             const SizedBox(height: 10),
-
             GlassCard(
               borderRadius: 24,
               borderGradient: StoryJobTheme.dnaCardBorder,
               hasNeonGlow: true,
               padding: const EdgeInsets.all(18),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
                       Container(
-                        width: 56,
-                        height: 56,
+                        width: 52,
+                        height: 52,
                         decoration: BoxDecoration(
                           color: StoryJobTheme.cardSurfaceElevated,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: StoryJobTheme.cyanAccent.withValues(alpha: 0.6), width: 1.5),
+                          border: Border.all(
+                            color: StoryJobTheme.primaryViolet
+                                .withValues(alpha: 0.6),
+                            width: 1.5,
+                          ),
                         ),
-                        child: const Icon(Icons.business_rounded, color: StoryJobTheme.cyanAccent, size: 28),
+                        child: const Icon(
+                          Icons.groups_rounded,
+                          color: StoryJobTheme.primaryViolet,
+                          size: 26,
+                        ),
                       ),
                       const SizedBox(width: 14),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              teamName,
-                              style: const TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
-                                color: StoryJobTheme.textPrimary,
-                              ),
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    teamName,
+                                    style: const TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w700,
+                                      color: StoryJobTheme.textPrimary,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 7,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: StoryJobTheme.primaryViolet
+                                        .withValues(alpha: 0.16),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Text(
+                                    'TEAM',
+                                    style: TextStyle(
+                                      color: StoryJobTheme.primaryViolet,
+                                      fontSize: 9.5,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              industry,
+                              subtitleText,
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: StoryJobTheme.textSecondary,
@@ -310,11 +425,22 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  if (_teamSpiritController.text.trim().isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      '„${_teamSpiritController.text.trim()}“',
+                      style: const TextStyle(
+                        color: StoryJobTheme.textPrimary,
+                        fontSize: 13,
+                        fontStyle: FontStyle.italic,
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 14),
                   Wrap(
                     spacing: 6,
                     runSpacing: 6,
-                    alignment: WrapAlignment.center,
                     children: _selectedCultureValues.map((tag) {
                       return _PreviewChip(
                         label: tag,
@@ -322,36 +448,154 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
                       );
                     }).toList(),
                   ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: 120,
-                    height: 64,
-                    child: CustomPaint(
-                      painter: _MiniArcPainter(progress: 0.96),
-                      child: const Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Text(
-                          "96%",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                  if (_selectedBenefits.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: _selectedBenefits.take(4).map((b) {
+                        return _PreviewChip(
+                          label: b,
+                          color: StoryJobTheme.champagneGold,
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                  if (_welcomesCareerChangers) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 7,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            StoryJobTheme.emeraldGreen.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color:
+                              StoryJobTheme.emeraldGreen.withValues(alpha: 0.40),
                         ),
                       ),
+                      child: Row(
+                        children: const [
+                          Icon(
+                            Icons.handshake_rounded,
+                            color: StoryJobTheme.emeraldGreen,
+                            size: 16,
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Quereinsteiger-Brücke aktiv: Haltung & Lernfreude zählen vor Lebenslauf.',
+                              style: TextStyle(
+                                color: StoryJobTheme.textPrimary,
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    "Werte-Match mit Talent-DNA",
-                    style: TextStyle(fontSize: 11, color: StoryJobTheme.textSecondary),
-                  ),
+                  ],
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 22),
             const Text(
-              'GELEBTE TEAM-WERTE AUSWÄHLEN',
+              'NIEDRIGSCHWELLIGE BRÜCKE & CHANCEN',
+              style: TextStyle(
+                color: StoryJobTheme.cyanAccent,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.0,
+              ),
+            ),
+            const SizedBox(height: 10),
+            GlassCard(
+              borderRadius: 20,
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Offen für Quereinstieg & Wandel',
+                              style: TextStyle(
+                                color: StoryJobTheme.textPrimary,
+                                fontSize: 14.5,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            SizedBox(height: 3),
+                            Text(
+                              'Zeigt Talenten in Umbruchphasen, dass ihr Potenzial & Praxis höher gewichtet als Noten.',
+                              style: TextStyle(
+                                color: StoryJobTheme.textSecondary,
+                                fontSize: 12,
+                                height: 1.35,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Switch.adaptive(
+                        value: _welcomesCareerChangers,
+                        activeThumbColor: StoryJobTheme.emeraldGreen,
+                        onChanged: (val) {
+                          HapticFeedback.selectionClick();
+                          setState(() => _welcomesCareerChangers = val);
+                        },
+                      ),
+                    ],
+                  ),
+                  if (_welcomesCareerChangers) ...[
+                    const SizedBox(height: 12),
+                    _buildCustomInputField(
+                      controller: _careerBridgeController,
+                      hintText:
+                          'Wie begleitet ihr Quereinsteiger? (z. B. Einarbeitungs-Buddy)',
+                      prefixIcon: Icons.support_agent_rounded,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 22),
+            const Text(
+              'TEAM SPIRIT & KULTUR-STORY ÜBER DEN STORY COMPOSER',
+              style: TextStyle(
+                color: StoryJobTheme.cyanAccent,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.0,
+              ),
+            ),
+            const SizedBox(height: 10),
+            StoryInputComposer(
+              controller: _purposeController,
+              isTeamMode: true,
+              hintText:
+                  'Erzählt frei, wie ihr zusammenarbeitet, was euch wichtig ist oder wie ihr neue Menschen willkommen heißt...',
+              onExtractionComplete: (extraction) {
+                if (extraction.extractedValues.isNotEmpty) {
+                  setState(() {
+                    for (final v in extraction.extractedValues) {
+                      _selectedCultureValues.add(v);
+                    }
+                  });
+                }
+              },
+            ),
+            const SizedBox(height: 22),
+            const Text(
+              'GELEBTE TEAM-WERTE',
               style: TextStyle(
                 color: StoryJobTheme.cyanAccent,
                 fontSize: 11,
@@ -371,7 +615,8 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
                   return FilterChip(
                     label: Text(value),
                     selected: isSelected,
-                    selectedColor: StoryJobTheme.cyanAccent.withValues(alpha: 0.2),
+                    selectedColor:
+                        StoryJobTheme.cyanAccent.withValues(alpha: 0.2),
                     backgroundColor: StoryJobTheme.cardSurfaceElevated,
                     checkmarkColor: StoryJobTheme.cyanAccent,
                     side: BorderSide(
@@ -380,9 +625,12 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
                           : StoryJobTheme.cardBorder,
                     ),
                     labelStyle: TextStyle(
-                      color: isSelected ? StoryJobTheme.textPrimary : StoryJobTheme.textSecondary,
+                      color: isSelected
+                          ? StoryJobTheme.textPrimary
+                          : StoryJobTheme.textSecondary,
                       fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w400,
                     ),
                     onSelected: (selected) {
                       HapticFeedback.selectionClick();
@@ -400,7 +648,60 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
             ),
             const SizedBox(height: 22),
             const Text(
-              'TEAM-PROFIL BEARBEITEN',
+              'BENEFITS & RAHMENBEDINGUNGEN',
+              style: TextStyle(
+                color: StoryJobTheme.cyanAccent,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.0,
+              ),
+            ),
+            const SizedBox(height: 10),
+            GlassCard(
+              borderRadius: 20,
+              padding: const EdgeInsets.all(14),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _availableBenefits.map((benefit) {
+                  final isSelected = _selectedBenefits.contains(benefit);
+                  return FilterChip(
+                    label: Text(benefit),
+                    selected: isSelected,
+                    selectedColor:
+                        StoryJobTheme.champagneGold.withValues(alpha: 0.2),
+                    backgroundColor: StoryJobTheme.cardSurfaceElevated,
+                    checkmarkColor: StoryJobTheme.champagneGold,
+                    side: BorderSide(
+                      color: isSelected
+                          ? StoryJobTheme.champagneGold.withValues(alpha: 0.6)
+                          : StoryJobTheme.cardBorder,
+                    ),
+                    labelStyle: TextStyle(
+                      color: isSelected
+                          ? StoryJobTheme.textPrimary
+                          : StoryJobTheme.textSecondary,
+                      fontSize: 12,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w400,
+                    ),
+                    onSelected: (selected) {
+                      HapticFeedback.selectionClick();
+                      setState(() {
+                        if (selected) {
+                          _selectedBenefits.add(benefit);
+                        } else {
+                          _selectedBenefits.remove(benefit);
+                        }
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+            const SizedBox(height: 22),
+            const Text(
+              'ECKDATEN & TEAM-SPIRIT',
               style: TextStyle(
                 color: StoryJobTheme.cyanAccent,
                 fontSize: 11,
@@ -427,22 +728,27 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
                   ),
                   const SizedBox(height: 12),
                   _buildCustomInputField(
+                    controller: _locationController,
+                    hintText: 'Region / Standort (z. B. Rottal-Inn / Remote)',
+                    prefixIcon: Icons.location_on_outlined,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildCustomInputField(
                     controller: _websiteController,
                     hintText: 'Website',
                     prefixIcon: Icons.language_rounded,
                   ),
                   const SizedBox(height: 12),
                   _buildCustomInputField(
-                    controller: _missionController,
-                    hintText: 'Team-Motto / Mission',
-                    prefixIcon: Icons.format_quote_rounded,
+                    controller: _teamSpiritController,
+                    hintText: 'Team-Spirit Zitat (Was macht euch als Team aus?)',
+                    prefixIcon: Icons.favorite_outline_rounded,
                   ),
                   const SizedBox(height: 12),
                   _buildCustomInputField(
-                    controller: _purposeController,
-                    hintText: 'Gelebte Werte im Alltag',
-                    prefixIcon: Icons.auto_awesome_rounded,
-                    maxLines: 3,
+                    controller: _missionController,
+                    hintText: 'Team-Motto / Mission',
+                    prefixIcon: Icons.format_quote_rounded,
                   ),
                 ],
               ),
@@ -455,13 +761,20 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
                   backgroundColor: StoryJobTheme.primaryViolet,
                   foregroundColor: Colors.white,
                   elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
                 ),
                 onPressed: _isLoading ? null : _saveProfile,
                 icon: const Icon(Icons.save_rounded, size: 18),
                 label: Text(
-                  _isLoading ? 'Wird gespeichert...' : 'Firmen-DNA sichern ✨',
-                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  _isLoading
+                      ? 'Wird gespeichert...'
+                      : 'StoryJob™ Teams DNA sichern ✨',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
                 ),
               ),
             ),
@@ -489,49 +802,12 @@ class _PreviewChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w600),
+        style: TextStyle(
+          color: color,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
-}
-
-class _MiniArcPainter extends CustomPainter {
-  final double progress;
-  _MiniArcPainter({required this.progress});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height);
-    final radius = size.width / 2 - 6;
-    const strokeWidth = 5.5;
-
-    final bgPaint = Paint()
-      ..color = Colors.white12
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
-
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), pi, pi, false, bgPaint);
-
-    const sweepGradient = SweepGradient(
-      startAngle: pi,
-      endAngle: 2 * pi,
-      colors: [
-        StoryJobTheme.cyanAccent,
-        StoryJobTheme.primaryViolet,
-        StoryJobTheme.pinkMagenta,
-      ],
-    );
-
-    final activePaint = Paint()
-      ..shader = sweepGradient.createShader(Rect.fromCircle(center: center, radius: radius))
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round;
-
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), pi, pi * progress, false, activePaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _MiniArcPainter oldDelegate) => oldDelegate.progress != progress;
 }

@@ -25,6 +25,19 @@ extension StoryDnaTierExtension on StoryDnaTier {
     }
   }
 
+  String get stageBadge {
+    switch (this) {
+      case StoryDnaTier.starter:
+        return 'Stimme';
+      case StoryDnaTier.resonanz:
+        return 'Werte';
+      case StoryDnaTier.magnet:
+        return 'Vertiefung';
+      case StoryDnaTier.praesenz:
+        return 'Präsenz';
+    }
+  }
+
   String get description {
     switch (this) {
       case StoryDnaTier.starter:
@@ -32,20 +45,20 @@ extension StoryDnaTierExtension on StoryDnaTier {
       case StoryDnaTier.resonanz:
         return 'Deine Werte sind sichtbar. Teams mit ähnlicher Wellenlänge entdecken dein Profil.';
       case StoryDnaTier.magnet:
-        return 'Hohe Werte-Passung. Teams und Macher erleben sofort ein klares Bild deiner Persönlichkeit.';
+        return 'Starke Ausstrahlung. Teams und Macher erleben sofort ein klares Bild deiner Persönlichkeit.';
       case StoryDnaTier.praesenz:
-        return 'Maximale Entfaltung. Deine Story inspiriert und verbindet dich direkt auf Augenhöhe.';
+        return 'Breite Entfaltung. Deine Story inspiriert und verbindet dich direkt auf Augenhöhe.';
     }
   }
 
   String get perkDescription {
     switch (this) {
       case StoryDnaTier.starter:
-        return 'Erste Wahrnehmung im Werte-Passungfeld';
+        return 'Erste Wahrnehmung im Wertefeld';
       case StoryDnaTier.resonanz:
         return 'Sichtbar für Werte-Gemeinschaften';
       case StoryDnaTier.magnet:
-        return 'Hohe Werte-Passung bei passenden Teams';
+        return 'Klare Verbindung zu passenden Teams';
       case StoryDnaTier.praesenz:
         return 'Vollständige Entfaltung auf Augenhöhe';
     }
@@ -54,34 +67,21 @@ extension StoryDnaTierExtension on StoryDnaTier {
   Color get color {
     switch (this) {
       case StoryDnaTier.starter:
-        return const Color(0xFFB47854); // Edles Warmbronze
+        return const Color(0xFFB47854);
       case StoryDnaTier.resonanz:
-        return StoryJobTheme.primaryViolet; // Violett: Werte & Werte-Passung
+        return StoryJobTheme.primaryViolet;
       case StoryDnaTier.magnet:
-        return StoryJobTheme.champagneGold; // Gold: Magnetismus
+        return StoryJobTheme.champagneGold;
       case StoryDnaTier.praesenz:
-        return StoryJobTheme.cyanAccent; // Cyan: Volle Präsenz & Klarheit
-    }
-  }
-
-  int get threshold {
-    switch (this) {
-      case StoryDnaTier.starter:
-        return 0;
-      case StoryDnaTier.resonanz:
-        return 35;
-      case StoryDnaTier.magnet:
-        return 70;
-      case StoryDnaTier.praesenz:
-        return 90;
+        return StoryJobTheme.cyanAccent;
     }
   }
 }
 
 class StoryLevelTrackerWidget extends StatelessWidget {
-  final int dnaCompleteness; // z.B. 78 (%)
-  final int storiesRecorded; // z.B. 3
-  final int activeValuesCount; // z.B. 4 (ausgewählte Werte)
+  final int dnaCompleteness;
+  final int storiesRecorded;
+  final int activeValuesCount;
   final VoidCallback? onDeepenStory;
 
   const StoryLevelTrackerWidget({
@@ -92,16 +92,25 @@ class StoryLevelTrackerWidget extends StatelessWidget {
     this.onDeepenStory,
   });
 
-  StoryDnaTier get _currentTier {
+  int get _tierRank {
     final clamped = dnaCompleteness.clamp(0, 100);
-    if (clamped >= StoryDnaTier.praesenz.threshold) {
-      return StoryDnaTier.praesenz;
-    } else if (clamped >= StoryDnaTier.magnet.threshold) {
-      return StoryDnaTier.magnet;
-    } else if (clamped >= StoryDnaTier.resonanz.threshold) {
-      return StoryDnaTier.resonanz;
+    if (clamped >= 90) return 3;
+    if (clamped >= 70) return 2;
+    if (clamped >= 35) return 1;
+    return 0;
+  }
+
+  StoryDnaTier get _currentTier {
+    switch (_tierRank) {
+      case 3:
+        return StoryDnaTier.praesenz;
+      case 2:
+        return StoryDnaTier.magnet;
+      case 1:
+        return StoryDnaTier.resonanz;
+      default:
+        return StoryDnaTier.starter;
     }
-    return StoryDnaTier.starter;
   }
 
   StoryDnaTier? get _nextTier {
@@ -117,22 +126,19 @@ class StoryLevelTrackerWidget extends StatelessWidget {
     }
   }
 
-  double get _progressToNextTier {
+  double get _radialVisualProgress {
     final next = _nextTier;
     if (next == null) return 1.0;
-    final currentMin = _currentTier.threshold;
-    final nextTarget = next.threshold;
-    final range = nextTarget - currentMin;
-    final progressIntoRange = dnaCompleteness.clamp(0, 100) - currentMin;
-    return (progressIntoRange / range).clamp(0.0, 1.0);
+    final clamped = dnaCompleteness.clamp(0, 100);
+    final double normalized = (clamped % 35) / 35.0;
+    return normalized.clamp(0.18, 0.92);
   }
 
   @override
   Widget build(BuildContext context) {
     final tier = _currentTier;
     final next = _nextTier;
-    final int clampedValue = dnaCompleteness.clamp(0, 100);
-    final double radialProgress = _progressToNextTier;
+    final double radialProgress = _radialVisualProgress;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -211,7 +217,8 @@ class StoryLevelTrackerWidget extends StatelessWidget {
                         ),
                         const Spacer(),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
                             color: tier.color.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(8),
@@ -221,7 +228,7 @@ class StoryLevelTrackerWidget extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            '$clampedValue% entfaltet',
+                            'In Entfaltung',
                             style: TextStyle(
                               color: tier.color,
                               fontSize: 10.5,
@@ -279,7 +286,7 @@ class StoryLevelTrackerWidget extends StatelessWidget {
           ),
           const SizedBox(height: 18),
 
-          // 2. ENTFALTUNGS-LEITER (DIE 4 STUFEN OHNE RATING-DRUCK)
+          // 2. ENTFALTUNGS-LEITER (OHNE SCHWELLENWERTE / SCORES)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
@@ -291,33 +298,29 @@ class StoryLevelTrackerWidget extends StatelessWidget {
               children: [
                 _buildTierRow(
                   tierItem: StoryDnaTier.starter,
-                  currentTier: tier,
-                  clampedValue: clampedValue,
+                  rank: 0,
                 ),
                 const Divider(color: StoryJobTheme.cardBorder, height: 16),
                 _buildTierRow(
                   tierItem: StoryDnaTier.resonanz,
-                  currentTier: tier,
-                  clampedValue: clampedValue,
+                  rank: 1,
                 ),
                 const Divider(color: StoryJobTheme.cardBorder, height: 16),
                 _buildTierRow(
                   tierItem: StoryDnaTier.magnet,
-                  currentTier: tier,
-                  clampedValue: clampedValue,
+                  rank: 2,
                 ),
                 const Divider(color: StoryJobTheme.cardBorder, height: 16),
                 _buildTierRow(
                   tierItem: StoryDnaTier.praesenz,
-                  currentTier: tier,
-                  clampedValue: clampedValue,
+                  rank: 3,
                 ),
               ],
             ),
           ),
           const SizedBox(height: 16),
 
-          // 3. MENSCHLICHER NÄCHSTER SCHRITT (PILL-BUTTON STATT "BOOST")
+          // 3. MENSCHLICHER NÄCHSTER SCHRITT
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -332,7 +335,7 @@ class StoryLevelTrackerWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Nächster Werte-Passung-Schritt:',
+                        'Nächster Schritt für deine Geschichte:',
                         style: TextStyle(
                           color: StoryJobTheme.textPrimary,
                           fontSize: 12,
@@ -360,7 +363,8 @@ class StoryLevelTrackerWidget extends StatelessWidget {
                     backgroundColor: tier.color.withValues(alpha: 0.18),
                     foregroundColor: Colors.white,
                     elevation: 0,
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                       side: BorderSide(color: tier.color.withValues(alpha: 0.45)),
@@ -386,11 +390,10 @@ class StoryLevelTrackerWidget extends StatelessWidget {
 
   Widget _buildTierRow({
     required StoryDnaTier tierItem,
-    required StoryDnaTier currentTier,
-    required int clampedValue,
+    required int rank,
   }) {
-    final bool isActive = currentTier == tierItem;
-    final bool isPassed = clampedValue >= (tierItem == StoryDnaTier.starter ? 35 : tierItem.threshold);
+    final bool isActive = _tierRank == rank;
+    final bool isPassed = _tierRank > rank;
 
     return Row(
       children: [
@@ -406,9 +409,11 @@ class StoryLevelTrackerWidget extends StatelessWidget {
             ),
           ),
           child: Icon(
-            isPassed && !isActive
+            isPassed
                 ? Icons.check_rounded
-                : (isActive ? Icons.play_arrow_rounded : Icons.lock_outline_rounded),
+                : (isActive
+                    ? Icons.play_arrow_rounded
+                    : Icons.lock_outline_rounded),
             color: tierItem.color,
             size: 13,
           ),
@@ -419,7 +424,9 @@ class StoryLevelTrackerWidget extends StatelessWidget {
           style: TextStyle(
             color: isActive
                 ? StoryJobTheme.textPrimary
-                : (isPassed ? StoryJobTheme.textSecondary : StoryJobTheme.textMuted),
+                : (isPassed
+                    ? StoryJobTheme.textSecondary
+                    : StoryJobTheme.textMuted),
             fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
             fontSize: 12.5,
           ),
@@ -432,7 +439,7 @@ class StoryLevelTrackerWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            'ab ${tierItem.threshold}%',
+            tierItem.stageBadge,
             style: TextStyle(
               color: tierItem.color,
               fontSize: 9.5,

@@ -153,7 +153,7 @@ C:\USERS\FAM-A\STORYJOB-APP\STORYJOB\LIB
 |   |           
 |   +---team
 |   |   +---models
-|   |   |       team_dna.dart
+|   |   |       teams_dna.dart
 |   |   |       job_story.dart
 |   |   |       
 |   |   +---screens

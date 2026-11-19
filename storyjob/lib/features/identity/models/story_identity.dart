@@ -12,6 +12,8 @@ class StoryIdentity {
   final List<String> communities; // Ehrenamt, Vereine, Initiativen
   final List<String> learningInterests;
   final String impactVision;
+  final String orientationMode; // z. B. 'rooted', 'open_paths', 'new_start'
+  final bool isOpenForNewPaths;
 
   const StoryIdentity({
     this.userId = '',
@@ -24,9 +26,10 @@ class StoryIdentity {
     this.communities = const [],
     this.learningInterests = const [],
     this.impactVision = '',
+    this.orientationMode = 'open_paths',
+    this.isOpenForNewPaths = true,
   });
 
-  /// Prüft, ob überhaupt Profilfacetten hinterlegt sind
   bool get isEmpty =>
       values.isEmpty &&
       interests.isEmpty &&
@@ -40,19 +43,17 @@ class StoryIdentity {
 
   bool get isNotEmpty => !isEmpty;
 
-  /// Ermittelt den Entfaltungsgrad der StoryJob DNA™ (0 bis 100 %)[cite: 10, 11]
   int get completenessPercent {
     int score = 0;
-    if (values.isNotEmpty) score += 25; // Kernwerte definiert
-    if (interests.isNotEmpty || strengths.isNotEmpty) score += 20; // Haltung & Interessen
-    if (workstyle.isNotEmpty || motivators.isNotEmpty) score += 20; // Arbeitsweise & Antrieb
-    if (communities.isNotEmpty) score += 15; // Engagement / Vereine
-    if (learningInterests.isNotEmpty) score += 10; // Wachstumsfokus
-    if (impactVision.trim().isNotEmpty) score += 10; // Vision / Wirkung
+    if (values.isNotEmpty) score += 25;
+    if (interests.isNotEmpty || strengths.isNotEmpty) score += 20;
+    if (workstyle.isNotEmpty || motivators.isNotEmpty) score += 20;
+    if (communities.isNotEmpty) score += 15;
+    if (learningInterests.isNotEmpty) score += 10;
+    if (impactVision.trim().isNotEmpty) score += 10;
     return score.clamp(0, 100);
   }
 
-  /// Ermittelt gemeinsame Kernwerte mit einem Zielprofil[cite: 10, 11]
   List<String> findSharedValues(StoryIdentity other) {
     final otherSet = other.values.map((v) => v.trim().toLowerCase()).toSet();
     return values
@@ -60,7 +61,6 @@ class StoryIdentity {
         .toList();
   }
 
-  /// Ermittelt gemeinsame Interessen, Engagements oder Communities[cite: 10, 11]
   List<String> findSharedCommunities(StoryIdentity other) {
     final otherSet = other.communities.map((c) => c.trim().toLowerCase()).toSet();
     return communities
@@ -79,6 +79,8 @@ class StoryIdentity {
     List<String>? communities,
     List<String>? learningInterests,
     String? impactVision,
+    String? orientationMode,
+    bool? isOpenForNewPaths,
   }) {
     return StoryIdentity(
       userId: userId ?? this.userId,
@@ -91,6 +93,8 @@ class StoryIdentity {
       communities: communities ?? this.communities,
       learningInterests: learningInterests ?? this.learningInterests,
       impactVision: impactVision ?? this.impactVision,
+      orientationMode: orientationMode ?? this.orientationMode,
+      isOpenForNewPaths: isOpenForNewPaths ?? this.isOpenForNewPaths,
     );
   }
 
@@ -106,13 +110,18 @@ class StoryIdentity {
       'communities': communities,
       'learningInterests': learningInterests,
       'impactVision': impactVision,
+      'orientationMode': orientationMode,
+      'isOpenForNewPaths': isOpenForNewPaths,
       'updatedAt': FieldValue.serverTimestamp(),
     };
   }
 
   static List<String> _parseList(dynamic list) {
     if (list is List) {
-      return list.map((e) => e.toString().trim()).where((e) => e.isNotEmpty).toList();
+      return list
+          .map((e) => e.toString().trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
     }
     return const [];
   }
@@ -129,12 +138,15 @@ class StoryIdentity {
       communities: _parseList(map['communities']),
       learningInterests: _parseList(map['learningInterests']),
       impactVision: map['impactVision'] as String? ?? '',
+      orientationMode: map['orientationMode'] as String? ?? 'open_paths',
+      isOpenForNewPaths: map['isOpenForNewPaths'] as bool? ?? true,
     );
   }
 
   factory StoryIdentity.fromFirestore(DocumentSnapshot doc) {
     final rawData = doc.data();
-    final Map<String, dynamic> data = (rawData is Map<String, dynamic>) ? rawData : {};
+    final Map<String, dynamic> data =
+        (rawData is Map<String, dynamic>) ? rawData : {};
     return StoryIdentity.fromMap(data, id: doc.id);
   }
 
@@ -145,9 +157,16 @@ class StoryIdentity {
           runtimeType == other.runtimeType &&
           userId == other.userId &&
           impactVision == other.impactVision &&
+          orientationMode == other.orientationMode &&
+          isOpenForNewPaths == other.isOpenForNewPaths &&
           values.length == other.values.length &&
           communities.length == other.communities.length;
 
   @override
-  int get hashCode => userId.hashCode ^ impactVision.hashCode ^ values.length.hashCode;
+  int get hashCode =>
+      userId.hashCode ^
+      impactVision.hashCode ^
+      orientationMode.hashCode ^
+      isOpenForNewPaths.hashCode ^
+      values.length.hashCode;
 }

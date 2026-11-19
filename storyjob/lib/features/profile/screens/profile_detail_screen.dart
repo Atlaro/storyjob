@@ -1,5 +1,4 @@
 // lib/features/profile/screens/profile_detail_screen.dart
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:storyjob/core/theme/storyjob_theme.dart';
@@ -23,10 +22,10 @@ class ProfileDetailScreen extends StatefulWidget {
   State<ProfileDetailScreen> createState() => _ProfileDetailScreenState();
 }
 
-class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerProviderStateMixin {
+class _ProfileDetailScreenState extends State<ProfileDetailScreen>
+    with TickerProviderStateMixin {
   bool _isPlayingVoiceStory = false;
   late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
   late AnimationController _waveController;
 
   @override
@@ -35,10 +34,6 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
-    );
-
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.12).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
     _waveController = AnimationController(
@@ -79,34 +74,29 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
 
   @override
   Widget build(BuildContext context) {
-    final String name = widget.profileData?['name'] ?? widget.profileData?['displayName'] ?? 'Alex Weber';
-    final String quote = widget.profileData?['quote'] ?? widget.profileData?['tagline'] ??
+    final String name = widget.profileData?['name'] ??
+        widget.profileData?['displayName'] ??
+        'Alex Weber';
+    final String quote = widget.profileData?['quote'] ??
+        widget.profileData?['tagline'] ??
         'Ich möchte sinnstiftende Ideen und Technologie nachhaltig verbinden.';
     final String? audioUrl = widget.profileData?['audioPitchUrl'] ??
         widget.profileData?['audioStoryUrl'] ??
         widget.profileData?['audioUrl'];
 
     final int matchRate = widget.profileData?['matchRate'] ?? 88;
-    final int visibilityPercent = widget.profileData?['visibilityPercent'] ?? 87;
+    final int visibilityPercent =
+        widget.profileData?['visibilityPercent'] ?? 87;
 
-    final List<String> sharedValues = (widget.profileData?['sharedValues'] as List<String>?) ??
-        ['Eigenverantwortung', 'Teamfit', 'Nachhaltigkeit'];
-
-    final List<String> strengths = (widget.profileData?['strengths'] as List<String>?) ??
-        ['Produkt-Vision', 'Krisenfestigkeit', 'Analytische Klarheit'];
-    final List<String> interests = (widget.profileData?['interests'] as List<String>?) ??
-        ['KI', 'Nachhaltigkeit', 'Community', 'UX Design'];
-    final List<String> values = (widget.profileData?['values'] as List<String>?) ??
-        ['Verantwortung', 'Eigeninitiative', 'Transparenz'];
-    final List<String> communities = (widget.profileData?['communities'] as List<String>?) ??
-        ['Freiwillige Feuerwehr', 'Katastrophenschutz'];
-    final List<String> goals = (widget.profileData?['goals'] as List<String>?) ??
-        ['Etwas Sinnvolles bewegen', 'Menschzentrierte Systeme bauen'];
-    final List<String> workstyle = [
-      'Eigenverantwortliche Gestaltung',
-      'Flexible Zusammenarbeit',
-      'Offene Feedback-Kultur'
-    ];
+    final List<String> interests =
+        (widget.profileData?['interests'] as List<String>?) ??
+            ['KI', 'Nachhaltigkeit', 'Community', 'UX Design'];
+    final List<String> values =
+        (widget.profileData?['values'] as List<String>?) ??
+            ['Verantwortung', 'Eigeninitiative', 'Transparenz'];
+    final List<String> communities =
+        (widget.profileData?['communities'] as List<String>?) ??
+            ['Freiwillige Feuerwehr', 'Katastrophenschutz'];
 
     return Scaffold(
       backgroundColor: StoryJobTheme.backgroundBase,
@@ -131,9 +121,6 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // ===========================================================
-                  // 1. KOPFZEILE (Titel & Untertitel)
-                  // ===========================================================
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4.0),
                     child: Column(
@@ -160,13 +147,8 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                     ),
                   ),
                   const SizedBox(height: 14),
-
-                  // ===========================================================
-                  // 2. OBERES DUO (Audio-Shortcuts & Match-Ringe)
-                  // ===========================================================
                   Row(
                     children: [
-                      // Linke Kachel: 30s Audio Controls
                       Expanded(
                         child: GlassCard(
                           borderRadius: 20,
@@ -183,10 +165,13 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                                       decoration: BoxDecoration(
                                         color: Colors.white12,
                                         shape: BoxShape.circle,
-                                        border: Border.all(color: Colors.white24),
+                                        border:
+                                            Border.all(color: Colors.white24),
                                       ),
                                       child: Icon(
-                                        _isPlayingVoiceStory ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                                        _isPlayingVoiceStory
+                                            ? Icons.pause_rounded
+                                            : Icons.play_arrow_rounded,
                                         color: Colors.white,
                                         size: 16,
                                       ),
@@ -205,10 +190,12 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                               ),
                               const SizedBox(height: 10),
                               Row(
-                                children: [
-                                  const Icon(Icons.graphic_eq_rounded, color: StoryJobTheme.cyanAccent, size: 18),
-                                  const SizedBox(width: 8),
-                                  const Text(
+                                children: const [
+                                  Icon(Icons.graphic_eq_rounded,
+                                      color: StoryJobTheme.cyanAccent,
+                                      size: 18),
+                                  SizedBox(width: 8),
+                                  Text(
                                     '30 sec',
                                     style: TextStyle(
                                       color: StoryJobTheme.textSecondary,
@@ -222,12 +209,11 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                         ),
                       ),
                       const SizedBox(width: 10),
-
-                      // Rechte Kachel: Team-Fit & Wellenlänge
                       Expanded(
                         child: GlassCard(
                           borderRadius: 20,
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 12),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
@@ -248,10 +234,6 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                     ],
                   ),
                   const SizedBox(height: 14),
-
-                  // ===========================================================
-                  // 3. VIDEO-PITCH KARTE (Zentraler Video-Bereich)
-                  // ===========================================================
                   GlassCard(
                     borderRadius: 24,
                     borderGradient: StoryJobTheme.dnaCardBorder,
@@ -262,7 +244,6 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                         Stack(
                           alignment: Alignment.center,
                           children: [
-                            // Video-Vorschau / Avatar
                             ClipRRect(
                               borderRadius: BorderRadius.circular(18),
                               child: Container(
@@ -271,7 +252,8 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                                 decoration: BoxDecoration(
                                   color: StoryJobTheme.cardSurfaceElevated,
                                   image: const DecorationImage(
-                                    image: AssetImage('assets/images/placeholder_pitch.png'),
+                                    image: AssetImage(
+                                        'assets/images/placeholder_pitch.png'),
                                     fit: BoxFit.cover,
                                     alignment: Alignment.topCenter,
                                   ),
@@ -292,8 +274,6 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                                 ),
                               ),
                             ),
-
-                            // Video Record / Replace Button
                             Positioned(
                               top: 10,
                               right: 10,
@@ -301,7 +281,9 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                                 onTap: () {
                                   HapticFeedback.lightImpact();
                                   Navigator.of(context).push(
-                                    MaterialPageRoute(builder: (_) => const VideoRecordingScreen()),
+                                    MaterialPageRoute(
+                                        builder: (_) =>
+                                            const VideoRecordingScreen()),
                                   );
                                 },
                                 child: Container(
@@ -311,21 +293,20 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                                     shape: BoxShape.circle,
                                     border: Border.all(color: Colors.white24),
                                   ),
-                                  child: const Icon(Icons.videocam_rounded, color: Colors.white, size: 18),
+                                  child: const Icon(Icons.videocam_rounded,
+                                      color: Colors.white, size: 18),
                                 ),
                               ),
                             ),
-
-                            // Zentrales Play & Player-Steuerung
                             Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(Icons.skip_previous_rounded, color: Colors.white70, size: 22),
+                                    const Icon(Icons.skip_previous_rounded,
+                                        color: Colors.white70, size: 22),
                                     const SizedBox(width: 12),
-                                    // Mini Audio Wave
                                     _buildFloatingWave(),
                                     const SizedBox(width: 12),
                                     GestureDetector(
@@ -335,11 +316,15 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                                         height: 52,
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: Colors.white.withValues(alpha: 0.3),
-                                          border: Border.all(color: Colors.white, width: 1.5),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.3),
+                                          border: Border.all(
+                                              color: Colors.white, width: 1.5),
                                         ),
                                         child: Icon(
-                                          _isPlayingVoiceStory ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                                          _isPlayingVoiceStory
+                                              ? Icons.pause_rounded
+                                              : Icons.play_arrow_rounded,
                                           color: Colors.white,
                                           size: 32,
                                         ),
@@ -348,13 +333,12 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                                     const SizedBox(width: 12),
                                     _buildFloatingWave(),
                                     const SizedBox(width: 12),
-                                    const Icon(Icons.skip_next_rounded, color: Colors.white70, size: 22),
+                                    const Icon(Icons.skip_next_rounded,
+                                        color: Colors.white70, size: 22),
                                   ],
                                 ),
                               ],
                             ),
-
-                            // Werte-Tags direkt im Video unten
                             Positioned(
                               bottom: 12,
                               child: Row(
@@ -372,10 +356,6 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                     ),
                   ),
                   const SizedBox(height: 14),
-
-                  // ===========================================================
-                  // 4. DREIER-REIHE DER KERNWERTE
-                  // ===========================================================
                   Row(
                     children: [
                       Expanded(
@@ -404,20 +384,17 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                     ],
                   ),
                   const SizedBox(height: 14),
-
-                  // ===========================================================
-                  // 5. STATUS-KACHELN (DNA-Entfaltung & Sichtbarkeit)
-                  // ===========================================================
                   Row(
                     children: [
-                      // DNA-Entfaltung
                       Expanded(
                         child: GlassCard(
                           borderRadius: 18,
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 12),
                           child: Row(
                             children: [
-                              const Icon(Icons.fingerprint_rounded, color: StoryJobTheme.cyanAccent, size: 24),
+                              const Icon(Icons.fingerprint_rounded,
+                                  color: StoryJobTheme.cyanAccent, size: 24),
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Column(
@@ -447,12 +424,11 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                         ),
                       ),
                       const SizedBox(width: 10),
-
-                      // Sichtbarkeit mit Ring
                       Expanded(
                         child: GlassCard(
                           borderRadius: 18,
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 12),
                           child: Row(
                             children: [
                               SizedBox(
@@ -462,7 +438,9 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                                   value: visibilityPercent / 100.0,
                                   strokeWidth: 3,
                                   backgroundColor: Colors.white12,
-                                  valueColor: const AlwaysStoppedAnimation<Color>(StoryJobTheme.mintSuccess),
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<Color>(
+                                          StoryJobTheme.mintSuccess),
                                 ),
                               ),
                               const SizedBox(width: 10),
@@ -496,10 +474,6 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                     ],
                   ),
                   const SizedBox(height: 20),
-
-                  // ===========================================================
-                  // 6. DETAIL-ABSCHNITTE (Bestehende Daten unversehrt erhalten)
-                  // ===========================================================
                   _buildSectionCard(
                     title: 'Gelebte Werte & Haltung',
                     icon: Icons.favorite_border_rounded,
@@ -507,7 +481,6 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                     chipColor: StoryJobTheme.champagneGold,
                   ),
                   const SizedBox(height: 12),
-
                   if (communities.isNotEmpty) ...[
                     _buildSectionCard(
                       title: 'Gemeinschaft & Engagement',
@@ -517,7 +490,6 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                     ),
                     const SizedBox(height: 12),
                   ],
-
                   _buildSectionCard(
                     title: 'Themen & Interessen',
                     icon: Icons.interests_rounded,
@@ -525,8 +497,6 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                     chipColor: StoryJobTheme.cyanAccent,
                   ),
                   const SizedBox(height: 24),
-
-                  // CTA BUTTON: Dialog auf Augenhöhe
                   SizedBox(
                     height: 50,
                     child: ElevatedButton.icon(
@@ -534,11 +504,13 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                         backgroundColor: StoryJobTheme.primaryViolet,
                         foregroundColor: Colors.white,
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24)),
                       ),
                       onPressed: () {
                         HapticFeedback.mediumImpact();
-                        final cleanChatId = 'chat_${name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9_]'), '_')}';
+                        final cleanChatId =
+                            'chat_${name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9_]'), '_')}';
 
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -554,7 +526,8 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
                       icon: const Icon(Icons.forum_rounded, size: 18),
                       label: const Text(
                         'Dialog auf Augenhöhe starten ✨',
-                        style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                            fontSize: 14.5, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
@@ -567,10 +540,6 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
       ),
     );
   }
-
-  // ===========================================================================
-  // HILFS-WIDGETS FÜR DAS NEUE SCREEN-LAYOUT
-  // ===========================================================================
 
   static Widget _buildMiniFitRing({
     required String label,
@@ -588,7 +557,8 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
               height: 32,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                gradient: SweepGradient(colors: [outerColor, innerColor, outerColor]),
+                gradient: SweepGradient(
+                    colors: [outerColor, innerColor, outerColor]),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(3.0),
@@ -719,7 +689,8 @@ class _ProfileDetailScreenState extends State<ProfileDetailScreen> with TickerPr
             runSpacing: 8,
             children: items.map((item) {
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: chipColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),

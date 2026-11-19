@@ -1,21 +1,25 @@
 // lib/features/messages/screens/story_dialog_screen.dart
 import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:storyjob/core/services/app_services.dart';
 import 'package:storyjob/core/services/audio_service.dart';
 import 'package:storyjob/core/services/match_analytics_service.dart';
+import 'package:storyjob/core/services/story_symbiosis_service.dart';
+import 'package:storyjob/core/services/story_symbiosis_telemetry.dart';
 import 'package:storyjob/core/theme/storyjob_theme.dart';
 import 'package:storyjob/core/widgets/glass_card.dart';
+import 'package:storyjob/features/match/services/match_intelligence_service.dart';
 import 'package:storyjob/features/messages/models/message_model.dart';
 import 'package:storyjob/features/messages/widgets/appointment_request_widget.dart';
-import 'package:storyjob/features/match/services/match_intelligence_service.dart';
 
 class StoryDialogScreen extends StatefulWidget {
   final String chatId;
+  final String? recipientId;
   final String? targetName;
   final String? partnerName;
   final String? teamName;
@@ -24,24 +28,28 @@ class StoryDialogScreen extends StatefulWidget {
   final String matchScore;
   final String? initialResonanceTopic;
   final bool startWithVoice;
-  final bool isProfileUnlocked; // Zwei-Stufen-Sichtbarkeitsstatus
+  final bool isProfileUnlocked;
 
   const StoryDialogScreen({
     super.key,
     required this.chatId,
+    this.recipientId,
     this.targetName,
     this.partnerName,
     this.teamName,
     this.roleContext = '',
     this.roleTitle,
-    this.matchScore = '94% Team-Fit ✨',
+    this.matchScore = 'Dialog auf Augenhöhe ✨',
     this.initialResonanceTopic,
     this.startWithVoice = false,
     this.isProfileUnlocked = true,
   });
 
-  String get effectiveName => targetName ?? partnerName ?? teamName ?? 'Partner';
-  String get effectiveRole => roleTitle ?? (roleContext.isNotEmpty ? roleContext : 'Chance auf Augenhöhe');
+  String get effectiveName =>
+      targetName ?? partnerName ?? teamName ?? 'Partner';
+
+  String get effectiveRole => roleTitle ??
+      (roleContext.isNotEmpty ? roleContext : 'Begegnung auf Augenhöhe');
 
   @override
   State<StoryDialogScreen> createState() => _StoryDialogScreenState();
@@ -73,10 +81,16 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
       details: {
         'partnerName': widget.effectiveName,
         'roleContext': widget.effectiveRole,
-        'matchScore': widget.matchScore,
         'initialTopic': widget.initialResonanceTopic,
         'isUnlocked': widget.isProfileUnlocked,
       },
+    );
+
+    StorySymbiosisTelemetry.recordEcosystemEvent(
+      eventName: 'story_dialog_opened',
+      roleContext: 'dialog',
+      targetId: widget.recipientId ?? widget.chatId,
+      category: widget.effectiveRole,
     );
 
     if (widget.startWithVoice) {
@@ -96,7 +110,7 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
   }
 
   // ==========================================================================
-  // SEND & AUDIO LOGIC MIT SIGNAL-TRACKING
+  // SEND & AUDIO LOGIC MIT DIALOG- & TELEMETRIE-SERVICE
   // ==========================================================================
 
   Future<void> _sendTextMessage([String? presetText]) async {
@@ -108,13 +122,16 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
     }
     HapticFeedback.lightImpact();
 
-    final isAppointmentResponse = text.startsWith('✅') || text.startsWith('Passt mir leider nicht');
+    final isAppointmentResponse =
+        text.startsWith('✅') || text.startsWith('Passt mir leider nicht');
     final latencySec = _screenEnterTime != null
         ? DateTime.now().difference(_screenEnterTime!).inSeconds
         : 0;
 
     _analytics.track(
-      eventType: isAppointmentResponse ? 'appointment_action_logged' : 'dialog_message_sent',
+      eventType: isAppointmentResponse
+          ? 'appointment_action_logged'
+          : 'dialog_message_sent',
       targetId: widget.chatId,
       targetRole: 'dialog_partner',
       screen: 'story_dialog',
@@ -124,7 +141,6 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
         'latencySec': latencySec,
         'isAppointmentAction': isAppointmentResponse,
         'actionText': text,
-        'matchScore': widget.matchScore,
       },
     );
 
@@ -134,6 +150,16 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
         text,
         type: 'text',
       );
+
+      await StorySymbiosisTelemetry.recordEcosystemEvent(
+        eventName: isAppointmentResponse
+            ? 'dialog_appointment_response'
+            : 'dialog_text_message_sent',
+        roleContext: 'dialog',
+        targetId: widget.recipientId ?? widget.chatId,
+        category: widget.effectiveRole,
+      );
+
       _scrollToBottom();
     } catch (e) {
       if (!mounted) return;
@@ -160,7 +186,8 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
       try {
         final path = await AppServices.stopRecording();
         if (path != null) {
-          final durationLabel = '${recordedSec ~/ 60}:${(recordedSec % 60).toString().padLeft(2, '0')}';
+          final durationLabel =
+              '${recordedSec ~/ 60}:${(recordedSec % 60).toString().padLeft(2, '0')}';
 
           _analytics.track(
             eventType: 'dialog_voice_exchanged',
@@ -169,7 +196,6 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
             screen: 'story_dialog',
             details: {
               'audioDurationSec': recordedSec,
-              'matchScore': widget.matchScore,
             },
           );
 
@@ -184,6 +210,14 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
             type: 'audio',
             audioUrl: path,
           );
+
+          await StorySymbiosisTelemetry.recordEcosystemEvent(
+            eventName: 'dialog_voice_message_sent',
+            roleContext: 'dialog',
+            targetId: widget.recipientId ?? widget.chatId,
+            category: widget.effectiveRole,
+          );
+
           _scrollToBottom();
         }
       } catch (e) {
@@ -246,6 +280,37 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
     }
   }
 
+  Future<void> _sendQuickImpulseToPartner() async {
+    final recipient = widget.recipientId?.trim() ?? '';
+    if (recipient.isEmpty) return;
+
+    HapticFeedback.lightImpact();
+    await StorySymbiosisService.sendStoryImpulse(
+      recipientId: recipient,
+      targetName: widget.effectiveName,
+      storyTitle: widget.effectiveRole,
+      matchScore: 'Dialog-Impuls ✨',
+      type: 'dialog_spark',
+    );
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Impuls an ${widget.effectiveName} gesendet ✨',
+          style: const TextStyle(fontSize: 12.5),
+        ),
+        backgroundColor: StoryJobTheme.cardSurfaceElevated,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+          side: const BorderSide(color: StoryJobTheme.cardBorder),
+        ),
+      ),
+    );
+  }
+
   void _scrollToBottom() {
     if (_scrollController.hasClients) {
       _scrollController.animateTo(
@@ -262,7 +327,8 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentUserId = FirebaseAuth.instance.currentUser?.uid ?? 'guest_user';
+    final currentUserId =
+        FirebaseAuth.instance.currentUser?.uid ?? 'guest_user';
 
     return Scaffold(
       backgroundColor: StoryJobTheme.backgroundBase,
@@ -270,18 +336,21 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
         child: Column(
           children: [
             _buildCustomHeader(context),
-
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: AppServices.getChatMessages(widget.chatId),
                 builder: (context, snapshot) {
                   final docs = snapshot.data?.docs ?? [];
-                  final messages = docs.map((d) => MessageModel.fromFirestore(d)).toList();
+                  final messages =
+                      docs.map((d) => MessageModel.fromFirestore(d)).toList();
 
                   return ListView(
                     controller: _scrollController,
                     physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 12.0,
+                    ),
                     children: [
                       _buildSystemSparkCard(),
                       const SizedBox(height: 14),
@@ -294,13 +363,11 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
                 },
               ),
             ),
-
             AppointmentRequestWidget(
               chatId: widget.chatId,
               currentUserId: currentUserId,
               partnerName: widget.effectiveName,
             ),
-
             _buildBottomInputBar(),
           ],
         ),
@@ -346,7 +413,6 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
                 ),
               ),
               const SizedBox(width: 10),
-
               Stack(
                 children: [
                   Container(
@@ -363,7 +429,9 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
                     child: Center(
                       child: widget.isProfileUnlocked
                           ? Text(
-                              widget.effectiveName.isNotEmpty ? widget.effectiveName[0].toUpperCase() : 'S',
+                              widget.effectiveName.isNotEmpty
+                                  ? widget.effectiveName[0].toUpperCase()
+                                  : 'S',
                               style: const TextStyle(
                                 color: StoryJobTheme.textPrimary,
                                 fontWeight: FontWeight.w700,
@@ -386,14 +454,16 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
                       decoration: BoxDecoration(
                         color: StoryJobTheme.mintSuccess,
                         shape: BoxShape.circle,
-                        border: Border.all(color: StoryJobTheme.cardSurfaceElevated, width: 2),
+                        border: Border.all(
+                          color: StoryJobTheme.cardSurfaceElevated,
+                          width: 2,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(width: 12),
-
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -414,16 +484,23 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
                         ),
                         const SizedBox(width: 6),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: widget.isProfileUnlocked
-                                ? StoryJobTheme.mintSuccess.withValues(alpha: 0.15)
-                                : StoryJobTheme.cyanAccent.withValues(alpha: 0.15),
+                                ? StoryJobTheme.mintSuccess
+                                    .withValues(alpha: 0.15)
+                                : StoryJobTheme.cyanAccent
+                                    .withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(
                               color: widget.isProfileUnlocked
-                                  ? StoryJobTheme.mintSuccess.withValues(alpha: 0.4)
-                                  : StoryJobTheme.cyanAccent.withValues(alpha: 0.4),
+                                  ? StoryJobTheme.mintSuccess
+                                      .withValues(alpha: 0.4)
+                                  : StoryJobTheme.cyanAccent
+                                      .withValues(alpha: 0.4),
                             ),
                           ),
                           child: Text(
@@ -453,36 +530,38 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
                   ],
                 ),
               ),
-
               Semantics(
-                label: 'Optionen',
+                label: 'Impuls senden',
                 button: true,
                 child: IconButton(
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                   icon: const Icon(
-                    Icons.more_horiz_rounded,
-                    color: StoryJobTheme.textSecondary,
+                    Icons.bolt_rounded,
+                    color: StoryJobTheme.cyanAccent,
                     size: 20,
                   ),
-                  onPressed: () {},
+                  onPressed: _sendQuickImpulseToPartner,
                 ),
               ),
             ],
           ),
-
           const SizedBox(height: 10),
 
-          // Live-Stream der Beziehungs- und Matching-Ebene
+          // MENSCHLICHE GESPRÄCHS-EBENE OHNE ROHEN SCORE
           StreamBuilder<dynamic>(
             stream: _resonanceService.streamPairData(widget.chatId),
             builder: (context, snapshot) {
               final pair = snapshot.data;
-              final displayScore = pair != null ? '${pair.relationshipStrength}%' : widget.matchScore;
-              final stageLabel = pair?.stageLabel ?? 'Im Dialog auf Augenhöhe';
+              final stageLabel =
+                  pair?.stageLabel ?? 'Im Dialog auf Augenhöhe';
+              final badgeText = widget.matchScore.contains('%')
+                  ? 'StoryJob™ Symbiose'
+                  : widget.matchScore;
 
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                 decoration: BoxDecoration(
                   color: StoryJobTheme.cardSurface,
                   borderRadius: BorderRadius.circular(14),
@@ -490,10 +569,14 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.auto_awesome_rounded, color: StoryJobTheme.cyanAccent, size: 14),
+                    const Icon(
+                      Icons.auto_awesome_rounded,
+                      color: StoryJobTheme.cyanAccent,
+                      size: 14,
+                    ),
                     const SizedBox(width: 6),
                     Text(
-                      displayScore,
+                      badgeText,
                       style: const TextStyle(
                         color: StoryJobTheme.cyanAccent,
                         fontSize: 11.5,
@@ -533,7 +616,8 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
   }
 
   Widget _buildSystemSparkCard() {
-    final topic = widget.initialResonanceTopic ?? 'Gemeinsame Werte & Miteinander';
+    final topic =
+        widget.initialResonanceTopic ?? 'Gemeinsame Werte & Miteinander';
 
     return GlassCard(
       borderRadius: 20,
@@ -544,10 +628,14 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
         children: [
           Row(
             children: const [
-              Icon(Icons.auto_awesome_rounded, color: StoryJobTheme.primaryViolet, size: 15),
+              Icon(
+                Icons.auto_awesome_rounded,
+                color: StoryJobTheme.primaryViolet,
+                size: 15,
+              ),
               SizedBox(width: 6),
               Text(
-                'StoryJob DNA Match-Impuls',
+                'StoryJob™ Dialog-Impuls',
                 style: TextStyle(
                   color: StoryJobTheme.primaryViolet,
                   fontSize: 11.5,
@@ -559,7 +647,7 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Eure Profile zeigen hohe Schnittmengen bei „$topic“. Kein formelles Anschreiben nötig – startet euer Kennenlernen direkt auf Augenhöhe.',
+            'Gemeinsame Anker bei „$topic“. Kein formelles Anschreiben nötig – startet euer Kennenlernen offen, ehrlich und auf Augenhöhe.',
             style: const TextStyle(
               color: StoryJobTheme.textPrimary,
               fontSize: 12.5,
@@ -602,7 +690,11 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
             children: [
               Row(
                 children: const [
-                  Icon(Icons.event_available_rounded, color: StoryJobTheme.cyanAccent, size: 16),
+                  Icon(
+                    Icons.event_available_rounded,
+                    color: StoryJobTheme.cyanAccent,
+                    size: 16,
+                  ),
                   SizedBox(width: 8),
                   Text(
                     'Kennenlern-Termin',
@@ -631,17 +723,29 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
                     Expanded(
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: StoryJobTheme.cyanAccent.withValues(alpha: 0.18),
+                          backgroundColor:
+                              StoryJobTheme.cyanAccent.withValues(alpha: 0.18),
                           foregroundColor: StoryJobTheme.cyanAccent,
                           padding: const EdgeInsets.symmetric(vertical: 9),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
-                            side: BorderSide(color: StoryJobTheme.cyanAccent.withValues(alpha: 0.45)),
+                            side: BorderSide(
+                              color: StoryJobTheme.cyanAccent
+                                  .withValues(alpha: 0.45),
+                            ),
                           ),
                           elevation: 0,
                         ),
-                        onPressed: () => _sendTextMessage('✅ Passt perfekt! Ich freue mich auf das Kennenlernen.'),
-                        child: const Text('Annehmen', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12)),
+                        onPressed: () => _sendTextMessage(
+                          '✅ Passt perfekt! Ich freue mich auf das Kennenlernen.',
+                        ),
+                        child: const Text(
+                          'Annehmen',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -649,12 +753,23 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
                           foregroundColor: StoryJobTheme.textSecondary,
-                          side: const BorderSide(color: StoryJobTheme.cardBorder),
+                          side:
+                              const BorderSide(color: StoryJobTheme.cardBorder),
                           padding: const EdgeInsets.symmetric(vertical: 9),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                         ),
-                        onPressed: () => _sendTextMessage('Passt mir leider nicht ganz. Können wir einen Alternativtermin finden?'),
-                        child: const Text('Verschieben', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+                        onPressed: () => _sendTextMessage(
+                          'Passt mir leider nicht ganz. Können wir einen Alternativtermin finden?',
+                        ),
+                        child: const Text(
+                          'Verschieben',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -696,14 +811,17 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Semantics(
-                    label: _currentlyPlayingAudioUrl == message.audioUrl ? 'Sprachnachricht pausieren' : 'Sprachnachricht abspielen',
+                    label: _currentlyPlayingAudioUrl == message.audioUrl
+                        ? 'Sprachnachricht pausieren'
+                        : 'Sprachnachricht abspielen',
                     button: true,
                     child: GestureDetector(
                       onTap: () => _playAudio(message.audioUrl),
                       child: Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: StoryJobTheme.cyanAccent.withValues(alpha: 0.2),
+                          color:
+                              StoryJobTheme.cyanAccent.withValues(alpha: 0.2),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -717,13 +835,26 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  // Audio-Wellenform
                   ShaderMask(
-                    shaderCallback: (bounds) => StoryJobTheme.soundWaveGradient.createShader(bounds),
+                    shaderCallback: (bounds) =>
+                        StoryJobTheme.soundWaveGradient.createShader(bounds),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: List.generate(12, (index) {
-                        final heights = [6, 12, 18, 10, 22, 14, 8, 16, 20, 12, 14, 8];
+                        final heights = [
+                          6,
+                          12,
+                          18,
+                          10,
+                          22,
+                          14,
+                          8,
+                          16,
+                          20,
+                          12,
+                          14,
+                          8
+                        ];
                         return Container(
                           width: 2.5,
                           height: heights[index % heights.length].toDouble(),
@@ -770,7 +901,9 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
       child: Row(
         children: [
           Semantics(
-            label: _isRecording ? 'Sprachaufnahme stoppen' : 'Sprachaufnahme starten',
+            label: _isRecording
+                ? 'Sprachaufnahme stoppen'
+                : 'Sprachaufnahme starten',
             button: true,
             child: GestureDetector(
               onTap: _toggleVoiceRecording,
@@ -790,14 +923,15 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
                 ),
                 child: Icon(
                   _isRecording ? Icons.stop_rounded : Icons.mic_none_rounded,
-                  color: _isRecording ? const Color(0xFFEF4444) : StoryJobTheme.cyanAccent,
+                  color: _isRecording
+                      ? const Color(0xFFEF4444)
+                      : StoryJobTheme.cyanAccent,
                   size: 20,
                 ),
               ),
             ),
           ),
           const SizedBox(width: 10),
-
           Expanded(
             child: Container(
               height: 46,
@@ -870,7 +1004,11 @@ class _StoryDialogScreenState extends State<StoryDialogScreen> {
                           child: IconButton(
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
-                            icon: const Icon(Icons.arrow_upward_rounded, color: StoryJobTheme.cyanAccent, size: 20),
+                            icon: const Icon(
+                              Icons.arrow_upward_rounded,
+                              color: StoryJobTheme.cyanAccent,
+                              size: 20,
+                            ),
                             onPressed: () => _sendTextMessage(),
                           ),
                         ),
