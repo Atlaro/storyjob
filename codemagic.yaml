@@ -37,7 +37,7 @@ workflows:
           if [ "$NEXT_BUILD" -le 55 ]; then
             NEXT_BUILD=56
           fi
-          echo "Using Dynamic Build Number: $NEXT_BUILD (previous: $LATEST_BUILD)"
+          echo "Using Automatic Build Number: $NEXT_BUILD (previous: $LATEST_BUILD)"
 
           cat <<EOF > ExportOptions.plist
           <?xml version="1.0" encoding="UTF-8"?>
@@ -49,12 +49,7 @@ workflows:
               <key>teamID</key>
               <string>L8CP87ZD83</string>
               <key>signingStyle</key>
-              <string>manual</string>
-              <key>provisioningProfiles</key>
-              <dict>
-                  <key>de.storyjob.app</key>
-                  <string>StoryJob</string>
-              </dict>
+              <string>automatic</string>
           </dict>
           </plist>
           EOF
@@ -156,17 +151,38 @@ workflows:
         working_directory: storydna
         script: |
           set -e
+          rm -rf ~/Library/Caches/org.swift.swiftpm
+          rm -rf ~/Library/Developer/Xcode/DerivedData
+
           flutter clean
           flutter pub get
+
           LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "de.storyjob.dna" 2>/dev/null || echo 0)
           case "$LATEST_BUILD" in
             ''|*[!0-9]*) LATEST_BUILD=0 ;;
           esac
           NEXT_BUILD=$((LATEST_BUILD + 1))
+          echo "Using Automatic Build Number for StoryJob DNA: $NEXT_BUILD (previous: $LATEST_BUILD)"
+
+          cat <<EOF > ExportOptions.plist
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store</string>
+              <key>teamID</key>
+              <string>L8CP87ZD83</string>
+              <key>signingStyle</key>
+              <string>automatic</string>
+          </dict>
+          </plist>
+          EOF
+
           flutter build ipa --release \
             --build-name=1.0.0 \
             --build-number=$NEXT_BUILD \
-            --export-options-plist=/Users/builder/export_options.plist
+            --export-options-plist=ExportOptions.plist
       - name: Verify generated DNA IPA
         working_directory: storydna
         script: |
@@ -202,17 +218,38 @@ workflows:
         working_directory: storyteams
         script: |
           set -e
+          rm -rf ~/Library/Caches/org.swift.swiftpm
+          rm -rf ~/Library/Developer/Xcode/DerivedData
+
           flutter clean
           flutter pub get
+
           LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "de.storyjob.teams" 2>/dev/null || echo 0)
           case "$LATEST_BUILD" in
             ''|*[!0-9]*) LATEST_BUILD=0 ;;
           esac
           NEXT_BUILD=$((LATEST_BUILD + 1))
+          echo "Using Automatic Build Number for StoryJob Teams: $NEXT_BUILD (previous: $LATEST_BUILD)"
+
+          cat <<EOF > ExportOptions.plist
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store</string>
+              <key>teamID</key>
+              <string>L8CP87ZD83</string>
+              <key>signingStyle</key>
+              <string>automatic</string>
+          </dict>
+          </plist>
+          EOF
+
           flutter build ipa --release \
             --build-name=1.0.0 \
             --build-number=$NEXT_BUILD \
-            --export-options-plist=/Users/builder/export_options.plist
+            --export-options-plist=ExportOptions.plist
       - name: Verify generated Teams IPA
         working_directory: storyteams
         script: |
