@@ -23,7 +23,6 @@ workflows:
         working_directory: storyjob
         script: |
           set -e
-          # Caches bereinigen, um Build-Fehler zu vermeiden
           rm -rf ~/Library/Caches/org.swift.swiftpm
           rm -rf ~/Library/Developer/Xcode/DerivedData
 
@@ -40,7 +39,6 @@ workflows:
           fi
           echo "Using Dynamic Build Number: $NEXT_BUILD (previous: $LATEST_BUILD)"
 
-          # ExportOptions.plist direkt vor dem Build dynamisch erstellen
           cat <<EOF > ExportOptions.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -69,8 +67,14 @@ workflows:
         working_directory: storyjob
         script: |
           ls -la build/ios/ipa/*.ipa
+      - name: Build Web App
+        working_directory: storyjob
+        script: |
+          set -e
+          flutter build web --release
     artifacts:
       - storyjob/build/ios/ipa/*.ipa
+      - storyjob/build/web/**
     publishing:
       app_store_connect:
         auth: integration
@@ -154,7 +158,10 @@ workflows:
           set -e
           flutter clean
           flutter pub get
-          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "6833954712" || echo 0)
+          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "de.storyjob.dna" 2>/dev/null || echo 0)
+          case "$LATEST_BUILD" in
+            ''|*[!0-9]*) LATEST_BUILD=0 ;;
+          esac
           NEXT_BUILD=$((LATEST_BUILD + 1))
           flutter build ipa --release \
             --build-name=1.0.0 \
@@ -197,9 +204,14 @@ workflows:
           set -e
           flutter clean
           flutter pub get
+          LATEST_BUILD=$(app-store-connect get-latest-testflight-build-number "de.storyjob.teams" 2>/dev/null || echo 0)
+          case "$LATEST_BUILD" in
+            ''|*[!0-9]*) LATEST_BUILD=0 ;;
+          esac
+          NEXT_BUILD=$((LATEST_BUILD + 1))
           flutter build ipa --release \
             --build-name=1.0.0 \
-            --build-number=1 \
+            --build-number=$NEXT_BUILD \
             --export-options-plist=/Users/builder/export_options.plist
       - name: Verify generated Teams IPA
         working_directory: storyteams
