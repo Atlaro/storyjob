@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -104,7 +106,7 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
 
     try {
       UserCredential credential;
-      final password = _passwordController.text; 
+      final password = _passwordController.text;
 
       if (_isLogin) {
         credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -237,18 +239,44 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
   }
 
   Future<void> _signInWithGoogle() async {
+    if (_isLoading) return;
+
     setState(() => _isLoading = true);
     HapticFeedback.mediumImpact();
     try {
-      final googleProvider = GoogleAuthProvider()..addScope('email');
-      final credential =
-          await FirebaseAuth.instance.signInWithProvider(googleProvider);
+      UserCredential credential;
+
+      if (kIsWeb) {
+        final googleProvider = GoogleAuthProvider()..addScope('email');
+        credential =
+            await FirebaseAuth.instance.signInWithPopup(googleProvider);
+      } else {
+        final googleUser = await GoogleSignIn().signIn();
+        if (googleUser == null) return;
+
+        final googleAuth = await googleUser.authentication;
+        if (googleAuth.idToken == null) {
+          throw FirebaseAuthException(
+            code: 'google-missing-id-token',
+            message: 'Google hat kein gültiges ID-Token zurückgegeben.',
+          );
+        }
+
+        final oauthCredential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        credential =
+            await FirebaseAuth.instance.signInWithCredential(oauthCredential);
+      }
 
       if (credential.user != null) {
         await _navigateByRole(credential.user!);
       }
     } on FirebaseAuthException catch (e) {
       _showErrorSnackBar(_mapFirebaseError(e.code, e.message));
+    } catch (_) {
+      _showErrorSnackBar('Die Anmeldung mit Google ist fehlgeschlagen.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -328,8 +356,8 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
                         child: Hero(
                           tag: 'storyjob_role_logo',
                           child: Image.asset(
-                            _isTeam 
-                                ? 'assets/images/Auth/Team.png' 
+                            _isTeam
+                                ? 'assets/images/Auth/Team.png'
                                 : 'assets/images/Auth/DNA.png',
                             height: 72,
                             fit: BoxFit.contain,
@@ -659,9 +687,11 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
                               height: 50,
                               child: SignInWithAppleButton(
                                 text: 'Apple',
-                                onPressed: _isLoading ? () {} : _signInWithApple,
+                                onPressed:
+                                    _isLoading ? () {} : _signInWithApple,
                                 style: SignInWithAppleButtonStyle.white,
-                                borderRadius: const BorderRadius.all(Radius.circular(16)),
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(16)),
                               ),
                             ),
                           ),
