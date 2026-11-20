@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>StoryJob™ — Potenzial sichtbar machen.</title>
-  <meta name="description" content="StoryJob™ — Potenzial sichtbar machen. StoryJob™ DNA (Wer bin ich?), StoryJob™ Teams (Wer sind wir?) und StoryJob™ Match (Was verbindet uns?)." />
+  <meta name="description" content="StoryJob™ — Potenzial sichtbar machen. Entfalte deine Story. Auf Augenhöhe. StoryJob™ DNA, StoryJob™ Teams und StoryJob™ Match." />
 
   <!-- ✅ Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
@@ -21,7 +21,7 @@
 
   <!-- ✅ Open Graph -->
   <meta property="og:title" content="StoryJob™ — Potenzial sichtbar machen." />
-  <meta property="og:description" content="Nicht die Vergangenheit zählt. Das Potenzial für morgen. StoryJob™ DNA, StoryJob™ Teams und StoryJob™ Match." />
+  <meta property="og:description" content="Entfalte deine Story. Auf Augenhöhe. StoryJob™ DNA, StoryJob™ Teams und StoryJob™ Match." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://storyjob.de/" />
   <meta property="og:image" content="https://storyjob.de/assets/branding/Duck-ai-image-2026-09-29-18-54.jpeg" />
@@ -30,7 +30,7 @@
   <!-- ✅ Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="StoryJob™ — Potenzial sichtbar machen." />
-  <meta name="twitter:description" content="StoryJob™ DNA: Wer bin ich? · StoryJob™ Teams: Wer sind wir? · StoryJob™ Match: Was verbindet uns?" />
+  <meta name="twitter:description" content="StoryJob™ DNA – Wer bin ich? · StoryJob™ Teams – Wer sind wir? · StoryJob™ Match – Was verbindet uns?" />
   <meta name="twitter:image" content="https://storyjob.de/assets/branding/Duck-ai-image-2026-09-29-18-54.jpeg" />
 
   <style>
@@ -64,8 +64,8 @@
       margin:0;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background:
-        radial-gradient(1100px 580px at 14% 8%, rgba(124,58,237,.20), transparent 58%),
-        radial-gradient(960px 520px at 86% 14%, rgba(34,211,238,.14), transparent 58%),
+        radial-gradient(1100px 580px at 50% 6%, rgba(124,58,237,.22), transparent 60%),
+        radial-gradient(960px 520px at 86% 18%, rgba(34,211,238,.14), transparent 58%),
         radial-gradient(920px 620px at 50% 92%, rgba(245,158,11,.07), transparent 60%),
         linear-gradient(180deg, var(--bg0), var(--bg1));
       color: var(--text);
@@ -127,7 +127,7 @@
       align-items:center;
       justify-content:space-between;
       gap: 18px;
-      min-height: 92px;
+      min-height: 84px;
       padding: 6px 0;
     }
     .brand{
@@ -139,15 +139,14 @@
       flex-shrink: 0;
     }
     .logo-img{
-      height: 76px;
-      max-height: none;
+      height: 62px;
       width: auto;
       object-fit: contain;
       display: block;
     }
     @media (max-width: 520px){
-      .nav-inner{ min-height: 78px; }
-      .logo-img{ height: 58px; }
+      .nav-inner{ min-height: 74px; }
+      .logo-img{ height: 50px; }
     }
 
     .nav-links{
@@ -228,44 +227,53 @@
       .burger{ display:inline-flex; align-items:center; justify-content:center; }
     }
 
-    /* Hero */
+    /* Brand-First Hero */
     .hero{
-      padding: 64px 0 44px;
+      padding: 72px 0 64px;
+      text-align: center;
     }
-    .hero-grid{
-      display:grid;
-      grid-template-columns: 1.12fr .88fr;
-      gap: 36px;
+
+    /* 1. StoryJob™ Logo als primärer visueller Anker */
+    .hero-logo-stage{
+      display: flex;
+      justify-content: center;
       align-items: center;
+      padding: 18px 24px 36px;
+      margin-bottom: 10px;
     }
-    @media (max-width: 980px){
-      .hero-grid{ grid-template-columns: 1fr; }
+    .hero-logo-glow{
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-logo-glow::before{
+      content: "";
+      position: absolute;
+      inset: -28px -48px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(34,211,238,.18) 0%, rgba(124,58,237,.16) 45%, transparent 72%);
+      filter: blur(18px);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .hero-logo-img{
+      position: relative;
+      z-index: 1;
+      height: clamp(120px, 16vw, 176px);
+      width: auto;
+      max-width: min(88vw, 520px);
+      object-fit: contain;
+      display: block;
     }
 
-    .kicker{
-      display:inline-flex;
-      align-items:center;
-      gap: 9px;
-      padding: 7px 14px;
-      border-radius: var(--radius-pill);
-      border: 1px solid rgba(34,211,238,.28);
-      background: rgba(34,211,238,.07);
-      color: var(--cyan);
-      font-weight: 600;
-      font-size: 12.5px;
-    }
-    .dot{
-      width: 7px; height: 7px;
-      border-radius: 99px;
-      background: var(--cyan);
-      box-shadow: 0 0 12px var(--cyan);
-    }
-
-    h1{
-      margin: 20px 0 16px;
-      font-size: clamp(34px, 4.5vw, 52px);
-      line-height: 1.09;
-      letter-spacing: -1.2px;
+    /* 2. Potenzial sichtbar machen. */
+    .hero h1{
+      margin: 0 auto 14px;
+      max-width: 18ch;
+      font-size: clamp(36px, 5vw, 60px);
+      line-height: 1.07;
+      letter-spacing: -1.4px;
       font-family: Poppins, Inter, sans-serif;
       font-weight: 800;
     }
@@ -276,51 +284,69 @@
       color: transparent;
     }
 
-    .hero-lead{
-      margin: 0;
-      color: var(--text);
-      font-size: 18px;
+    /* 3. Entfalte deine Story. Auf Augenhöhe. */
+    .hero-subline{
+      margin: 0 auto 38px;
+      font-family: Poppins, Inter, sans-serif;
+      font-size: clamp(20px, 2.5vw, 28px);
       font-weight: 600;
-      line-height: 1.5;
-      max-width: 52ch;
+      letter-spacing: -0.4px;
+      color: var(--muted);
     }
 
-    .sub{
-      margin: 14px 0 0;
-      color: var(--muted);
-      font-size: 16px;
-      line-height: 1.68;
-      max-width: 58ch;
+    /* 4–6. Produkt-Trilogie direkt im Hero */
+    .hero-products{
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      max-width: 920px;
+      margin: 0 auto 36px;
+    }
+    @media (max-width: 820px){
+      .hero-products{
+        grid-template-columns: 1fr;
+        max-width: 440px;
+      }
+    }
+    .hero-product-card{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 20px 18px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      text-decoration: none;
+      transition: transform .18s ease, border-color .2s ease, background .2s ease;
+    }
+    .hero-product-card:hover{
+      transform: translateY(-2px);
+      border-color: var(--border-strong);
+      background: var(--surface-hover);
+    }
+    .hero-product-name{
+      font-family: Poppins, Inter, sans-serif;
+      font-size: 16.5px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .hero-product-question{
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--cyan);
     }
 
     .hero-actions{
-      margin-top: 26px;
       display:flex;
       flex-wrap:wrap;
       gap: 12px;
+      justify-content: center;
       align-items:center;
     }
 
-    .meta-row{
-      margin-top: 24px;
-      display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      color: var(--muted2);
-      font-size: 12.5px;
-    }
-    .meta-pill{
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-      padding: 7px 13px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--border);
-      background: var(--surface);
-    }
-    .check{ color: var(--cyan); font-weight: 800; }
-
-    /* Interactive Story Card */
+    /* Interactive Story Card (Below the fold) */
     .story-panel{
       border-radius: var(--radius-xl);
       border: 1px solid rgba(255,255,255,.12);
@@ -329,9 +355,9 @@
         radial-gradient(460px 260px at 88% 24%, rgba(34,211,238,.15), transparent 58%),
         linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.025));
       box-shadow: var(--shadow);
-      padding: 24px;
-      position: relative;
-      overflow: hidden;
+      padding: 26px;
+      max-width: 760px;
+      margin: 0 auto;
     }
     .story-header{
       display:flex;
@@ -342,7 +368,7 @@
     }
     .story-header h2{
       margin:0;
-      font-size: 17px;
+      font-size: 18px;
       font-family: Poppins, Inter, sans-serif;
       font-weight: 700;
     }
@@ -370,9 +396,9 @@
       border: 0;
       background: transparent;
       color: var(--muted);
-      font-size: 12px;
+      font-size: 12.5px;
       font-weight: 600;
-      padding: 8px 10px;
+      padding: 9px 10px;
       border-radius: 12px;
       cursor: pointer;
       transition: background .2s ease, color .2s ease;
@@ -386,7 +412,7 @@
       border-radius: 18px;
       border: 1px solid rgba(255,255,255,.09);
       background: rgba(5, 8, 17, .65);
-      padding: 16px;
+      padding: 18px;
       margin-bottom: 14px;
     }
     .player-top{
@@ -448,8 +474,8 @@
 
     .quote-preview{
       margin: 0;
-      font-size: 13px;
-      line-height: 1.58;
+      font-size: 13.5px;
+      line-height: 1.6;
       color: var(--muted);
     }
     .chips{
@@ -496,27 +522,6 @@
       font-size: 15.5px;
       line-height: 1.65;
     }
-
-    /* Architecture Chain */
-    .chain-strip{
-      display:flex;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:center;
-      gap: 10px;
-      margin-bottom: 28px;
-    }
-    .chain-node{
-      padding: 10px 16px;
-      border-radius: var(--radius-pill);
-      border: 1px solid var(--border);
-      background: var(--surface);
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-    }
-    .chain-node strong{ color: var(--cyan); }
-    .chain-arrow{ color: var(--muted2); font-weight: 700; }
 
     /* Animated Ecosystem Diagram */
     .eco-stage{
@@ -840,105 +845,78 @@
   </div>
 
   <main id="main">
-    <!-- 1. HERO: STORYJOB™ -->
-    <div class="container hero" id="top">
-      <div class="hero-grid">
-        <div>
-          <div class="kicker reveal">
-            <span class="dot" aria-hidden="true"></span>
-            StoryJob™ · Potenzial sichtbar machen.
-          </div>
-
-          <h1 class="reveal">
-            Potenzial sichtbar machen.<br>
-            <span class="gradient-text">Nicht die Vergangenheit zählt. Das Potenzial für morgen.</span>
-          </h1>
-
-          <p class="hero-lead reveal">
-            Die Arbeitswelt verändert sich. Lebensläufe zeigen Stationen. Doch Potenzial zeigt Zukunft. StoryJob™ wurde geschaffen, um sichtbar zu machen, was Menschen und Teams wirklich ausmacht.
-          </p>
-
-          <p class="sub reveal">
-            Für echte Teilhabe, menschliche Entwicklung und nachhaltige Resonanz im Wandel – getragen von Identität, Werten und Zukunftskraft.
-          </p>
-
-          <div class="hero-actions reveal">
-            <a class="btn btn-primary" href="#dna">
-              Markenwelt entdecken ↓
-            </a>
-            <a class="btn" href="#kontakt">
-              In den Austausch gehen
-            </a>
-          </div>
-
-          <div class="meta-row reveal" aria-label="Kernwerte von StoryJob™">
-            <div class="meta-pill"><span class="check" aria-hidden="true">✓</span>Potenzial &amp; Entwicklung</div>
-            <div class="meta-pill"><span class="check" aria-hidden="true">✓</span>Identität &amp; Werte</div>
-            <div class="meta-pill"><span class="check" aria-hidden="true">✓</span>Resonanz &amp; Teilhabe</div>
+    <!-- HERO: 1. Logo -> 2. Potenzial sichtbar machen. -> 3. Entfalte deine Story. Auf Augenhöhe. -> 4–6. DNA / Teams / Match -->
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="container">
+        <!-- 1. StoryJob™ Logo -->
+        <div class="hero-logo-stage reveal">
+          <div class="hero-logo-glow">
+            <img
+              src="assets/branding/StoryJob-Logo-weiss.png"
+              alt="StoryJob™"
+              class="hero-logo-img"
+            />
           </div>
         </div>
 
-        <!-- INTERACTIVE RESONANCE PREVIEW -->
-        <aside class="story-panel reveal" aria-label="Interaktive Resonanz-Vorschau">
-          <div class="story-header">
-            <h2>Resonanz im Wandel</h2>
-            <span class="badge">StoryJob™</span>
-          </div>
+        <!-- 2. Potenzial sichtbar machen. -->
+        <h1 id="hero-title" class="reveal">
+          <span class="gradient-text">Potenzial sichtbar machen.</span>
+        </h1>
 
-          <div class="story-tabs" role="tablist" aria-label="Perspektiven der Markenwelt">
-            <button type="button" class="story-tab active" data-story="dna" role="tab" aria-selected="true">StoryJob™ DNA</button>
-            <button type="button" class="story-tab" data-story="teams" role="tab" aria-selected="false">StoryJob™ Teams</button>
-            <button type="button" class="story-tab" data-story="match" role="tab" aria-selected="false">StoryJob™ Match</button>
-          </div>
+        <!-- 3. Entfalte deine Story. Auf Augenhöhe. -->
+        <p class="hero-subline reveal">
+          Entfalte deine Story. Auf Augenhöhe.
+        </p>
 
-          <div class="wave-player">
-            <div class="player-top">
-              <button type="button" class="play-btn" id="playStoryBtn" aria-label="Resonanz-Impuls abspielen oder stoppen">▶</button>
-              <div class="bars" id="waveBars" aria-hidden="true">
-                <span></span><span></span><span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span><span></span><span></span><span></span>
-                <span></span><span></span><span></span><span></span><span></span><span></span>
-              </div>
-              <span id="storyDuration" style="font-size:11.5px; color:var(--muted); white-space:nowrap;">0:28</span>
-            </div>
-            <p class="quote-preview" id="storyQuote">
-              „Wer bin ich? Was trägt mich durch Veränderung, worin liegt meine Stärke – und welches Entwicklungspotenzial öffnet sich morgen?“
-            </p>
-            <div class="chips" id="storyChips">
-              <span class="chip">✓ Werte &amp; Stärken</span>
-              <span class="chip">✓ Motivation &amp; Arbeitsweise</span>
-              <span class="chip">✓ Entwicklungspotenzial</span>
-            </div>
-          </div>
+        <!-- 4–6. Die drei Markenbereiche -->
+        <div class="hero-products reveal" aria-label="Die drei Bereiche von StoryJob™">
+          <a class="hero-product-card" href="#dna">
+            <span class="hero-product-name">StoryJob™ DNA</span>
+            <span class="hero-product-question">Wer bin ich?</span>
+          </a>
 
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; font-size:12px; color:var(--muted2);">
-            <span>Menschlichkeit trifft Technologie</span>
-            <a href="#match" style="color:var(--cyan); text-decoration:none; font-weight:600;">Was verbindet uns? →</a>
-          </div>
-        </aside>
+          <a class="hero-product-card" href="#teams">
+            <span class="hero-product-name">StoryJob™ Teams</span>
+            <span class="hero-product-question">Wer sind wir?</span>
+          </a>
+
+          <a class="hero-product-card" href="#match">
+            <span class="hero-product-name">StoryJob™ Match</span>
+            <span class="hero-product-question">Was verbindet uns?</span>
+          </a>
+        </div>
+
+        <div class="hero-actions reveal">
+          <a class="btn btn-primary" href="#kontakt">
+            In den Austausch gehen →
+          </a>
+          <a class="btn" href="#architektur">
+            Mehr entdecken ↓
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- MANIFEST -->
+    <div class="container">
+      <div class="manifest-banner reveal">
+        <blockquote>
+          „Die Arbeitswelt verändert sich. Lebensläufe zeigen Stationen. Doch Potenzial zeigt Zukunft. StoryJob™ wurde geschaffen, um sichtbar zu machen, was Menschen und Teams wirklich ausmacht.“
+        </blockquote>
+        <cite>— StoryJob™ · Nicht die Vergangenheit zählt. Das Potenzial für morgen.</cite>
       </div>
     </div>
 
     <!-- ARCHITEKTUR-ÜBERSICHT -->
-    <section aria-labelledby="arch-title">
+    <section id="architektur" aria-labelledby="arch-title">
       <div class="container">
         <div class="section-head">
           <span class="eyebrow reveal">Markenarchitektur</span>
           <h2 id="arch-title" class="reveal">Ein klarer Weg von Identität zu echter Verbindung</h2>
           <p class="reveal">
-            StoryJob™ führt Menschen und Teams über drei aufeinander aufbauende Ebenen zusammen – mit dem Menschen im Mittelpunkt.
+            StoryJob™ verbindet Menschen und Teams über drei aufeinander aufbauende Perspektiven.
           </p>
-        </div>
-
-        <div class="chain-strip reveal" aria-label="Struktur von StoryJob™">
-          <div class="chain-node"><strong>StoryJob™</strong> · Potenzial sichtbar machen.</div>
-          <span class="chain-arrow" aria-hidden="true">↓</span>
-          <div class="chain-node"><strong>StoryJob™ DNA</strong> · Wer bin ich?</div>
-          <span class="chain-arrow" aria-hidden="true">↓</span>
-          <div class="chain-node"><strong>StoryJob™ Teams</strong> · Wer sind wir?</div>
-          <span class="chain-arrow" aria-hidden="true">↓</span>
-          <div class="chain-node"><strong>StoryJob™ Match</strong> · Was verbindet uns?</div>
         </div>
 
         <div class="eco-stage reveal">
@@ -1017,7 +995,7 @@
       </div>
     </section>
 
-    <!-- 2. STORYJOB™ DNA -->
+    <!-- STORYJOB™ DNA -->
     <section id="dna" aria-labelledby="dna-title">
       <div class="container">
         <div class="pillar-panel reveal">
@@ -1042,7 +1020,7 @@
       </div>
     </section>
 
-    <!-- 3. STORYJOB™ TEAMS -->
+    <!-- STORYJOB™ TEAMS -->
     <section id="teams" aria-labelledby="teams-title">
       <div class="container">
         <div class="pillar-panel reveal">
@@ -1067,7 +1045,7 @@
       </div>
     </section>
 
-    <!-- 4. STORYJOB™ MATCH -->
+    <!-- STORYJOB™ MATCH -->
     <section id="match" aria-labelledby="match-title">
       <div class="container">
         <div class="pillar-panel reveal">
@@ -1092,15 +1070,49 @@
       </div>
     </section>
 
-    <!-- MANIFEST -->
-    <div class="container">
-      <div class="manifest-banner reveal">
-        <blockquote>
-          „Die Arbeitswelt verändert sich. Lebensläufe zeigen Stationen. Doch Potenzial zeigt Zukunft.“
-        </blockquote>
-        <cite>— StoryJob™ · Potenzial sichtbar machen.</cite>
+    <!-- INTERACTIVE RESONANCE PREVIEW -->
+    <section aria-labelledby="preview-title">
+      <div class="container">
+        <aside class="story-panel reveal" aria-label="Interaktive Resonanz-Vorschau">
+          <div class="story-header">
+            <h2 id="preview-title">Resonanz erlebbar machen</h2>
+            <span class="badge">StoryJob™</span>
+          </div>
+
+          <div class="story-tabs" role="tablist" aria-label="Perspektiven der Markenwelt">
+            <button type="button" class="story-tab active" data-story="dna" role="tab" aria-selected="true">StoryJob™ DNA</button>
+            <button type="button" class="story-tab" data-story="teams" role="tab" aria-selected="false">StoryJob™ Teams</button>
+            <button type="button" class="story-tab" data-story="match" role="tab" aria-selected="false">StoryJob™ Match</button>
+          </div>
+
+          <div class="wave-player">
+            <div class="player-top">
+              <button type="button" class="play-btn" id="playStoryBtn" aria-label="Resonanz-Impuls abspielen oder stoppen">▶</button>
+              <div class="bars" id="waveBars" aria-hidden="true">
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+              <span id="storyDuration" style="font-size:11.5px; color:var(--muted); white-space:nowrap;">0:28</span>
+            </div>
+            <p class="quote-preview" id="storyQuote">
+              „Wer bin ich? Was trägt mich durch Veränderung, worin liegt meine Stärke – und welches Entwicklungspotenzial öffnet sich morgen?“
+            </p>
+            <div class="chips" id="storyChips">
+              <span class="chip">✓ Werte &amp; Stärken</span>
+              <span class="chip">✓ Motivation &amp; Arbeitsweise</span>
+              <span class="chip">✓ Entwicklungspotenzial</span>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; font-size:12px; color:var(--muted2);">
+            <span>Menschlichkeit trifft Technologie</span>
+            <a href="#kontakt" style="color:var(--cyan); text-decoration:none; font-weight:600;">Kontakt aufnehmen →</a>
+          </div>
+        </aside>
       </div>
-    </div>
+    </section>
 
     <!-- ABSCHLUSS-CLAIM & KONTAKT -->
     <section id="kontakt" aria-labelledby="claim-title">
