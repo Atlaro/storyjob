@@ -1,20 +1,21 @@
 import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:crypto/crypto.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:crypto/crypto.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:storyjob/core/theme/storyjob_theme.dart';
 import 'package:storyjob/core/widgets/glow_orb.dart';
-import 'package:storyjob/features/talent/screens/talent_navigation_screen.dart';
 import 'package:storyjob/features/Teams/screens/team_dashboard_screen.dart';
+import 'package:storyjob/features/talent/screens/talent_navigation_screen.dart';
 
 class DnaAuthScreen extends StatefulWidget {
   final String selectedRole;
@@ -26,14 +27,17 @@ class DnaAuthScreen extends StatefulWidget {
 }
 
 class _DnaAuthScreenState extends State<DnaAuthScreen> {
-  bool _isLogin = true;
+  bool _isLogin = false;
+  bool _showEmailForm = false;
   bool _isLoading = false;
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   bool get _isTeam => widget.selectedRole == 'team';
 
@@ -45,15 +49,53 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  void _toggleAuthMode() {
+  void _switchAuthMode(bool toLogin) {
     HapticFeedback.selectionClick();
     setState(() {
-      _isLogin = !_isLogin;
+      _isLogin = toLogin;
       _formKey.currentState?.reset();
     });
+  }
+
+  void _showLegalNotice(String title, String bodyText) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: StoryJobTheme.cardSurfaceElevated,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text(
+          title,
+          style: const TextStyle(
+            color: StoryJobTheme.textPrimary,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        content: Text(
+          bodyText,
+          style: const TextStyle(
+            color: StoryJobTheme.textSecondary,
+            fontSize: 13.5,
+            height: 1.45,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(
+              'Schließen',
+              style: TextStyle(
+                color: _roleAccent,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _ensureUserBackbone(User user, {String? customName}) async {
@@ -65,9 +107,12 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
         'uid': user.uid,
         'displayName': customName ??
             user.displayName ??
-            (_isTeam ? 'Neues StoryTeam' : 'StoryJob Mitglied'),
+            (user.isAnonymous
+                ? 'Gast-Entdecker'
+                : (_isTeam ? 'Neues StoryJob™ Team' : 'StoryJob™ Mitglied')),
         'email': user.email ?? '',
         'role': widget.selectedRole,
+        'isGuest': user.isAnonymous,
         'dnaVerified': false,
         'signatureCount': 0,
         'createdAt': FieldValue.serverTimestamp(),
@@ -75,6 +120,7 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
       }, SetOptions(merge: true));
     } else {
       await userRef.set({
+        'isGuest': user.isAnonymous,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
     }
@@ -82,7 +128,6 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
 
   Future<void> _navigateByRole(User user) async {
     await _ensureUserBackbone(user);
-
     if (!mounted) return;
 
     if (_isTeam) {
@@ -95,6 +140,25 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
         MaterialPageRoute(builder: (_) => const TalentNavigationScreen()),
         (route) => false,
       );
+    }
+  }
+
+  Future<void> _continueAsGuest() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+    HapticFeedback.lightImpact();
+
+    try {
+      final credential = await FirebaseAuth.instance.signInAnonymously();
+      if (credential.user != null) {
+        await _navigateByRole(credential.user!);
+      }
+    } on FirebaseAuthException catch (e) {
+      _showErrorSnackBar(_mapFirebaseError(e.code, e.message));
+    } catch (_) {
+      _showErrorSnackBar('Gastzugang ist aktuell nicht verfügbar.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -318,15 +382,52 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        centerTitle: true,
+        title: _showEmailForm
+            ? Text(
+                _isLogin ? 'Anmelden' : 'Registrieren',
+                style: const TextStyle(
+                  color: StoryJobTheme.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
+                ),
+              )
+            : null,
         leading: IconButton(
-          tooltip: 'Rolle wechseln',
+          tooltip: _showEmailForm ? 'Zurück zur Auswahl' : 'Bereich wechseln',
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
             color: StoryJobTheme.textPrimary,
             size: 20,
           ),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (_showEmailForm) {
+              setState(() => _showEmailForm = false);
+            } else {
+              Navigator.of(context).pop();
+            }
+          },
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Über StoryJob™',
+            icon: const Icon(
+              Icons.help_outline_rounded,
+              color: StoryJobTheme.textSecondary,
+              size: 22,
+            ),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'StoryJob™ — Potenzial sichtbar machen. Entfalte deine Story. Auf Augenhöhe.',
+                  ),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -338,7 +439,7 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
           const Positioned(
             bottom: -80,
             left: -60,
-            child: GlowOrb(color: StoryJobTheme.primaryViolet, size: 260),
+            child: GlowOrb(color: StoryJobTheme.primaryViolet, size: 280),
           ),
           SafeArea(
             child: Center(
@@ -346,372 +447,482 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
                 constraints: const BoxConstraints(maxWidth: 460),
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24.0, vertical: 12.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Center(
-                        child: Hero(
-                          tag: 'storyjob_role_logo',
-                          child: Image.asset(
-                            _isTeam
-                                ? 'assets/images/Auth/Team.png'
-                                : 'assets/images/Auth/DNA.png',
-                            height: 72,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        _isLogin
-                            ? (_isTeam
-                                ? 'Team-Zugang öffnen'
-                                : 'Willkommen zurück')
-                            : (_isTeam
-                                ? 'StoryTeam erstellen'
-                                : 'Deine StoryDNA starten'),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w800,
-                          color: StoryJobTheme.textPrimary,
-                          letterSpacing: -0.6,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        _isLogin
-                            ? (_isTeam
-                                ? 'Melde dich für dein Unternehmen, deinen Verein oder dein Projekt an.'
-                                : 'Greife auf deine StoryJob DNA™ und deine Chancen zu.')
-                            : (_isTeam
-                                ? 'Zeigt eure gemeinsamen Werte und verbindet euch mit den richtigen Menschen.'
-                                : 'Dein Fundament für Werte, Persönlichkeit, Voice Story & echte Resonanz.'),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: StoryJobTheme.textSecondary,
-                          height: 1.4,
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: StoryJobTheme.cardSurfaceElevated
-                              .withValues(alpha: 0.72),
-                          borderRadius: BorderRadius.circular(28),
-                          border: Border.all(
-                            color: StoryJobTheme.cardBorder,
-                            width: 1.1,
-                          ),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(28),
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                            child: Padding(
-                              padding: const EdgeInsets.all(20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Container(
-                                    height: 46,
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: StoryJobTheme.backgroundBase
-                                          .withValues(alpha: 0.65),
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              if (!_isLogin) _toggleAuthMode();
-                                            },
-                                            child: AnimatedContainer(
-                                              duration: const Duration(
-                                                  milliseconds: 200),
-                                              decoration: BoxDecoration(
-                                                color: _isLogin
-                                                    ? StoryJobTheme
-                                                        .cardSurfaceElevated
-                                                    : Colors.transparent,
-                                                borderRadius:
-                                                    BorderRadius.circular(11),
-                                                border: _isLogin
-                                                    ? Border.all(
-                                                        color: _roleAccent
-                                                            .withValues(
-                                                                alpha: 0.45),
-                                                      )
-                                                    : null,
-                                              ),
-                                              alignment: Alignment.center,
-                                              child: Text(
-                                                'Anmelden',
-                                                style: TextStyle(
-                                                  color: _isLogin
-                                                      ? _roleAccent
-                                                      : StoryJobTheme
-                                                          .textSecondary,
-                                                  fontWeight: _isLogin
-                                                      ? FontWeight.w700
-                                                      : FontWeight.w500,
-                                                  fontSize: 13.5,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              if (_isLogin) _toggleAuthMode();
-                                            },
-                                            child: AnimatedContainer(
-                                              duration: const Duration(
-                                                  milliseconds: 200),
-                                              decoration: BoxDecoration(
-                                                color: !_isLogin
-                                                    ? StoryJobTheme
-                                                        .cardSurfaceElevated
-                                                    : Colors.transparent,
-                                                borderRadius:
-                                                    BorderRadius.circular(11),
-                                                border: !_isLogin
-                                                    ? Border.all(
-                                                        color: _roleAccent
-                                                            .withValues(
-                                                                alpha: 0.45),
-                                                      )
-                                                    : null,
-                                              ),
-                                              alignment: Alignment.center,
-                                              child: Text(
-                                                'Registrieren',
-                                                style: TextStyle(
-                                                  color: !_isLogin
-                                                      ? _roleAccent
-                                                      : StoryJobTheme
-                                                          .textSecondary,
-                                                  fontWeight: !_isLogin
-                                                      ? FontWeight.w700
-                                                      : FontWeight.w500,
-                                                  fontSize: 13.5,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 20),
-                                  Form(
-                                    key: _formKey,
-                                    child: Column(
-                                      children: [
-                                        if (!_isLogin) ...[
-                                          _buildTextField(
-                                            controller: _nameController,
-                                            hintText: _isTeam
-                                                ? 'Name des Teams / Vereins / Unternehmens'
-                                                : 'Dein Vor- und Nachname',
-                                            icon: _isTeam
-                                                ? Icons.groups_outlined
-                                                : Icons.person_outline_rounded,
-                                            keyboardType: TextInputType.name,
-                                            validator: (val) =>
-                                                val != null &&
-                                                        val.trim().isEmpty
-                                                    ? 'Bitte Namen eingeben'
-                                                    : null,
-                                          ),
-                                          const SizedBox(height: 12),
-                                        ],
-                                        _buildTextField(
-                                          controller: _emailController,
-                                          hintText: 'E-Mail Adresse',
-                                          icon: Icons.email_outlined,
-                                          keyboardType:
-                                              TextInputType.emailAddress,
-                                          validator: (val) =>
-                                              val != null && !val.contains('@')
-                                                  ? 'Gültige E-Mail eingeben'
-                                                  : null,
-                                        ),
-                                        const SizedBox(height: 12),
-                                        _buildTextField(
-                                          controller: _passwordController,
-                                          hintText: 'Passwort',
-                                          icon: Icons.lock_outline_rounded,
-                                          isPassword: true,
-                                          validator: (val) =>
-                                              val != null && val.length < 6
-                                                  ? 'Mindestens 6 Zeichen'
-                                                  : null,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  if (_isLogin)
-                                    Align(
-                                      alignment: Alignment.centerRight,
-                                      child: TextButton(
-                                        onPressed: _resetPassword,
-                                        style: TextButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 4, vertical: 6),
-                                          minimumSize: Size.zero,
-                                          tapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
-                                        ),
-                                        child: Text(
-                                          'Passwort vergessen?',
-                                          style: TextStyle(
-                                            color: StoryJobTheme.textSecondary
-                                                .withValues(alpha: 0.85),
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  const SizedBox(height: 18),
-                                  Container(
-                                    height: 52,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(16),
-                                      gradient: LinearGradient(
-                                        colors: _isTeam
-                                            ? [
-                                                StoryJobTheme.primaryViolet,
-                                                const Color(0xFF9D4EDD),
-                                              ]
-                                            : [
-                                                StoryJobTheme.cyanAccent,
-                                                const Color(0xFF00B4D8),
-                                              ],
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color:
-                                              _roleAccent.withValues(alpha: 0.3),
-                                          blurRadius: 18,
-                                          offset: const Offset(0, 6),
-                                        ),
-                                      ],
-                                    ),
-                                    child: ElevatedButton(
-                                      onPressed:
-                                          _isLoading ? null : _submitAuth,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.transparent,
-                                        shadowColor: Colors.transparent,
-                                        foregroundColor: _isTeam
-                                            ? Colors.white
-                                            : StoryJobTheme.backgroundBase,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                        ),
-                                      ),
-                                      child: _isLoading
-                                          ? SizedBox(
-                                              width: 22,
-                                              height: 22,
-                                              child: CircularProgressIndicator(
-                                                color: _isTeam
-                                                    ? Colors.white
-                                                    : StoryJobTheme
-                                                        .backgroundBase,
-                                                strokeWidth: 2.2,
-                                              ),
-                                            )
-                                          : Text(
-                                              _isLogin
-                                                  ? (_isTeam
-                                                      ? 'Als Team anmelden'
-                                                      : 'StoryJob öffnen')
-                                                  : (_isTeam
-                                                      ? 'StoryTeam starten'
-                                                      : 'StoryDNA erstellen'),
-                                              style: const TextStyle(
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w800,
-                                              ),
-                                            ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 22),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Divider(
-                              color: StoryJobTheme.cardBorder,
-                              thickness: 1,
-                            ),
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 14.0),
-                            child: Text(
-                              'oder direkt fortfahren',
-                              style: TextStyle(
-                                color: StoryJobTheme.textSecondary,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Divider(
-                              color: StoryJobTheme.cardBorder,
-                              thickness: 1,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 18),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: SizedBox(
-                              height: 50,
-                              child: SignInWithAppleButton(
-                                text: 'Apple',
-                                onPressed:
-                                    _isLoading ? () {} : _signInWithApple,
-                                style: SignInWithAppleButtonStyle.white,
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(16)),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildCustomSocialButton(
-                              text: 'Google',
-                              assetPath: 'assets/icons/google-color.svg',
-                              onTap: _isLoading ? () {} : _signInWithGoogle,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                  padding: const EdgeInsets.fromLTRB(24, 14, 24, 24),
+                  child: _showEmailForm
+                      ? _buildEmailFormView()
+                      : _buildGatewayView(),
                 ),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildGatewayView() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 10),
+        Center(
+          child: Hero(
+            tag: _isTeam
+                ? 'storyjob_role_logo_team'
+                : 'storyjob_role_logo_talent',
+            child: Image.asset(
+              _isTeam
+                  ? 'assets/images/Auth/Team.png'
+                  : 'assets/images/Auth/DNA.png',
+              height: 84,
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Text(
+          _isLogin
+              ? (_isTeam
+                  ? 'StoryJob™ Teams — Wer sind wir?'
+                  : 'StoryJob™ DNA — Wer bin ich?')
+              : (_isTeam
+                  ? 'Potenzial sichtbar machen. StoryJob™ Teams anlegen.'
+                  : 'Potenzial sichtbar machen. Konto anlegen und starten.'),
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            color: StoryJobTheme.textPrimary,
+            letterSpacing: -0.4,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          _isLogin
+              ? (_isTeam
+                  ? 'Melde dich an, um eure Team-Kultur und Resonanzen fortzuführen.'
+                  : 'Willkommen zurück. Melde dich an, um fortzufahren.')
+              : (_isTeam
+                  ? 'Zeigt eure Werte, Zusammenarbeit und Zukunftsfähigkeit auf Augenhöhe.'
+                  : 'Entfalte deine Story. Auf Augenhöhe — für echte Teilhabe und Potenzial.'),
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 14,
+            color: StoryJobTheme.textSecondary,
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: 28),
+
+        // 1. E-Mail registrieren / anmelden
+        Container(
+          height: 52,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            gradient: LinearGradient(
+              colors: _isTeam
+                  ? [
+                      StoryJobTheme.primaryViolet,
+                      const Color(0xFF9D4EDD),
+                    ]
+                  : [
+                      StoryJobTheme.cyanAccent,
+                      const Color(0xFF00B4D8),
+                    ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: _roleAccent.withValues(alpha: 0.28),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: ElevatedButton(
+            onPressed: _isLoading
+                ? null
+                : () => setState(() => _showEmailForm = true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              foregroundColor:
+                  _isTeam ? Colors.white : StoryJobTheme.backgroundBase,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(999),
+              ),
+            ),
+            child: Text(
+              _isLogin ? 'Mit E-Mail anmelden' : 'Mit E-Mail registrieren',
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // 2. Weiter mit Apple
+        SizedBox(
+          height: 52,
+          child: SignInWithAppleButton(
+            text: 'Weiter mit Apple',
+            onPressed: _isLoading ? () {} : _signInWithApple,
+            style: SignInWithAppleButtonStyle.white,
+            borderRadius: const BorderRadius.all(Radius.circular(999)),
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // 3. Weiter mit Google
+        InkWell(
+          onTap: _isLoading ? null : _signInWithGoogle,
+          borderRadius: BorderRadius.circular(999),
+          child: Container(
+            height: 52,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: SvgPicture.asset(
+                    'assets/icons/google-color.svg',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                const Text(
+                  'Weiter mit Google',
+                  style: TextStyle(
+                    color: Color(0xFF0B1120),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        if (!_isTeam) ...[
+          const SizedBox(height: 20),
+          const Text(
+            'oder',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: StoryJobTheme.textSecondary,
+              fontSize: 13.5,
+            ),
+          ),
+          TextButton(
+            onPressed: _isLoading ? null : _continueAsGuest,
+            child: Text(
+              'Als Gast fortfahren',
+              style: TextStyle(
+                color: _roleAccent,
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+
+        const SizedBox(height: 16),
+
+        // Wechsel Registrieren <-> Anmelden
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              _isLogin
+                  ? 'Neu bei StoryJob™? '
+                  : 'Du bist bereits registriert? ',
+              style: const TextStyle(
+                color: StoryJobTheme.textSecondary,
+                fontSize: 13.5,
+              ),
+            ),
+            GestureDetector(
+              onTap: _isLoading ? null : () => _switchAuthMode(!_isLogin),
+              child: Text(
+                _isLogin ? 'Registrieren' : 'Anmelden',
+                style: TextStyle(
+                  color: _roleAccent,
+                  fontSize: 13.5,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 18),
+
+        // Nutzungsbedingungen & Datenschutz
+        Wrap(
+          alignment: WrapAlignment.center,
+          children: [
+            const Text(
+              'Durch die Nutzung von StoryJob™ stimmst du unseren ',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: StoryJobTheme.textSecondary,
+                fontSize: 12,
+                height: 1.4,
+              ),
+            ),
+            GestureDetector(
+              onTap: () => _showLegalNotice(
+                'Nutzungsbedingungen',
+                'StoryJob™ unterstützt Menschen und Teams dabei, Potenziale, Werte und Perspektiven sichtbar zu machen — unter storyjob.de/impressum/ einsehbar.',
+              ),
+              child: Text(
+                'Nutzungsbedingungen',
+                style: TextStyle(
+                  color: _roleAccent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const Text(
+              ' und ',
+              style: TextStyle(
+                color: StoryJobTheme.textSecondary,
+                fontSize: 12,
+              ),
+            ),
+            GestureDetector(
+              onTap: () => _showLegalNotice(
+                'Datenschutz-Bestimmungen',
+                'Informationen zum Umgang mit deinen Daten findest du unter storyjob.de/datenschutz/ sowie in den App-Einstellungen.',
+              ),
+              child: Text(
+                'Datenschutz-Bestimmungen',
+                style: TextStyle(
+                  color: _roleAccent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            const Text(
+              ' zu.',
+              style: TextStyle(
+                color: StoryJobTheme.textSecondary,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmailFormView() {
+    return Container(
+      decoration: BoxDecoration(
+        color: StoryJobTheme.cardSurfaceElevated.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(
+          color: StoryJobTheme.cardBorder,
+          width: 1.1,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (!_isLogin) ...[
+                    _buildTextField(
+                      controller: _nameController,
+                      hintText: _isTeam
+                          ? 'Name des Teams / Vereins / Unternehmens'
+                          : 'Vollständiger Name',
+                      icon: _isTeam
+                          ? Icons.groups_outlined
+                          : Icons.person_outline_rounded,
+                      keyboardType: TextInputType.name,
+                      validator: (val) => val != null && val.trim().isEmpty
+                          ? 'Bitte Namen eingeben'
+                          : null,
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                  _buildTextField(
+                    controller: _emailController,
+                    hintText: 'E-Mail Adresse',
+                    icon: Icons.email_outlined,
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (val) => val != null && !val.contains('@')
+                        ? 'Gültige E-Mail eingeben'
+                        : null,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildTextField(
+                    controller: _passwordController,
+                    hintText: 'Passwort',
+                    icon: Icons.lock_outline_rounded,
+                    isPassword: true,
+                    obscureText: _obscurePassword,
+                    onToggleVisibility: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
+                    validator: (val) => val != null && val.length < 6
+                        ? 'Mindestens 6 Zeichen'
+                        : null,
+                  ),
+                  if (!_isLogin) ...[
+                    const SizedBox(height: 12),
+                    _buildTextField(
+                      controller: _confirmPasswordController,
+                      hintText: 'Passwort wiederholen',
+                      icon: Icons.lock_reset_rounded,
+                      isPassword: true,
+                      obscureText: _obscureConfirmPassword,
+                      onToggleVisibility: () => setState(
+                        () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                      ),
+                      validator: (val) {
+                        if (val == null || val.isEmpty) {
+                          return 'Bitte Passwort wiederholen';
+                        }
+                        if (val != _passwordController.text) {
+                          return 'Passwörter stimmen nicht überein';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                  if (_isLogin)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: _resetPassword,
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 6,
+                          ),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          'Passwort vergessen?',
+                          style: TextStyle(
+                            color: StoryJobTheme.textSecondary
+                                .withValues(alpha: 0.85),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 18),
+                  Container(
+                    height: 52,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: LinearGradient(
+                        colors: _isTeam
+                            ? [
+                                StoryJobTheme.primaryViolet,
+                                const Color(0xFF9D4EDD),
+                              ]
+                            : [
+                                StoryJobTheme.cyanAccent,
+                                const Color(0xFF00B4D8),
+                              ],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _roleAccent.withValues(alpha: 0.3),
+                          blurRadius: 18,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _submitAuth,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        foregroundColor: _isTeam
+                            ? Colors.white
+                            : StoryJobTheme.backgroundBase,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: _isLoading
+                          ? SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                color: _isTeam
+                                    ? Colors.white
+                                    : StoryJobTheme.backgroundBase,
+                                strokeWidth: 2.2,
+                              ),
+                            )
+                          : Text(
+                              _isLogin
+                                  ? (_isTeam
+                                      ? 'Als Team anmelden'
+                                      : 'StoryJob™ öffnen')
+                                  : (_isTeam
+                                      ? 'StoryJob™ Teams starten'
+                                      : 'StoryJob™ DNA starten'),
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        _isLogin
+                            ? 'Neu bei StoryJob™? '
+                            : 'Du bist bereits registriert? ',
+                        style: const TextStyle(
+                          color: StoryJobTheme.textSecondary,
+                          fontSize: 13,
+                        ),
+                      ),
+                      GestureDetector(
+                        onTap: _isLoading
+                            ? null
+                            : () => _switchAuthMode(!_isLogin),
+                        child: Text(
+                          _isLogin ? 'Registrieren' : 'Anmelden',
+                          style: TextStyle(
+                            color: _roleAccent,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -722,11 +933,13 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
     required IconData icon,
     TextInputType keyboardType = TextInputType.text,
     bool isPassword = false,
+    bool obscureText = false,
+    VoidCallback? onToggleVisibility,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
-      obscureText: isPassword ? _obscurePassword : false,
+      obscureText: isPassword ? obscureText : false,
       keyboardType: keyboardType,
       style: const TextStyle(color: StoryJobTheme.textPrimary, fontSize: 14),
       decoration: InputDecoration(
@@ -737,14 +950,13 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
         suffixIcon: isPassword
             ? IconButton(
                 icon: Icon(
-                  _obscurePassword
+                  obscureText
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
                   color: StoryJobTheme.textSecondary,
                   size: 20,
                 ),
-                onPressed: () =>
-                    setState(() => _obscurePassword = !_obscurePassword),
+                onPressed: onToggleVisibility,
               )
             : null,
         filled: true,
@@ -768,47 +980,6 @@ class _DnaAuthScreenState extends State<DnaAuthScreen> {
         ),
       ),
       validator: validator,
-    );
-  }
-
-  Widget _buildCustomSocialButton({
-    required String text,
-    required String assetPath,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        height: 50,
-        decoration: BoxDecoration(
-          color: StoryJobTheme.cardSurfaceElevated.withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: StoryJobTheme.cardBorder),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 22,
-              height: 22,
-              child: SvgPicture.asset(
-                assetPath,
-                fit: BoxFit.contain,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Text(
-              text,
-              style: const TextStyle(
-                color: StoryJobTheme.textPrimary,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

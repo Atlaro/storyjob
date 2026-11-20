@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>Impressum — StoryJob</title>
-  <meta name="description" content="Impressum und rechtliche Angaben für die Website und mobile App StoryJob." />
+  <title>Impressum — StoryJob™</title>
+  <meta name="description" content="Impressum und rechtliche Angaben für die Website storyjob.de und das StoryJob™-Ökosystem." />
 
   <!-- ✅ Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
@@ -21,38 +21,33 @@
 
   <style>
     :root{
-      --bg0:#070A12;
-      --bg1:#0B1020;
-      --card: rgba(255,255,255,.06);
-      --card2: rgba(255,255,255,.09);
-      --text: rgba(255,255,255,.92);
+      --bg0:#060911;
+      --bg1:#0A0F1E;
+      --card: rgba(255,255,255,.04);
+      --text: rgba(255,255,255,.94);
       --muted: rgba(255,255,255,.72);
-      --muted2: rgba(255,255,255,.55);
+      --muted2: rgba(255,255,255,.54);
       --brandA:#7C3AED;
       --brandB:#22D3EE;
-      --brandC:#34D399;
-      --shadow: 0 20px 70px rgba(0,0,0,.55);
-      --ring: 0 0 0 4px rgba(124,58,237,.25);
+      --ring: 0 0 0 4px rgba(34,211,238,.24);
       --radius-xl: 28px;
-      --radius-lg: 20px;
-      --radius-md: 14px;
       --max: 900px;
-      --nav-bg: rgba(7, 10, 18, 0.82);
+      --nav-bg: rgba(6, 9, 17, 0.82);
     }
 
     *{ box-sizing: border-box; }
-    html { height: 100%; scroll-behavior: smooth; }
-    html, body { height: 100%; }
+    html{ scroll-behavior: smooth; }
 
     body{
       margin:0;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
       background:
-        radial-gradient(1200px 600px at 20% 10%, rgba(124,58,237,.25), transparent 55%),
-        radial-gradient(1000px 500px at 80% 20%, rgba(34,211,238,.18), transparent 55%),
+        radial-gradient(1200px 600px at 20% 10%, rgba(124,58,237,.22), transparent 55%),
+        radial-gradient(1000px 500px at 80% 20%, rgba(34,211,238,.15), transparent 55%),
         linear-gradient(180deg, var(--bg0), var(--bg1));
       color: var(--text);
       overflow-x:hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
     .skip-link{
@@ -61,6 +56,7 @@
     .skip-link:focus{
       left:16px; top:16px; width:auto; height:auto; padding:10px 12px;
       background: rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); border-radius: 12px; z-index:9999;
+      color: var(--text);
     }
 
     .container{
@@ -73,51 +69,49 @@
       position: sticky;
       top:0;
       z-index:50;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       background: var(--nav-bg);
-      border-bottom: 1px solid rgba(255,255,255,.08);
+      border-bottom: 1px solid rgba(255,255,255,.07);
     }
     .nav-inner{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:16px;
-      padding: 0;
-      height: 80px;
+      min-height: 92px;
+      padding: 6px 0;
     }
     .brand{
-      display:flex;
+      display:inline-flex;
       align-items:center;
       gap:12px;
       text-decoration:none;
       color: var(--text);
-      user-select:none;
+      flex-shrink: 0;
     }
-    
     .logo-img{
-      height: 110px;
+      height: 76px;
+      max-height: none;
       width: auto;
       object-fit: contain;
       display: block;
-      transform: scale(1.15);
-      transform-origin: left center;
     }
-    @media (max-width: 480px){
-      .nav-inner { height: 68px; }
-      .logo-img{ height: 85px; transform: scale(1.1); }
+    @media (max-width: 520px){
+      .nav-inner{ min-height: 78px; }
+      .logo-img{ height: 58px; }
     }
 
     .nav-links{
       display:flex;
-      gap:18px;
+      gap:12px;
       align-items:center;
     }
     .nav-links a{
       color: var(--muted);
       text-decoration:none;
-      font-size: 13px;
-      padding: 10px 10px;
+      font-size: 13.5px;
+      padding: 8px 12px;
       border-radius: 12px;
       transition: background .2s ease, color .2s ease;
     }
@@ -131,21 +125,23 @@
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      gap:10px;
+      gap:8px;
       text-decoration:none;
       color: var(--text);
-      background: rgba(255,255,255,.08);
+      background: rgba(255,255,255,.07);
       border: 1px solid rgba(255,255,255,.14);
-      padding: 11px 14px;
-      border-radius: 14px;
-      font-weight: 650;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-weight: 600;
       font-size: 13px;
       white-space:nowrap;
+      transition: background .2s ease, border-color .2s ease;
     }
-    .btn:hover{ background: rgba(255,255,255,.11); border-color: rgba(255,255,255,.22); }
+    .btn:hover{ background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.24); }
+    .btn:focus{ outline:none; box-shadow: var(--ring); }
 
     .burger{
-      display:none; width:44px; height:44px; border-radius: 14px; border:1px solid rgba(255,255,255,.14);
+      display:none; width:42px; height:42px; border-radius: 999px; border:1px solid rgba(255,255,255,.14);
       background: rgba(255,255,255,.06); color: var(--text); cursor:pointer;
     }
     @media (max-width: 768px){
@@ -154,16 +150,16 @@
     }
 
     /* Content styling */
-    main { padding: 40px 0 60px; }
-    h1 {
-      font-size: clamp(28px, 4vw, 40px);
+    main{ padding: 40px 0 60px; }
+    h1{
+      font-size: clamp(28px, 4vw, 38px);
       font-family: Poppins, Inter, sans-serif;
       margin-top: 0;
       margin-bottom: 24px;
       letter-spacing: -0.5px;
     }
-    h2 {
-      font-size: 19px;
+    h2{
+      font-size: 18px;
       font-family: Poppins, Inter, sans-serif;
       margin-top: 32px;
       margin-bottom: 12px;
@@ -171,24 +167,26 @@
       border-bottom: 1px solid rgba(255,255,255,.1);
       padding-bottom: 8px;
     }
-    p, li {
+    p, li{
       color: var(--muted);
       line-height: 1.7;
       font-size: 14.5px;
       margin-bottom: 14px;
     }
-    ul { padding-left: 20px; margin-bottom: 14px; }
-    a { color: var(--brandB); text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    strong { color: rgba(255,255,255,.9); }
-    
-    .legal-box {
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.12);
+    ul{ padding-left: 20px; margin-bottom: 14px; }
+    a{ color: var(--brandB); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+    strong{ color: rgba(255,255,255,.94); }
+
+    .legal-box{
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.11);
       border-radius: var(--radius-xl);
       padding: 32px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 18px 60px rgba(0,0,0,.28);
+      box-shadow: 0 20px 64px rgba(0,0,0,.35);
+    }
+    @media (max-width: 560px){
+      .legal-box{ padding: 22px; }
     }
 
     /* Footer */
@@ -196,18 +194,18 @@
     .footer-row{ display:flex; gap: 18px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
     .foot-right{ display:flex; gap: 10px; flex-wrap:wrap; align-items:center; }
     .link-muted{ color: var(--muted2); text-decoration:none; }
-    .link-muted:hover{ color: var(--muted); }
+    .link-muted:hover{ color: var(--text); }
 
     /* Modal */
-    .modal-backdrop{ position:fixed; inset:0; background: rgba(0,0,0,.55); display:none; z-index:100; }
+    .modal-backdrop{ position:fixed; inset:0; background: rgba(0,0,0,.6); display:none; z-index:100; }
     .modal-backdrop.show{ display:block; }
     .modal{
-      position:absolute; right: 14px; top: 64px; width: min(360px, calc(100% - 28px));
-      border-radius: 20px; border: 1px solid rgba(255,255,255,.14); background: rgba(10,14,28,.92);
-      backdrop-filter: blur(12px); padding: 14px; box-shadow: 0 24px 90px rgba(0,0,0,.6);
+      position:absolute; right: 14px; top: 84px; width: min(340px, calc(100% - 28px));
+      border-radius: 20px; border: 1px solid rgba(255,255,255,.14); background: rgba(9,13,26,.96);
+      backdrop-filter: blur(14px); padding: 14px; box-shadow: 0 24px 90px rgba(0,0,0,.65);
     }
-    .modal a{ display:block; padding: 12px; border-radius: 14px; color: var(--muted); text-decoration:none; font-weight: 650; font-size: 14px; margin-bottom: 8px; }
-    .modal a:hover{ background: rgba(255,255,255,.06); color: var(--text); }
+    .modal a{ display:block; padding: 12px 14px; border-radius: 14px; color: var(--muted); text-decoration:none; font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+    .modal a:hover{ background: rgba(255,255,255,.07); color: var(--text); }
   </style>
 </head>
 
@@ -217,14 +215,15 @@
   <!-- NAV -->
   <header class="nav" role="banner">
     <div class="container nav-inner">
-      <a class="brand" href="/" aria-label="StoryJob Startseite">
-        <img src="../assets/branding/StoryJob-Logo-weiss.png" alt="StoryJob Logo" class="logo-img" />
+      <a class="brand" href="/" aria-label="StoryJob™ Startseite">
+        <img src="../assets/branding/StoryJob-Logo-weiss.png" alt="StoryJob™ Logo" class="logo-img" />
       </a>
 
       <nav class="nav-links" aria-label="Hauptnavigation">
         <a href="/">Startseite</a>
-        <a href="/#werte">Werte &amp; Passung</a>
-        <a href="/#chancen">Chancen</a>
+        <a href="/#oekosystem">Ökosystem</a>
+        <a href="/#ablauf">So funktioniert’s</a>
+        <a href="/#teams">Zukunftsfähige Teams</a>
       </nav>
 
       <div style="display:flex; gap:10px; align-items:center;">
@@ -239,9 +238,11 @@
   <div class="modal-backdrop" id="backdrop">
     <div class="modal" id="mobileMenu">
       <a href="/">Startseite</a>
-      <a href="/#werte">Werte &amp; Passung</a>
-      <a href="/#chancen">Chancen</a>
-      <a href="mailto:story.job@outlook.de?subject=StoryJob%20Kontakt" style="background:linear-gradient(135deg,var(--brandA),var(--brandB)); color:#fff;">Kontakt</a>
+      <a href="/#oekosystem">Ökosystem</a>
+      <a href="/#ablauf">So funktioniert’s</a>
+      <a href="/#teams">Zukunftsfähige Teams</a>
+      <a href="/datenschutz/">Datenschutz</a>
+      <a href="mailto:story.job@outlook.de?subject=StoryJob%20Kontakt" style="background:linear-gradient(135deg,var(--brandA),var(--brandB)); color:#fff;">Kontakt aufnehmen</a>
     </div>
   </div>
 
@@ -250,14 +251,13 @@
     <div class="legal-box">
       <h1>Impressum</h1>
       <p>
-        Dieses Impressum gilt für das Online-Angebot unter <strong>https://storyjob.de</strong> sowie für die mobile Applikation <strong>StoryJob</strong> (verfügbar im Apple App Store und Google Play Store).
+        Dieses Impressum gilt für das Online-Angebot unter <strong>https://storyjob.de</strong> sowie für die Anwendungen und Angebote rund um <strong>StoryJob™</strong> (inklusive <strong>StoryJob™ DNA</strong>, <strong>StoryJob™ Teams</strong> und <strong>StoryJob™ Match</strong> für <strong>iOS, Android und Web</strong>, im Aufbau und Release-/Test-Betrieb).
       </p>
 
       <h2>Angaben gemäß § 5 DDG (Digitale-Dienste-Gesetz)</h2>
       <p>
         <strong>Peter Alt</strong><br>
-        Gründer von StoryJob™<br>
-        StoryJob — Human Opportunity Network<br>
+        Gründer &amp; 100-%-Eigentümer — StoryJob™<br>
         Erwin-Brummer-Straße 5<br>
         84364 Bad Birnbach<br>
         Deutschland
@@ -274,7 +274,8 @@
       <h2>Kontakt</h2>
       <p>
         Telefon: +49 (0) 155 62608647<br>
-        E-Mail: <a href="mailto:story.job@outlook.de">story.job@outlook.de</a>
+        E-Mail: <a href="mailto:story.job@outlook.de">story.job@outlook.de</a><br>
+        Web: <a href="https://storyjob.de">https://storyjob.de</a>
       </p>
 
       <h2>Verantwortlich für journalistisch-redaktionelle Inhalte (§ 18 Abs. 2 MStV)</h2>
@@ -290,7 +291,7 @@
         Unsere zentrale Kontaktstelle für Nutzer und Behörden nach Art. 11 und Art. 12 der Verordnung (EU) 2022/2065 (Gesetz über digitale Dienste) erreichen Sie unter:<br>
         E-Mail: <a href="mailto:story.job@outlook.de">story.job@outlook.de</a><br>
         Telefon: +49 (0) 155 62608647<br>
-        Die für den Kontakt zur Verfügung stehenden Sprachen sind: Deutsch, Englisch.
+        Sprachen für die Kommunikation: Deutsch, Englisch.
       </p>
 
       <h2>Verbraucherstreitbeilegung / Universalschlichtungsstelle (§ 36 VSBG)</h2>
@@ -300,23 +301,23 @@
 
       <h2>Haftung für eigene und nutzergenerierte Inhalte</h2>
       <p>
-        Als Diensteanbieter sind wir gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten und in der App nach den allgemeinen Gesetzen verantwortlich. Nach den Artikeln 4 bis 8 der Verordnung (EU) 2022/2065 (Digital Services Act) i. V. m. dem DDG sind wir als Hosting- und Plattformanbieter jedoch nicht verpflichtet, von Nutzern übermittelte oder gespeicherte fremde Informationen (wie etwa hochgeladene Audio-Beiträge, Sprachnachrichten, Profilbilder oder Profiltexte) allgemein zu überwachen oder aktiv nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.
+        Als Diensteanbieter sind wir gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten und in den Anwendungen nach den allgemeinen Gesetzen verantwortlich. Nach den Artikeln 4 bis 8 der Verordnung (EU) 2022/2065 (Digital Services Act) i. V. m. dem DDG sind wir als Hosting- und Plattformanbieter jedoch nicht verpflichtet, von Nutzern übermittelte oder gespeicherte fremde Informationen (wie etwa Audio-Beiträge, Sprachnachrichten, Profilbilder oder Profiltexte) allgemein zu überwachen oder aktiv nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.
       </p>
       <p>
-        Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Sobald uns konkrete Rechtsverletzungen oder Verstöße gegen unsere Nutzungsrichtlinien (z. B. über die In-App-Meldefunktion oder per E-Mail) bekannt werden, werden wir diese Inhalte umgehend prüfen und bei Vorliegen eines Verstoßes unverzüglich entfernen bzw. den Zugang sperren.
+        Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden entsprechender Rechtsverletzungen oder Verstöße gegen Nutzungsregeln prüfen wir die Inhalte umgehend und entfernen bzw. sperren sie unverzüglich.
       </p>
 
       <h2>Haftung für Links</h2>
       <p>
-        Unser Angebot enthält ggf. Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar. Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.
+        Unser Angebot enthält ggf. Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber verantwortlich. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.
       </p>
 
       <h2>Urheberrecht und Markenrechte</h2>
       <p>
-        Die durch den Betreiber erstellten Inhalte, Konzepte, Designs, Grafiken, Logos (insbesondere <strong>StoryJob™</strong> und das Konzept der <strong>StoryJob DNA</strong>) sowie die Software-Architektur auf diesen Seiten und in der App unterliegen dem deutschen Urheber- und Kennzeichenrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet.
+        Die durch den Betreiber erstellten Inhalte, Konzepte, Designs, Grafiken, Logos (insbesondere <strong>StoryJob™</strong>, <strong>StoryJob™ DNA</strong>, <strong>StoryJob™ Teams</strong> und <strong>StoryJob™ Match</strong>) sowie die Software-Architektur auf diesen Seiten und in den Anwendungen unterliegen dem deutschen Urheber- und Kennzeichenrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechts bedürfen der schriftlichen Zustimmung des Rechteinhabers.
       </p>
       <p>
-        Soweit Inhalte auf dieser Plattform nicht vom Betreiber selbst, sondern von Nutzern der App erstellt wurden, werden die Urheberrechte Dritter beachtet. Sollten Sie dennoch auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis an unsere oben genannte Kontaktadresse. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen.
+        Soweit Inhalte nicht vom Betreiber selbst, sondern von Nutzern erstellt wurden, werden die Urheberrechte Dritter beachtet. Bei Hinweisen auf Rechtsverletzungen prüfen wir diese umgehend und entfernen betroffene Inhalte unverzüglich.
       </p>
     </div>
   </main>
@@ -325,7 +326,7 @@
   <footer>
     <div class="container">
       <div class="footer-row">
-        <p style="margin:0;">&copy; 2026 StoryJob. Alle Rechte vorbehalten.</p>
+        <p style="margin:0;">&copy; 2026 StoryJob™. Alle Rechte vorbehalten.</p>
         <div class="foot-right">
           <a class="link-muted" href="/">Startseite</a>
           <span>•</span>

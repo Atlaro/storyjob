@@ -2,19 +2,23 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:storyjob/core/services/intro_prefs_service.dart';
 import 'package:storyjob/core/theme/storyjob_theme.dart';
 import 'package:storyjob/core/widgets/glow_orb.dart';
 import 'package:storyjob/features/auth/screens/role_selection_screen.dart';
 
-class StorySplashScreen extends StatefulWidget {
-  const StorySplashScreen({super.key});
+class StoryIntroScreen extends StatefulWidget {
+  const StoryIntroScreen({super.key});
 
   @override
-  State<StorySplashScreen> createState() => _StorySplashScreenState();
+  State<StoryIntroScreen> createState() => _StoryIntroScreenState();
 }
 
-class _StorySplashScreenState extends State<StorySplashScreen>
+class _StoryIntroScreenState extends State<StoryIntroScreen>
     with TickerProviderStateMixin {
+  final IntroPrefsService _introPrefs = IntroPrefsService();
+
   late final AnimationController _introController;
   late final AnimationController _pulseController;
 
@@ -27,6 +31,7 @@ class _StorySplashScreenState extends State<StorySplashScreen>
   late final Animation<double> _hookOpacity;
 
   Timer? _navigationTimer;
+  bool _isNavigating = false;
 
   @override
   void initState() {
@@ -36,7 +41,7 @@ class _StorySplashScreenState extends State<StorySplashScreen>
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: Color(0xFF080914),
+        systemNavigationBarColor: StoryJobTheme.backgroundBase,
         systemNavigationBarIconBrightness: Brightness.light,
       ),
     );
@@ -56,7 +61,7 @@ class _StorySplashScreenState extends State<StorySplashScreen>
       curve: const Interval(0.0, 0.32, curve: Curves.easeOut),
     );
 
-    _logoScale = Tween<double>(begin: 0.90, end: 1.0).animate(
+    _logoScale = Tween<double>(begin: 0.92, end: 1.0).animate(
       CurvedAnimation(
         parent: _introController,
         curve: const Interval(0.0, 0.58, curve: Curves.easeOutCubic),
@@ -64,7 +69,7 @@ class _StorySplashScreenState extends State<StorySplashScreen>
     );
 
     _logoPosition = Tween<Offset>(
-      begin: const Offset(0, 0.12),
+      begin: const Offset(0, 0.08),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(
@@ -81,7 +86,7 @@ class _StorySplashScreenState extends State<StorySplashScreen>
     _introController.forward();
     _pulseController.repeat(reverse: true);
 
-    _navigationTimer = Timer(const Duration(seconds: 4), _openNextScreen);
+    _navigationTimer = Timer(const Duration(seconds: 4), _completeIntro);
   }
 
   Animation<double> _fadeIn(double start, double end) {
@@ -91,12 +96,21 @@ class _StorySplashScreenState extends State<StorySplashScreen>
     );
   }
 
-  void _openNextScreen() {
+  Future<void> _completeIntro() async {
+    if (!mounted || _isNavigating) return;
+    _isNavigating = true;
+
+    try {
+      await _introPrefs.markIntroAsSeen();
+    } catch (_) {
+      // Auch bei Speicherfehlern sauber weiter navigieren
+    }
+
     if (!mounted) return;
 
     Navigator.of(context).pushReplacement(
       PageRouteBuilder<void>(
-        transitionDuration: const Duration(milliseconds: 550),
+        transitionDuration: const Duration(milliseconds: 450),
         pageBuilder: (_, __, ___) => const RoleSelectionScreen(),
         transitionsBuilder: (_, animation, __, child) {
           return FadeTransition(opacity: animation, child: child);
@@ -107,6 +121,7 @@ class _StorySplashScreenState extends State<StorySplashScreen>
 
   @override
   void dispose() {
+    _isNavigating = true;
     _navigationTimer?.cancel();
     _introController.dispose();
     _pulseController.dispose();
@@ -116,61 +131,32 @@ class _StorySplashScreenState extends State<StorySplashScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF080914),
+      backgroundColor: StoryJobTheme.backgroundBase,
       body: Stack(
         fit: StackFit.expand,
         children: [
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF11162A),
-                  Color(0xFF080914),
-                  Color(0xFF100B20),
-                ],
-              ),
-            ),
-          ),
-
           const Positioned(
-            top: -150,
-            left: -150,
+            top: -80,
+            right: -60,
             child: GlowOrb(
               color: StoryJobTheme.cyanAccent,
-              size: 350,
+              size: 280,
             ),
           ),
           const Positioned(
-            right: -150,
-            bottom: -160,
+            bottom: -80,
+            left: -60,
             child: GlowOrb(
               color: StoryJobTheme.primaryViolet,
-              size: 370,
+              size: 280,
             ),
           ),
-
-          const DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                center: Alignment.center,
-                radius: 0.85,
-                colors: [
-                  Colors.transparent,
-                  Color(0xAA080914),
-                ],
-              ),
-            ),
-          ),
-
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 28),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
                   const Spacer(flex: 2),
-
                   AnimatedBuilder(
                     animation: Listenable.merge([
                       _introController,
@@ -193,55 +179,50 @@ class _StorySplashScreenState extends State<StorySplashScreen>
                     },
                     child: Image.asset(
                       'assets/images/splash/Branding.png',
-                      width: 290,
+                      width: 280,
                       fit: BoxFit.contain,
                     ),
                   ),
-
-                  const SizedBox(height: 32),
-
+                  const SizedBox(height: 28),
                   FadeTransition(
                     opacity: _firstLineOpacity,
-                    child: const _SplashStatement('Keine Noten.'),
+                    child: const _IntroStatement('Keine Noten.'),
                   ),
                   const SizedBox(height: 8),
                   FadeTransition(
                     opacity: _secondLineOpacity,
-                    child: const _SplashStatement('Kein Lebenslauf.'),
+                    child: const _IntroStatement('Kein Lebenslauf.'),
                   ),
                   const SizedBox(height: 8),
                   FadeTransition(
                     opacity: _thirdLineOpacity,
-                    child: const _SplashStatement('Keine Bewerbung.'),
+                    child: const _IntroStatement('Keine Bewerbung.'),
                   ),
-
                   const SizedBox(height: 24),
-
                   FadeTransition(
                     opacity: _hookOpacity,
                     child: ShaderMask(
                       shaderCallback: (bounds) {
                         return const LinearGradient(
                           colors: [
-                            Color(0xFF70E7FF),
+                            StoryJobTheme.cyanAccent,
                             Color(0xFFC2A3FF),
                           ],
                         ).createShader(bounds);
                       },
                       child: const Text(
-                        'Entdecke dein Potenzial.',
+                        'Potenzial sichtbar machen.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.1,
+                          color: StoryJobTheme.textPrimary,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
                         ),
                       ),
                     ),
                   ),
-
-                  const Spacer(flex: 4),
+                  const Spacer(flex: 3),
                 ],
               ),
             ),
@@ -252,8 +233,8 @@ class _StorySplashScreenState extends State<StorySplashScreen>
   }
 }
 
-class _SplashStatement extends StatelessWidget {
-  const _SplashStatement(this.text);
+class _IntroStatement extends StatelessWidget {
+  const _IntroStatement(this.text);
 
   final String text;
 
@@ -263,10 +244,10 @@ class _SplashStatement extends StatelessWidget {
       text,
       textAlign: TextAlign.center,
       style: const TextStyle(
-        color: Color(0xFFD1D4E0),
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        letterSpacing: 0.35,
+        color: StoryJobTheme.textSecondary,
+        fontSize: 15.5,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.15,
       ),
     );
   }

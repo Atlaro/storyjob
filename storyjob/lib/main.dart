@@ -1,11 +1,11 @@
 // lib/main.dart
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_core/firebase_core.dart';
 
-import 'package:storyjob/core/theme/storyjob_theme.dart';
 import 'package:storyjob/core/services/fcm_service.dart';
-import 'package:storyjob/features/auth/screens/story_splash_screen.dart';
+import 'package:storyjob/core/theme/storyjob_theme.dart';
+import 'package:storyjob/features/auth/screens/logo_splash_screen.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -46,12 +46,12 @@ class StoryJobApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'StoryJob',
+      title: 'StoryJob™',
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.dark,
       theme: StoryJobTheme.darkTheme,
       darkTheme: StoryJobTheme.darkTheme,
-      home: const StorySplashScreen(),
+      home: const LogoSplashScreen(),
     );
   }
 }

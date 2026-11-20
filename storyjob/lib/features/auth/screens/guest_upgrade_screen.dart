@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:storyjob/core/theme/storyjob_theme.dart';
 import 'package:storyjob/core/widgets/mystic_scaffold.dart';
 import 'package:storyjob/core/widgets/glass_button.dart';
-import 'package:storyjob/features/auth/screens/dna_auth_screen.dart'; // <--- Neuer Import
+import 'package:storyjob/features/auth/screens/dna_auth_screen.dart';
 import 'package:storyjob/features/talent/screens/talent_navigation_screen.dart';
 
 class GuestUpgradeScreen extends StatelessWidget {
@@ -53,18 +53,18 @@ class GuestUpgradeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 28),
                 const Text(
-                  'Sichere deine Storys',
+                  'Mach dein Potenzial dauerhaft sichtbar',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 26,
+                    fontSize: 25,
                     fontWeight: FontWeight.bold,
                     color: StoryJobTheme.textPrimary,
-                    letterSpacing: 0.5,
+                    letterSpacing: -0.4,
                   ),
                 ),
                 const SizedBox(height: 12),
                 const Text(
-                  'Erstelle jetzt deinen Account, um deine Sprachaufnahmen dauerhaft zu speichern und alle Matches freizuschalten.',
+                  'Lege jetzt dein StoryJob™-Konto an, um deine StoryJob™ DNA, Teams-Perspektiven und Resonanzen dauerhaft zu sichern.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 15,
@@ -80,11 +80,11 @@ class GuestUpgradeScreen extends StatelessWidget {
                   borderRadius: 16,
                   icon: Icons.person_add_rounded,
                   onPressed: () {
-                    // Verlinkung auf den neuen DnaAuthScreen (Standardmäßig Talent oder mit Rolle)
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const DnaAuthScreen(selectedRole: 'talent'),
+                        builder: (context) =>
+                            const DnaAuthScreen(selectedRole: 'talent'),
                       ),
                     );
                   },
@@ -102,7 +102,7 @@ class GuestUpgradeScreen extends StatelessWidget {
                       );
                     },
                     child: const Text(
-                      'Weiterhin als Gast nutzen',
+                      'Weiterhin als Gast fortfahren',
                       style: TextStyle(
                         color: StoryJobTheme.textSecondary,
                         fontSize: 15,

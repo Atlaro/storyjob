@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:storyjob/core/theme/storyjob_theme.dart';
 import 'package:storyjob/core/widgets/glow_orb.dart';
 import 'package:storyjob/features/auth/screens/dna_auth_screen.dart';
@@ -16,28 +17,28 @@ class RoleSelectionScreen extends StatelessWidget {
       body: Stack(
         children: [
           const Positioned(
-            top: -70,
-            right: -40,
+            top: -80,
+            right: -60,
             child: GlowOrb(
               color: StoryJobTheme.cyanAccent,
-              size: 260,
+              size: 280,
             ),
           ),
           const Positioned(
-            bottom: -70,
-            left: -40,
+            bottom: -80,
+            left: -60,
             child: GlowOrb(
               color: StoryJobTheme.primaryViolet,
-              size: 260,
+              size: 280,
             ),
           ),
           SafeArea(
             child: Align(
               alignment: Alignment.topCenter,
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 480),
+                constraints: const BoxConstraints(maxWidth: 460),
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(22, 10, 22, 20),
+                  padding: const EdgeInsets.fromLTRB(24, 14, 24, 24),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -45,39 +46,41 @@ class RoleSelectionScreen extends StatelessWidget {
                       Center(
                         child: Image.asset(
                           'assets/images/splash/Branding.png',
-                          width: 265,
+                          width: 280,
                           fit: BoxFit.contain,
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
                       const Text(
-                        'Nutze dein Potenzial!',
+                        'Potenzial sichtbar machen.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 27,
-                          fontWeight: FontWeight.w900,
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
                           color: StoryJobTheme.textPrimary,
-                          letterSpacing: -0.6,
+                          letterSpacing: -0.5,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       const Text(
-                        'Finde, was zu dir passt.',
+                        'Entfalte deine Story. Auf Augenhöhe.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 13.5,
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w600,
                           color: StoryJobTheme.textSecondary,
-                          height: 1.35,
+                          height: 1.4,
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 24),
 
-                      // 1. Talent / StoryDNA
+                      // 1. StoryJob™ DNA — Wer bin ich?
                       const _RoleCard(
-                        title: 'Zeig, was dich ausmacht',
-                        ctaLabel: 'StoryDNA erstellen',
+                        badge: 'StoryJob™ DNA',
+                        title: 'Wer bin ich?',
+                        ctaLabel: 'StoryJob™ DNA starten',
                         subtitle:
-                            'Mach deine Persönlichkeit, Werte und Stärken für passende Jobs sichtbar.',
+                            'Mach deine Werte, Stärken, Motivation und dein Entwicklungspotenzial sichtbar – für echte Teilhabe und eigene Entfaltung.',
                         assetPath: 'assets/images/Auth/DNA.png',
                         accentColor: StoryJobTheme.cyanAccent,
                         roleKey: 'talent',
@@ -85,12 +88,13 @@ class RoleSelectionScreen extends StatelessWidget {
 
                       const SizedBox(height: 14),
 
-                      // 2. Teams / StoryTeam
+                      // 2. StoryJob™ Teams — Wer sind wir?
                       const _RoleCard(
-                        title: 'Zeig, was euch ausmacht',
-                        ctaLabel: 'StoryTeam erstellen',
+                        badge: 'StoryJob™ Teams',
+                        title: 'Wer sind wir?',
+                        ctaLabel: 'StoryJob™ Teams öffnen',
                         subtitle:
-                            'Präsentiert eure Kultur und begeistert passende Talente für euer Team oder Unternehmen.',
+                            'Zeigt eure Kultur, Zusammenarbeit, Lernfähigkeit und Zukunftsfähigkeit – durch die Menschen hinter eurem Team.',
                         assetPath: 'assets/images/Auth/Team.png',
                         accentColor: StoryJobTheme.primaryViolet,
                         roleKey: 'team',
@@ -109,6 +113,7 @@ class RoleSelectionScreen extends StatelessWidget {
 
 class _RoleCard extends StatelessWidget {
   const _RoleCard({
+    required this.badge,
     required this.title,
     required this.ctaLabel,
     required this.subtitle,
@@ -117,6 +122,7 @@ class _RoleCard extends StatelessWidget {
     required this.roleKey,
   });
 
+  final String badge;
   final String title;
   final String ctaLabel;
   final String subtitle;
@@ -131,26 +137,25 @@ class _RoleCard extends StatelessWidget {
       child: InkWell(
         onTap: () {
           HapticFeedback.mediumImpact();
-
           Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (_) => DnaAuthScreen(selectedRole: roleKey),
             ),
           );
         },
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(24),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(24),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+              padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
                 color: StoryJobTheme.cardSurfaceElevated.withValues(alpha: 0.72),
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: accentColor.withValues(alpha: 0.30),
-                  width: 1,
+                  color: accentColor.withValues(alpha: 0.32),
+                  width: 1.1,
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -174,9 +179,14 @@ class _RoleCard extends StatelessWidget {
                           color: accentColor.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: Image.asset(
-                          assetPath,
-                          fit: BoxFit.contain,
+                        child: Hero(
+                          tag: roleKey == 'team'
+                              ? 'storyjob_role_logo_team'
+                              : 'storyjob_role_logo_talent',
+                          child: Image.asset(
+                            assetPath,
+                            fit: BoxFit.contain,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 14),
@@ -185,11 +195,21 @@ class _RoleCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
+                              badge,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: accentColor,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
                               title,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                fontSize: 18,
+                                fontSize: 19,
                                 fontWeight: FontWeight.w800,
                                 color: StoryJobTheme.textPrimary,
                                 letterSpacing: -0.3,
@@ -203,7 +223,7 @@ class _RoleCard extends StatelessWidget {
                               style: const TextStyle(
                                 fontSize: 12.5,
                                 color: StoryJobTheme.textSecondary,
-                                height: 1.38,
+                                height: 1.4,
                               ),
                             ),
                           ],
