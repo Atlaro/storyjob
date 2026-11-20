@@ -48,7 +48,7 @@
 
 	<!-- Google Sign-In Client ID -->
 	<key>GIDClientID</key>
-	<string>758116924953-d82d6658ea5f0755f63488.apps.googleusercontent.com</string>
+	<string>758116924953-1kp1p4o2fqcrujfunkkt2vm1lgia3gt1.apps.googleusercontent.com</string>
 
 	<!-- URL Schemes -->
 	<key>CFBundleURLTypes</key>
@@ -58,7 +58,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.758116924953-d82d6658ea5f0755f63488</string>
+				<string>com.googleusercontent.apps.758116924953-1kp1p4o2fqcrujfunkkt2vm1lgia3gt1</string>
 				<string>storyjob</string>
 			</array>
 		</dict>

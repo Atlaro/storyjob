@@ -165,83 +165,84 @@ class _StorySplashScreenState extends State<StorySplashScreen>
           ),
 
           SafeArea(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AnimatedBuilder(
-                      animation: Listenable.merge([
-                        _introController,
-                        _pulseController,
-                      ]),
-                      builder: (context, child) {
-                        final pulse = _pulseController.value;
-                        final breathingScale = 1 + (pulse * 0.012);
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28),
+              child: Column(
+                children: [
+                  const Spacer(flex: 2),
 
-                        return FadeTransition(
-                          opacity: _logoOpacity,
-                          child: SlideTransition(
-                            position: _logoPosition,
-                            child: Transform.scale(
-                              scale: _logoScale.value * breathingScale,
-                              child: child,
-                            ),
+                  AnimatedBuilder(
+                    animation: Listenable.merge([
+                      _introController,
+                      _pulseController,
+                    ]),
+                    builder: (context, child) {
+                      final pulse = _pulseController.value;
+                      final breathingScale = 1 + (pulse * 0.012);
+
+                      return FadeTransition(
+                        opacity: _logoOpacity,
+                        child: SlideTransition(
+                          position: _logoPosition,
+                          child: Transform.scale(
+                            scale: _logoScale.value * breathingScale,
+                            child: child,
                           ),
-                        );
+                        ),
+                      );
+                    },
+                    child: Image.asset(
+                      'assets/images/splash/Branding.png',
+                      width: 290,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  FadeTransition(
+                    opacity: _firstLineOpacity,
+                    child: const _SplashStatement('Keine Noten.'),
+                  ),
+                  const SizedBox(height: 8),
+                  FadeTransition(
+                    opacity: _secondLineOpacity,
+                    child: const _SplashStatement('Kein Lebenslauf.'),
+                  ),
+                  const SizedBox(height: 8),
+                  FadeTransition(
+                    opacity: _thirdLineOpacity,
+                    child: const _SplashStatement('Keine Bewerbung.'),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  FadeTransition(
+                    opacity: _hookOpacity,
+                    child: ShaderMask(
+                      shaderCallback: (bounds) {
+                        return const LinearGradient(
+                          colors: [
+                            Color(0xFF70E7FF),
+                            Color(0xFFC2A3FF),
+                          ],
+                        ).createShader(bounds);
                       },
-                      child: Image.asset(
-                        'assets/images/splash/Branding.png',
-                        width: 290,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-
-                    const SizedBox(height: 38),
-
-                    FadeTransition(
-                      opacity: _firstLineOpacity,
-                      child: const _SplashStatement('Keine Noten.'),
-                    ),
-                    const SizedBox(height: 8),
-                    FadeTransition(
-                      opacity: _secondLineOpacity,
-                      child: const _SplashStatement('Kein Lebenslauf.'),
-                    ),
-                    const SizedBox(height: 8),
-                    FadeTransition(
-                      opacity: _thirdLineOpacity,
-                      child: const _SplashStatement('Keine Bewerbung.'),
-                    ),
-
-                    const SizedBox(height: 26),
-
-                    FadeTransition(
-                      opacity: _hookOpacity,
-                      child: ShaderMask(
-                        shaderCallback: (bounds) {
-                          return const LinearGradient(
-                            colors: [
-                              Color(0xFF70E7FF),
-                              Color(0xFFC2A3FF),
-                            ],
-                          ).createShader(bounds);
-                        },
-                        child: const Text(
-                          'Entdecke dein Potenzial.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 22,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.1,
-                          ),
+                      child: const Text(
+                        'Entdecke dein Potenzial.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.1,
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+
+                  const Spacer(flex: 4),
+                ],
               ),
             ),
           ),
