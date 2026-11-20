@@ -26,7 +26,7 @@ class _TeamTalentPoolScreenState extends State<TeamTalentPoolScreen> {
     '🌱 Nachhaltigkeit & Impact',
   ];
 
-  final List> _talents = [
+  final List<Map<String, dynamic>> _talents = [
     {
       'name': 'Alex Mustermann',
       'handle': 'alex',
@@ -95,7 +95,7 @@ class _TeamTalentPoolScreenState extends State<TeamTalentPoolScreen> {
     super.dispose();
   }
 
-  List> _getFilteredTalents() {
+  List<Map<String, dynamic>> _getFilteredTalents() {
     if (_selectedFilterIndex == 1) {
       return _talents.where((t) => t['category'] == 'ehrenamt').toList();
     } else if (_selectedFilterIndex == 2) {
@@ -103,9 +103,7 @@ class _TeamTalentPoolScreenState extends State<TeamTalentPoolScreen> {
     } else if (_selectedFilterIndex == 3) {
       return _talents.where((t) {
         final pillarsList = t['pillars'];
-        if (pillarsList is List<String>) {
-          return pillarsList.contains('Führung');
-        } else if (pillarsList is List) {
+        if (pillarsList is List<dynamic>) {
           return pillarsList.contains('Führung');
         }
         return t['category'] == 'macher';
