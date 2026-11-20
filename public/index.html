@@ -109,7 +109,6 @@
       border-bottom: 1px solid rgba(255,255,255,.07);
     }
 
-    /* Größeres Branding in der Navigation */
     .nav-inner{
       display:flex;
       align-items:center;
@@ -118,20 +117,20 @@
       min-height: 96px;
       padding: 6px 0;
     }
-    .brand{
-      display:inline-flex;
-      align-items:center;
-      gap: 12px;
-      text-decoration:none;
-      color: var(--text);
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
       flex-shrink: 0;
+      text-decoration: none;
     }
-    .logo-img{
-      height: 78px;
-      width: auto;
-      max-width: min(320px, 38vw);
-      object-fit: contain;
+
+    .logo-img {
       display: block;
+      height: 54px;
+      width: auto;
+      max-width: 180px;
+      object-fit: contain;
     }
 
     .nav-links{
@@ -140,7 +139,6 @@
       align-items:center;
     }
 
-    /* Etwas mehr Präsenz für die Navigation */
     .nav-links a{
       color: var(--muted);
       text-decoration:none;
@@ -218,23 +216,25 @@
       .nav-links{ display:none; }
       .burger{ display:inline-flex; align-items:center; justify-content:center; }
 
-      /* Mobile: Logo bleibt gut sichtbar, Header passt sich an */
       .nav-inner {
-        min-height: 82px;
+        min-height: 80px;
       }
+
       .logo-img {
-        height: 64px;
-        max-width: min(260px, 55vw);
+        height: 48px;
+        max-width: 150px;
       }
     }
 
     @media (max-width: 520px){
       .nav-inner {
         min-height: 74px;
+        gap: 10px;
       }
+
       .logo-img {
-        height: 58px;
-        max-width: 58vw;
+        height: 42px;
+        max-width: 120px;
       }
     }
 
@@ -276,12 +276,24 @@
       height: clamp(220px, 30vw, 350px);
       object-fit: contain;
       display: block;
-      animation: logo-float 5s ease-in-out infinite;
+      will-change: transform;
+      transform: translate3d(0, 0, 0);
+      animation: hero-logo-float 6.5s cubic-bezier(0.37, 0, 0.63, 1) infinite;
     }
 
-    @keyframes logo-float {
-      0%, 100% { transform: translateY(0); }
-      50%      { transform: translateY(-6px); }
+    @keyframes hero-logo-float {
+      0%, 100% {
+        transform: translate3d(0, -4px, 0);
+      }
+      50% {
+        transform: translate3d(0, 4px, 0);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .hero-logo-img {
+        height: clamp(180px, 44vw, 240px);
+      }
     }
 
     /* 2. Potenzial sichtbar machen. */
@@ -912,6 +924,8 @@
       .hero-logo-img,
       .gradient-text {
         animation: none !important;
+        transform: translate3d(0, 0, 0) !important;
+        will-change: auto;
       }
       .hero-product-card {
         transition: none;
