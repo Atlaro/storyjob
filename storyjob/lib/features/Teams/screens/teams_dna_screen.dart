@@ -300,36 +300,39 @@ class _TeamsDnaScreenState extends State<TeamsDnaScreen> {
     final subtitleText =
         location.isNotEmpty ? '$industry • $location' : industry;
     final bool canPop = Navigator.of(context).canPop();
+    final double topPadding = canPop
+        ? 12.0
+        : MediaQuery.of(context).padding.top + kToolbarHeight + 12.0;
 
     return Scaffold(
       backgroundColor: StoryJobTheme.backgroundBase,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: canPop
-            ? IconButton(
+      appBar: canPop
+          ? AppBar(
+              automaticallyImplyLeading: false,
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              leading: IconButton(
                 icon: const Icon(
                   Icons.arrow_back_ios_new_rounded,
                   color: StoryJobTheme.textPrimary,
                   size: 18,
                 ),
                 onPressed: () => Navigator.of(context).pop(),
-              )
-            : null,
-        title: const Text(
-          'StoryJob™ Teams DNA',
-          style: TextStyle(
-            color: StoryJobTheme.textPrimary,
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        centerTitle: true,
-      ),
+              ),
+              title: const Text(
+                'StoryJob™ Teams DNA',
+                style: TextStyle(
+                  color: StoryJobTheme.textPrimary,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              centerTitle: true,
+            )
+          : null,
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 110),
+        padding: EdgeInsets.fromLTRB(20, topPadding, 20, 110),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

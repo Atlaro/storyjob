@@ -7,6 +7,7 @@ import 'package:storyjob/features/Teams/screens/team_dashboard_screen.dart';
 import 'package:storyjob/features/Teams/screens/team_talent_pool_screen.dart';
 import 'package:storyjob/features/Teams/screens/teams_dna_screen.dart';
 import 'package:storyjob/features/messages/screens/dialog_list_screen.dart';
+import 'package:storyjob/features/navigation/widgets/story_app_bar.dart';
 
 class TeamNavigationScreen extends StatefulWidget {
   const TeamNavigationScreen({super.key});
@@ -23,6 +24,18 @@ class _TeamNavigationScreenState extends State<TeamNavigationScreen> {
     const TeamTalentPoolScreen(),
     const TeamsDnaScreen(),
   ];
+
+  void _openTeamDialogs() {
+    HapticFeedback.selectionClick();
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const DialogListScreen(
+          isTeamView: true,
+          initialTabIndex: 0,
+        ),
+      ),
+    );
+  }
 
   void _onFabPressed() {
     HapticFeedback.mediumImpact();
@@ -111,6 +124,40 @@ class _TeamNavigationScreenState extends State<TeamNavigationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: StoryJobTheme.backgroundBase,
+      extendBodyBehindAppBar: true,
+      appBar: StoryAppBar(
+        showChatAction: false,
+        actions: [
+          IconButton(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: StoryJobTheme.cardSurfaceElevated,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: StoryJobTheme.primaryViolet.withValues(alpha: 0.35),
+                  width: 1.1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: StoryJobTheme.primaryViolet.withValues(alpha: 0.22),
+                    blurRadius: 10,
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.forum_rounded,
+                color: StoryJobTheme.cyanAccent,
+                size: 18,
+              ),
+            ),
+            onPressed: _openTeamDialogs,
+            tooltip: 'Team-Dialoge',
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
@@ -177,14 +224,7 @@ class _TeamNavigationScreenState extends State<TeamNavigationScreen> {
       onTap: () {
         HapticFeedback.selectionClick();
         if (index == 3) {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => const DialogListScreen(
-                isTeamView: true,
-                initialTabIndex: 0,
-              ),
-            ),
-          );
+          _openTeamDialogs();
         } else {
           setState(() => _currentIndex = index);
         }

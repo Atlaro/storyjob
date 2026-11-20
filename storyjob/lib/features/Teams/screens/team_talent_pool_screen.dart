@@ -26,8 +26,7 @@ class _TeamTalentPoolScreenState extends State<TeamTalentPoolScreen> {
     '🌱 Nachhaltigkeit & Impact',
   ];
 
-  // HIER KORRIGIERT: Saubere Generics
-  final List<Map<String, dynamic>> _talents = [
+  final List> _talents = [
     {
       'name': 'Alex Mustermann',
       'handle': 'alex',
@@ -42,7 +41,8 @@ class _TeamTalentPoolScreenState extends State<TeamTalentPoolScreen> {
       'values': ['Verantwortung', 'Verlässlichkeit', 'Innovation'],
       'audioDuration': '01:43 Min.',
       'audioUrl': 'https://storyjob.de/demo_audio_peter.aac',
-      'audioPitchSnippet': '„Warum für mich Verlässlichkeit und echter Teameinsatz an erster Stelle stehen...“',
+      'audioPitchSnippet':
+          '„Warum für mich Verlässlichkeit und echter Teameinsatz an erster Stelle stehen...“',
       'location': 'München • Hybrid / Remote',
       'category': 'ehrenamt',
       'accentColor': StoryJobTheme.cyanAccent,
@@ -61,7 +61,8 @@ class _TeamTalentPoolScreenState extends State<TeamTalentPoolScreen> {
       'values': ['Offenheit', 'Lernbereitschaft', 'Empathie'],
       'audioDuration': '01:12 Min.',
       'audioUrl': 'https://storyjob.de/demo_audio_sarah.aac',
-      'audioPitchSnippet': '„Wie wir Teams befähigen, eigenständig Verantwortung zu übernehmen...“',
+      'audioPitchSnippet':
+          '„Wie wir Teams befähigen, eigenständig Verantwortung zu übernehmen...“',
       'location': 'München • Remote',
       'category': 'macher',
       'accentColor': StoryJobTheme.primaryViolet,
@@ -80,7 +81,8 @@ class _TeamTalentPoolScreenState extends State<TeamTalentPoolScreen> {
       'values': ['Nachhaltigkeit', 'Qualität', 'Zukunft'],
       'audioDuration': '01:25 Min.',
       'audioUrl': 'https://storyjob.de/demo_audio_michael.aac',
-      'audioPitchSnippet': '„Projekte müssen nicht nur auf dem Papier grün sein, sondern in der Praxis funktionieren...“',
+      'audioPitchSnippet':
+          '„Projekte müssen nicht nur auf dem Papier grün sein, sondern in der Praxis funktionieren...“',
       'location': 'München / Nürnberg • Hybrid',
       'category': 'nachhaltig',
       'accentColor': StoryJobTheme.mintSuccess,
@@ -93,8 +95,7 @@ class _TeamTalentPoolScreenState extends State<TeamTalentPoolScreen> {
     super.dispose();
   }
 
-  // HIER KORRIGIERT: Saubere Generics
-  List<Map<String, dynamic>> _getFilteredTalents() {
+  List> _getFilteredTalents() {
     if (_selectedFilterIndex == 1) {
       return _talents.where((t) => t['category'] == 'ehrenamt').toList();
     } else if (_selectedFilterIndex == 2) {
@@ -102,7 +103,6 @@ class _TeamTalentPoolScreenState extends State<TeamTalentPoolScreen> {
     } else if (_selectedFilterIndex == 3) {
       return _talents.where((t) {
         final pillarsList = t['pillars'];
-        // HIER KORRIGIERT: List<String>
         if (pillarsList is List<String>) {
           return pillarsList.contains('Führung');
         } else if (pillarsList is List) {
@@ -119,145 +119,156 @@ class _TeamTalentPoolScreenState extends State<TeamTalentPoolScreen> {
   @override
   Widget build(BuildContext context) {
     final filteredTalents = _getFilteredTalents();
+    final topInset = MediaQuery.of(context).padding.top + kToolbarHeight + 8;
 
     return Scaffold(
       backgroundColor: StoryJobTheme.backgroundBase,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20.0, 14.0, 20.0, 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: StoryJobTheme.cardSurfaceElevated,
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: StoryJobTheme.cardBorder),
-                    ),
-                    child: Row(
-                      children: const [
-                        Icon(Icons.shield_outlined, color: StoryJobTheme.cyanAccent, size: 16),
-                        SizedBox(width: 6),
-                        Text(
-                          'Anonymitäts-Schutz aktiv',
-                          style: TextStyle(
-                            color: StoryJobTheme.textPrimary,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: EdgeInsets.fromLTRB(20.0, topInset, 20.0, 8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: StoryJobTheme.cardSurfaceElevated,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: StoryJobTheme.cardBorder),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: StoryJobTheme.primaryViolet.withValues(alpha: 0.16),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: StoryJobTheme.primaryViolet.withValues(alpha: 0.35)),
-                    ),
-                    child: const Text(
-                      'Werte-Geprüft ✨',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20.0, 8.0, 20.0, 10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    'TALENT-POOL • WERTE-MATCHING',
-                    style: TextStyle(
-                      color: StoryJobTheme.cyanAccent,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Echte Macher entdecken',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w700,
-                      color: StoryJobTheme.textPrimary,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4.0),
-              child: SizedBox(
-                height: 38,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _filters.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 8),
-                  itemBuilder: (context, index) {
-                    final isSelected = _selectedFilterIndex == index;
-                    return ChoiceChip(
-                      label: Text(_filters[index]),
-                      selected: isSelected,
-                      onSelected: (selected) {
-                        if (selected) {
-                          HapticFeedback.selectionClick();
-                          setState(() => _selectedFilterIndex = index);
-                        }
-                      },
-                      selectedColor: StoryJobTheme.primaryViolet,
-                      backgroundColor: StoryJobTheme.cardSurfaceElevated,
-                      labelStyle: TextStyle(
-                        color: isSelected ? Colors.white : StoryJobTheme.textSecondary,
-                        fontSize: 12,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        side: BorderSide(
-                          color: isSelected ? StoryJobTheme.primaryViolet : StoryJobTheme.cardBorder,
+                  child: Row(
+                    children: const [
+                      Icon(Icons.shield_outlined,
+                          color: StoryJobTheme.cyanAccent, size: 16),
+                      SizedBox(width: 6),
+                      Text(
+                        'Anonymitäts-Schutz aktiv',
+                        style: TextStyle(
+                          color: StoryJobTheme.textPrimary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
-                      showCheckmark: false,
-                    );
-                  },
+                    ],
+                  ),
                 ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: StoryJobTheme.primaryViolet.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                        color:
+                            StoryJobTheme.primaryViolet.withValues(alpha: 0.35)),
+                  ),
+                  child: const Text(
+                    'Werte-Geprüft ✨',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20.0, 8.0, 20.0, 10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text(
+                  'TALENT-POOL • WERTE-MATCHING',
+                  style: TextStyle(
+                    color: StoryJobTheme.cyanAccent,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'Echte Macher entdecken',
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w700,
+                    color: StoryJobTheme.textPrimary,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4.0),
+            child: SizedBox(
+              height: 38,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: _filters.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final isSelected = _selectedFilterIndex == index;
+                  return ChoiceChip(
+                    label: Text(_filters[index]),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      if (selected) {
+                        HapticFeedback.selectionClick();
+                        setState(() => _selectedFilterIndex = index);
+                      }
+                    },
+                    selectedColor: StoryJobTheme.primaryViolet,
+                    backgroundColor: StoryJobTheme.cardSurfaceElevated,
+                    labelStyle: TextStyle(
+                      color: isSelected
+                          ? Colors.white
+                          : StoryJobTheme.textSecondary,
+                      fontSize: 12,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w500,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(
+                        color: isSelected
+                            ? StoryJobTheme.primaryViolet
+                            : StoryJobTheme.cardBorder,
+                      ),
+                    ),
+                    showCheckmark: false,
+                  );
+                },
               ),
             ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: filteredTalents.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'Keine Macher für diese Auswahl gefunden.',
-                        style: TextStyle(color: StoryJobTheme.textSecondary, fontSize: 13),
-                      ),
-                    )
-                  : ListView.separated(
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(20.0, 8.0, 20.0, 110.0),
-                      itemCount: filteredTalents.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 16),
-                      itemBuilder: (context, index) {
-                        return TeamTalentCard(talentData: filteredTalents[index]);
-                      },
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: filteredTalents.isEmpty
+                ? const Center(
+                    child: Text(
+                      'Keine Macher für diese Auswahl gefunden.',
+                      style: TextStyle(
+                          color: StoryJobTheme.textSecondary, fontSize: 13),
                     ),
-            ),
-          ],
-        ),
+                  )
+                : ListView.separated(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(20.0, 8.0, 20.0, 110.0),
+                    itemCount: filteredTalents.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 16),
+                    itemBuilder: (context, index) {
+                      return TeamTalentCard(talentData: filteredTalents[index]);
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
@@ -292,11 +303,14 @@ class _TeamTalentCardState extends State<TeamTalentCard> {
   @override
   Widget build(BuildContext context) {
     final bool isProtected = widget.talentData['isProtected'] ?? false;
-    final name = isProtected ? 'Geschütztes Profil' : widget.talentData['name'] as String;
-    final handle = isProtected ? 'anonym' : widget.talentData['handle'] as String;
+    final name =
+        isProtected ? 'Geschütztes Profil' : widget.talentData['name'] as String;
+    final handle =
+        isProtected ? 'anonym' : widget.talentData['handle'] as String;
     final roleFocus = widget.talentData['roleFocus'] as String;
     final matchScore = widget.talentData['matchScore'] as String;
-    final double numericScore = (widget.talentData['scoreValue'] as int).toDouble();
+    final double numericScore =
+        (widget.talentData['scoreValue'] as int).toDouble();
     final matchReason = widget.talentData['matchReason'] as String;
     final pillars = List<String>.from(widget.talentData['pillars'] ?? []);
     final engagement = List<String>.from(widget.talentData['engagement'] ?? []);
@@ -323,7 +337,9 @@ class _TeamTalentCardState extends State<TeamTalentCard> {
                 height: 46,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isProtected ? StoryJobTheme.cardSurfaceElevated : accentColor.withValues(alpha: 0.2),
+                  color: isProtected
+                      ? StoryJobTheme.cardSurfaceElevated
+                      : accentColor.withValues(alpha: 0.2),
                   border: Border.all(
                     color: isProtected ? StoryJobTheme.cyanAccent : accentColor,
                     width: 1.5,
@@ -332,7 +348,8 @@ class _TeamTalentCardState extends State<TeamTalentCard> {
                 child: Center(
                   child: Icon(
                     isProtected ? Icons.shield_rounded : Icons.person_rounded,
-                    color: isProtected ? StoryJobTheme.cyanAccent : Colors.white,
+                    color:
+                        isProtected ? StoryJobTheme.cyanAccent : Colors.white,
                     size: 22,
                   ),
                 ),
@@ -355,17 +372,23 @@ class _TeamTalentCardState extends State<TeamTalentCard> {
                         const SizedBox(width: 6),
                         Text(
                           '@$handle',
-                          style: const TextStyle(fontSize: 12, color: StoryJobTheme.textSecondary),
+                          style: const TextStyle(
+                              fontSize: 12, color: StoryJobTheme.textSecondary),
                         ),
                       ],
                     ),
                     const SizedBox(height: 2),
                     Text(
                       roleFocus,
-                      style: const TextStyle(fontSize: 13, color: StoryJobTheme.cyanAccent, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                          fontSize: 13,
+                          color: StoryJobTheme.cyanAccent,
+                          fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 2),
-                    Text(location, style: const TextStyle(fontSize: 11.5, color: StoryJobTheme.textSecondary)),
+                    Text(location,
+                        style: const TextStyle(
+                            fontSize: 11.5, color: StoryJobTheme.textSecondary)),
                   ],
                 ),
               ),
@@ -375,26 +398,36 @@ class _TeamTalentCardState extends State<TeamTalentCard> {
                     width: 48,
                     height: 26,
                     child: CustomPaint(
-                      painter: _MiniCardArcPainter(progress: numericScore / 100.0),
+                      painter:
+                          _MiniCardArcPainter(progress: numericScore / 100.0),
                       child: Align(
                         alignment: Alignment.bottomCenter,
                         child: Text(
                           matchScore,
-                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 2),
-                  const Text('Team-Fit', style: TextStyle(fontSize: 9, color: StoryJobTheme.textSecondary)),
+                  const Text('Team-Fit',
+                      style: TextStyle(
+                          fontSize: 9, color: StoryJobTheme.textSecondary)),
                 ],
               ),
               IconButton(
                 padding: const EdgeInsets.only(left: 6),
                 constraints: const BoxConstraints(),
                 icon: Icon(
-                  _isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                  color: _isBookmarked ? StoryJobTheme.amberEnergy : StoryJobTheme.textSecondary,
+                  _isBookmarked
+                      ? Icons.bookmark_rounded
+                      : Icons.bookmark_border_rounded,
+                  color: _isBookmarked
+                      ? StoryJobTheme.amberEnergy
+                      : StoryJobTheme.textSecondary,
                   size: 22,
                 ),
                 onPressed: () {
@@ -410,23 +443,32 @@ class _TeamTalentCardState extends State<TeamTalentCard> {
             decoration: BoxDecoration(
               color: StoryJobTheme.primaryViolet.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: StoryJobTheme.primaryViolet.withValues(alpha: 0.30)),
+              border: Border.all(
+                  color: StoryJobTheme.primaryViolet.withValues(alpha: 0.30)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: const [
-                    Icon(Icons.auto_awesome_rounded, color: StoryJobTheme.cyanAccent, size: 14),
+                    Icon(Icons.auto_awesome_rounded,
+                        color: StoryJobTheme.cyanAccent, size: 14),
                     SizedBox(width: 6),
                     Text(
                       'Werte-Match für euer Team',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: StoryJobTheme.cyanAccent),
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: StoryJobTheme.cyanAccent),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(matchReason, style: const TextStyle(fontSize: 12.5, color: StoryJobTheme.textPrimary, height: 1.4)),
+                Text(matchReason,
+                    style: const TextStyle(
+                        fontSize: 12.5,
+                        color: StoryJobTheme.textPrimary,
+                        height: 1.4)),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 6,
@@ -435,9 +477,14 @@ class _TeamTalentCardState extends State<TeamTalentCard> {
                     return Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(Icons.check_rounded, size: 12, color: StoryJobTheme.cyanAccent),
+                        const Icon(Icons.check_rounded,
+                            size: 12, color: StoryJobTheme.cyanAccent),
                         const SizedBox(width: 3),
-                        Text(pillar, style: const TextStyle(color: StoryJobTheme.cyanAccent, fontSize: 11, fontWeight: FontWeight.w600)),
+                        Text(pillar,
+                            style: const TextStyle(
+                                color: StoryJobTheme.cyanAccent,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600)),
                         const SizedBox(width: 6),
                       ],
                     );
@@ -455,12 +502,17 @@ class _TeamTalentCardState extends State<TeamTalentCard> {
               decoration: BoxDecoration(
                 color: StoryJobTheme.cardSurfaceElevated,
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: _isPlaying ? StoryJobTheme.cyanAccent : StoryJobTheme.cardBorder),
+                border: Border.all(
+                    color: _isPlaying
+                        ? StoryJobTheme.cyanAccent
+                        : StoryJobTheme.cardBorder),
               ),
               child: Row(
                 children: [
                   Icon(
-                    _isPlaying ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded,
+                    _isPlaying
+                        ? Icons.pause_circle_filled_rounded
+                        : Icons.play_circle_fill_rounded,
                     color: StoryJobTheme.cyanAccent,
                     size: 26,
                   ),
@@ -468,13 +520,20 @@ class _TeamTalentCardState extends State<TeamTalentCard> {
                   Expanded(
                     child: Text(
                       audioPitchSnippet,
-                      style: const TextStyle(color: StoryJobTheme.textPrimary, fontSize: 12, fontStyle: FontStyle.italic),
+                      style: const TextStyle(
+                          color: StoryJobTheme.textPrimary,
+                          fontSize: 12,
+                          fontStyle: FontStyle.italic),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(audioDuration, style: const TextStyle(color: StoryJobTheme.textSecondary, fontSize: 11, fontWeight: FontWeight.w600)),
+                  Text(audioDuration,
+                      style: const TextStyle(
+                          color: StoryJobTheme.textSecondary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600)),
                 ],
               ),
             ),
@@ -485,22 +544,34 @@ class _TeamTalentCardState extends State<TeamTalentCard> {
             runSpacing: 6,
             children: [
               ...engagement.map((eng) => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                     decoration: BoxDecoration(
                       color: StoryJobTheme.mintSuccess.withValues(alpha: 0.14),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: StoryJobTheme.mintSuccess.withValues(alpha: 0.35)),
+                      border: Border.all(
+                          color:
+                              StoryJobTheme.mintSuccess.withValues(alpha: 0.35)),
                     ),
-                    child: Text(eng, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: StoryJobTheme.mintSuccess)),
+                    child: Text(eng,
+                        style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: StoryJobTheme.mintSuccess)),
                   )),
               ...values.map((val) => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                     decoration: BoxDecoration(
                       color: StoryJobTheme.cardSurfaceElevated,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: StoryJobTheme.cardBorder),
                     ),
-                    child: Text(val, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: StoryJobTheme.textSecondary)),
+                    child: Text(val,
+                        style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: StoryJobTheme.textSecondary)),
                   )),
             ],
           ),
@@ -514,18 +585,23 @@ class _TeamTalentCardState extends State<TeamTalentCard> {
                   HapticFeedback.mediumImpact();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text('Freigabe-Anfrage an das Talent gesendet ✨'),
+                      content: const Text(
+                          'Freigabe-Anfrage an das Talent gesendet ✨'),
                       backgroundColor: StoryJobTheme.cardSurfaceElevated,
                     ),
                   );
                 },
                 icon: const Icon(Icons.lock_open_rounded, size: 16),
-                label: const Text('Profil-Freigabe anfragen', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
+                label: const Text('Profil-Freigabe anfragen',
+                    style:
+                        TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: StoryJobTheme.cyanAccent.withValues(alpha: 0.18),
+                  backgroundColor:
+                      StoryJobTheme.cyanAccent.withValues(alpha: 0.18),
                   foregroundColor: StoryJobTheme.cyanAccent,
                   side: const BorderSide(color: StoryJobTheme.cyanAccent),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
                 ),
               ),
             )
@@ -548,11 +624,14 @@ class _TeamTalentCardState extends State<TeamTalentCard> {
                       );
                     },
                     icon: const Icon(Icons.forum_rounded, size: 15),
-                    label: const Text('Dialog auf Augenhöhe ✨', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                    label: const Text('Dialog auf Augenhöhe ✨',
+                        style: TextStyle(
+                            fontSize: 12, fontWeight: FontWeight.w600)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: StoryJobTheme.primaryViolet,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
                       padding: const EdgeInsets.symmetric(vertical: 10),
                     ),
                   ),
@@ -580,7 +659,8 @@ class _MiniCardArcPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
 
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), pi, pi, false, bgPaint);
+    canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius), pi, pi, false, bgPaint);
 
     final sweepGradient = const SweepGradient(
       startAngle: pi,
@@ -589,14 +669,17 @@ class _MiniCardArcPainter extends CustomPainter {
     );
 
     final activePaint = Paint()
-      ..shader = sweepGradient.createShader(Rect.fromCircle(center: center, radius: radius))
+      ..shader = sweepGradient
+          .createShader(Rect.fromCircle(center: center, radius: radius))
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), pi, pi * progress, false, activePaint);
+    canvas.drawArc(Rect.fromCircle(center: center, radius: radius), pi,
+        pi * progress, false, activePaint);
   }
 
   @override
-  bool shouldRepaint(covariant _MiniCardArcPainter oldDelegate) => oldDelegate.progress != progress;
+  bool shouldRepaint(covariant _MiniCardArcPainter oldDelegate) =>
+      oldDelegate.progress != progress;
 }
